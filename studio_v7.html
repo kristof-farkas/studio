@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Web & Mobile Development</title>
+<style>
+  :root {
+    --bg: #f0eeff;
+    --bg2: #faf9ff;
+    --violet: #5c35d4;
+    --violet-light: #7c5ce4;
+    --violet-dark: #3d1fa8;
+    --pink: #ff6b9d;
+    --pink-light: #ffb3cc;
+    --white: #ffffff;
+    --text: #1a1235;
+    --text-muted: #6b5e8a;
+    --shadow: 0 8px 32px rgba(92,53,212,0.10);
+    --shadow-lg: 0 20px 60px rgba(92,53,212,0.15);
+    --radius: 24px;
+    --radius-sm: 14px;
+    --transition: 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    width: 14px; height: 14px;
+    background: var(--violet);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: multiply;
+  }
+  #cursor-ring {
+    width: 40px; height: 40px;
+    border: 2px solid rgba(92,53,212,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+  body:hover #cursor { opacity: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 20px rgba(92,53,212,0.08);
+    padding: 0 5%;
+    height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: var(--transition);
+  }
+  .nav-logo {
+    font-size: 1.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+  .nav-links a {
+    text-decoration: none; color: var(--text-muted);
+    font-size: 0.9rem; font-weight: 500;
+    transition: color 0.2s;
+    cursor: none;
+  }
+  .nav-links a:hover { color: var(--violet); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .lang-toggle {
+    display: flex; align-items: center;
+    background: var(--bg); border-radius: 100px;
+    padding: 4px; gap: 2px;
+    border: 1.5px solid rgba(92,53,212,0.15);
+  }
+  .lang-btn {
+    padding: 5px 14px; border-radius: 100px; border: none;
+    background: transparent; color: var(--text-muted);
+    font-size: 0.8rem; font-weight: 600; cursor: none;
+    transition: all 0.25s;
+  }
+  .lang-btn.active {
+    background: var(--violet); color: white;
+  }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: white; border: none; border-radius: 100px;
+    padding: 10px 24px; font-size: 0.88rem; font-weight: 600;
+    cursor: none; transition: var(--transition);
+    box-shadow: 0 4px 16px rgba(92,53,212,0.3);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(92,53,212,0.4); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 100px 5% 80px;
+    position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .hero-orbs {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 0;
+  }
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(60px); opacity: 0.5;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .orb1 { width: 400px; height: 400px; background: radial-gradient(circle, #b8a3ff, #7c5ce4); top: -100px; left: -80px; animation-delay: 0s; }
+  .orb2 { width: 350px; height: 350px; background: radial-gradient(circle, #ffc3d9, #ff6b9d); top: 50px; right: -60px; animation-delay: -2s; }
+  .orb3 { width: 300px; height: 300px; background: radial-gradient(circle, #c8b8ff, #a084e8); bottom: 100px; left: 30%; animation-delay: -4s; }
+  .orb4 { width: 250px; height: 250px; background: radial-gradient(circle, #ffd6ea, #ffb3cc); bottom: 50px; right: 15%; animation-delay: -6s; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-20px) scale(1.05); }
+    66% { transform: translate(-20px,15px) scale(0.95); }
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 760px; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(92,53,212,0.08); border: 1.5px solid rgba(92,53,212,0.15);
+    border-radius: 100px; padding: 8px 20px;
+    font-size: 0.82rem; font-weight: 600; color: var(--violet);
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-tag-dot { width: 8px; height: 8px; background: var(--pink); border-radius: 50%; animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)} }
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; line-height: 1.15;
+    letter-spacing: -1.5px; margin-bottom: 1.4rem;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+  .hero-title span {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--text-muted); line-height: 1.7;
+    max-width: 560px; margin: 0 auto 2.4rem;
+    animation: fadeUp 0.8s 0.25s ease both;
+  }
+  .hero-badges {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    flex-wrap: wrap; margin-bottom: 3rem;
+    animation: fadeUp 0.8s 0.35s ease both;
+  }
+  .hero-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: white; border-radius: 100px; padding: 10px 18px;
+    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
+    font-size: 0.85rem; font-weight: 600; color: var(--text);
+  }
+  .hero-badge-icon { font-size: 1rem; }
+  .hero-actions {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    flex-wrap: wrap; margin-bottom: 4rem;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: white; border: none; border-radius: 100px;
+    padding: 14px 32px; font-size: 1rem; font-weight: 700;
+    cursor: none; transition: var(--transition);
+    box-shadow: 0 8px 24px rgba(92,53,212,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(92,53,212,0.45); }
+  .btn-secondary {
+    background: white; color: var(--violet);
+    border: 2px solid rgba(92,53,212,0.2); border-radius: 100px;
+    padding: 14px 32px; font-size: 1rem; font-weight: 700;
+    cursor: none; transition: var(--transition);
+  }
+  .btn-secondary:hover { background: var(--bg); border-color: var(--violet); transform: translateY(-3px); }
+
+  /* DASHBOARD CARD MOCKUP */
+  .hero-mockup {
+    position: relative; z-index: 2;
+    background: white; border-radius: 28px;
+    box-shadow: var(--shadow-lg);
+    padding: 24px; max-width: 600px; width: 100%;
+    margin: 0 auto;
+    animation: fadeUp 0.9s 0.55s ease both;
+    border: 1.5px solid rgba(92,53,212,0.08);
+  }
+  .mockup-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .mockup-title { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .mockup-dots { display: flex; gap: 6px; }
+  .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .mockup-dot:nth-child(1) { background: #ff5f57; }
+  .mockup-dot:nth-child(2) { background: #febc2e; }
+  .mockup-dot:nth-child(3) { background: #28c840; }
+  .mockup-stats { display: flex; gap: 12px; margin-bottom: 20px; }
+  .mockup-stat {
+    flex: 1; background: var(--bg); border-radius: 14px; padding: 14px;
+    text-align: center;
+  }
+  .mockup-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--violet); }
+  .mockup-stat-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .mockup-chart { display: flex; align-items: flex-end; gap: 8px; height: 70px; margin-bottom: 16px; }
+  .chart-bar {
+    flex: 1; border-radius: 6px 6px 0 0;
+    animation: barGrow 1.5s 1s ease both;
+    transform-origin: bottom;
+  }
+  @keyframes barGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .chart-bar:nth-child(1) { height: 40%; background: linear-gradient(180deg,#b8a3ff,#7c5ce4); }
+  .chart-bar:nth-child(2) { height: 65%; background: linear-gradient(180deg,#ffc3d9,#ff6b9d); }
+  .chart-bar:nth-child(3) { height: 50%; background: linear-gradient(180deg,#b8a3ff,#7c5ce4); }
+  .chart-bar:nth-child(4) { height: 80%; background: linear-gradient(180deg,#ffc3d9,#ff6b9d); }
+  .chart-bar:nth-child(5) { height: 60%; background: linear-gradient(180deg,#b8a3ff,#7c5ce4); }
+  .chart-bar:nth-child(6) { height: 90%; background: linear-gradient(180deg,#a084e8,#5c35d4); }
+  .chart-bar:nth-child(7) { height: 70%; background: linear-gradient(180deg,#ffc3d9,#ff6b9d); }
+  .mockup-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mockup-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    flex-shrink: 0;
+  }
+  .mockup-info { flex: 1; }
+  .mockup-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+  .mockup-desc { font-size: 0.7rem; color: var(--text-muted); }
+  .mockup-badge-pill {
+    background: rgba(92,53,212,0.1); color: var(--violet);
+    border-radius: 100px; padding: 4px 10px; font-size: 0.7rem; font-weight: 600;
+  }
+
+  /* SECTION COMMON */
+  section { padding: 100px 5%; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(92,53,212,0.08); border: 1.5px solid rgba(92,53,212,0.15);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: 0.78rem; font-weight: 700; color: var(--violet);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800; line-height: 1.2; letter-spacing: -0.5px;
+    margin-bottom: 1rem;
+  }
+  .section-title span {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .section-sub {
+    color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 520px;
+  }
+
+  /* SERVICES */
+  #services { background: var(--bg2); }
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .service-card {
+    border-radius: var(--radius); padding: 32px;
+    transition: var(--transition); position: relative; overflow: hidden;
+    border: 1.5px solid rgba(92,53,212,0.08);
+  }
+  .service-card:nth-child(1) { background: linear-gradient(135deg,#f5f0ff,#ede5ff); }
+  .service-card:nth-child(2) { background: linear-gradient(135deg,#fff0f6,#ffe5ef); }
+  .service-card:nth-child(3) { background: linear-gradient(135deg,#f0f5ff,#e5eeff); }
+  .service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+  .service-icon {
+    width: 54px; height: 54px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin-bottom: 1.2rem;
+  }
+  .service-card:nth-child(1) .service-icon { background: rgba(92,53,212,0.12); }
+  .service-card:nth-child(2) .service-icon { background: rgba(255,107,157,0.12); }
+  .service-card:nth-child(3) .service-icon { background: rgba(92,53,212,0.09); }
+  .service-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .service-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.2rem; }
+  .service-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .service-tag {
+    background: rgba(255,255,255,0.7); border-radius: 100px;
+    padding: 4px 12px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted);
+  }
+
+  /* STATS */
+  #stats {
+    background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+    padding: 70px 5%;
+  }
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; text-align: center; }
+  .stat-item {}
+  .stat-num {
+    font-size: 3rem; font-weight: 800; color: white;
+    line-height: 1; margin-bottom: 0.4rem;
+  }
+  .stat-label { font-size: 0.9rem; color: rgba(255,255,255,0.65); font-weight: 500; }
+
+  /* PORTFOLIO */
+  #portfolio { background: var(--bg); }
+  .portfolio-grid {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .portfolio-card {
+    border-radius: var(--radius); overflow: hidden;
+    position: relative; cursor: none;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+  }
+  .portfolio-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .portfolio-img {
+    height: 240px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .portfolio-card:nth-child(1) .portfolio-img { background: linear-gradient(135deg,#a084e8,#5c35d4); }
+  .portfolio-card:nth-child(2) .portfolio-img { background: linear-gradient(135deg,#ff6b9d,#c44569); }
+  .portfolio-card:nth-child(3) .portfolio-img { background: linear-gradient(135deg,#6c5ce7,#a29bfe); }
+  .portfolio-card:nth-child(4) .portfolio-img { background: linear-gradient(135deg,#fd79a8,#e84393); }
+  .portfolio-img-inner {
+    width: 80%; height: 70%; background: rgba(255,255,255,0.12);
+    border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+  }
+  .portfolio-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,transparent 30%,rgba(20,10,50,0.85));
+    opacity: 0; transition: var(--transition);
+    display: flex; flex-direction: column;
+    justify-content: flex-end; padding: 24px;
+    color: white;
+  }
+  .portfolio-card:hover .portfolio-overlay { opacity: 1; }
+  .portfolio-overlay-tag {
+    font-size: 0.75rem; font-weight: 600; color: var(--pink-light);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .portfolio-overlay-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+  .portfolio-overlay-desc { font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .portfolio-info {
+    background: white; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .portfolio-name { font-size: 1rem; font-weight: 700; }
+  .portfolio-category { font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; }
+  .portfolio-arrow {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); display: flex; align-items: center; justify-content: center;
+    color: var(--violet); font-size: 1rem; transition: var(--transition);
+  }
+  .portfolio-card:hover .portfolio-arrow { background: var(--violet); color: white; }
+
+  /* PROCESS */
+  #process { background: var(--bg2); }
+  .process-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; margin-top: 3.5rem; align-items: start; }
+  .process-steps { display: flex; flex-direction: column; gap: 0; }
+  .process-step {
+    display: flex; gap: 1.2rem; padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(92,53,212,0.08);
+    cursor: none; transition: var(--transition);
+  }
+  .process-step:last-child { border-bottom: none; }
+  .process-step-num {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800;
+    transition: var(--transition);
+  }
+  .process-step:nth-child(1) .process-step-num { background: rgba(92,53,212,0.1); color: var(--violet); }
+  .process-step:nth-child(2) .process-step-num { background: rgba(255,107,157,0.1); color: var(--pink); }
+  .process-step:nth-child(3) .process-step-num { background: rgba(92,53,212,0.1); color: var(--violet); }
+  .process-step:nth-child(4) .process-step-num { background: rgba(255,107,157,0.1); color: var(--pink); }
+  .process-step:hover .process-step-num {
+    box-shadow: 0 0 0 6px rgba(92,53,212,0.15);
+    transform: scale(1.1);
+  }
+  .process-step-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .process-step-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+  .process-visual {
+    background: white; border-radius: var(--radius); padding: 32px;
+    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
+    position: sticky; top: 100px;
+  }
+  .process-visual-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1.5rem; letter-spacing: 0.5px; }
+  .process-timeline { display: flex; flex-direction: column; gap: 12px; }
+  .process-tl-item { display: flex; align-items: center; gap: 12px; }
+  .process-tl-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .process-tl-bar {
+    flex: 1; height: 8px; border-radius: 100px; background: var(--bg);
+    overflow: hidden;
+  }
+  .process-tl-fill {
+    height: 100%; border-radius: 100px;
+    animation: fillBar 2s 1s ease both;
+  }
+  @keyframes fillBar { from { width: 0; } }
+  .process-tl-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; min-width: 30px; }
+
+  /* TECH STACK */
+  #tech { background: var(--bg); }
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2.5rem; }
+  .tech-pill {
+    background: white; border-radius: 100px; padding: 10px 20px;
+    font-size: 0.88rem; font-weight: 600; color: var(--text);
+    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
+    display: flex; align-items: center; gap: 8px;
+    transition: var(--transition); cursor: none;
+  }
+  .tech-pill:hover { background: var(--violet); color: white; transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .tech-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--bg2); }
+  .testimonials-slider { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .testimonial-card {
+    background: white; border-radius: var(--radius); padding: 28px;
+    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.06);
+    transition: var(--transition);
+  }
+  .testimonial-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+  .testimonial-stars { color: #f59e0b; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .testimonial-text {
+    font-size: 0.92rem; color: var(--text-muted); line-height: 1.75;
+    margin-bottom: 1.4rem; font-style: italic;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 12px; }
+  .testimonial-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .testimonial-card:nth-child(1) .testimonial-avatar { background: linear-gradient(135deg,#a084e8,#5c35d4); }
+  .testimonial-card:nth-child(2) .testimonial-avatar { background: linear-gradient(135deg,#ff6b9d,#c44569); }
+  .testimonial-card:nth-child(3) .testimonial-avatar { background: linear-gradient(135deg,#6c5ce7,#a29bfe); }
+  .testimonial-name { font-size: 0.9rem; font-weight: 700; }
+  .testimonial-role { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* CTA */
+  #cta {
+    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-dark) 40%, #8b1a6b 100%);
+    padding: 100px 5%; text-align: center; position: relative; overflow: hidden;
+  }
+  #cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .cta-label { color: var(--pink-light); font-size: 0.82rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+  .cta-title { font-size: clamp(2rem,4vw,3.2rem); font-weight: 800; color: white; letter-spacing: -1px; line-height: 1.2; margin-bottom: 1rem; }
+  .cta-sub { color: rgba(255,255,255,0.7); font-size: 1.05rem; line-height: 1.7; max-width: 480px; margin: 0 auto 3rem; }
+  .cta-form { display: flex; flex-direction: column; gap: 1rem; max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cta-input {
+    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 14px; padding: 14px 18px;
+    color: white; font-size: 0.92rem; outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+  }
+  .cta-input::placeholder { color: rgba(255,255,255,0.5); }
+  .cta-input:focus { border-color: var(--pink-light); background: rgba(255,255,255,0.18); }
+  .cta-textarea { resize: vertical; min-height: 110px; }
+  .cta-submit {
+    background: white; color: var(--violet);
+    border: none; border-radius: 100px; padding: 16px 40px;
+    font-size: 1rem; font-weight: 700; cursor: none;
+    transition: var(--transition); align-self: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .cta-submit:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,0.3); }
+
+  /* FOOTER */
+  footer {
+    background: white; padding: 60px 5% 30px;
+    border-top: 1.5px solid rgba(92,53,212,0.08);
+  }
+  .footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-logo { font-size: 1.4rem; font-weight: 800; background: linear-gradient(135deg,var(--violet),var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
+  .footer-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; max-width: 240px; }
+  .footer-col-title { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text); margin-bottom: 1rem; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-links a { text-decoration: none; color: var(--text-muted); font-size: 0.88rem; transition: color 0.2s; cursor: none; }
+  .footer-links a:hover { color: var(--violet); }
+  .footer-bottom { border-top: 1.5px solid rgba(92,53,212,0.06); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-copy { font-size: 0.82rem; color: var(--text-muted); }
+  .footer-socials { display: flex; gap: 12px; }
+  .footer-social { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: none; transition: var(--transition); }
+  .footer-social:hover { background: var(--violet); transform: translateY(-3px); }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 1024px) {
+    .services-grid, .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: 1fr; }
+    .testimonials-slider { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 640px) {
+    .services-grid, .stats-grid, .cta-row { grid-template-columns: 1fr; }
+    .hero-badges { flex-direction: column; align-items: center; }
+    .footer-top { grid-template-columns: 1fr; }
+    .mockup-stats { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Studio</div>
+  <div class="nav-links">
+    <a href="#services" data-i18n="nav_services">Szolgáltatások</a>
+    <a href="#portfolio" data-i18n="nav_portfolio">Portfólió</a>
+    <a href="#process" data-i18n="nav_process">Folyamat</a>
+    <a href="#testimonials" data-i18n="nav_testimonials">Vélemények</a>
+    <a href="#cta" data-i18n="nav_contact">Kapcsolat</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="hu">HU</button>
+      <button class="lang-btn" data-lang="ro">RO</button>
+    </div>
+    <button class="nav-cta" data-i18n="nav_cta">Ajánlatkérés</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="orb orb4"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      <span data-i18n="hero_tag">Prémium digitális ügynökség</span>
+    </div>
+    <h1 class="hero-title" data-i18n="hero_title">Digitális élmények,<br>amelyek <span>megkülönböztetnek</span></h1>
+    <p class="hero-sub" data-i18n="hero_sub">Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.</p>
+    <div class="hero-badges">
+      <div class="hero-badge"><span class="hero-badge-icon">🚀</span><span data-i18n="badge1">127+ Projekt</span></div>
+      <div class="hero-badge"><span class="hero-badge-icon">⭐</span><span data-i18n="badge2">4.9★ Értékelés</span></div>
+      <div class="hero-badge"><span class="hero-badge-icon">💎</span><span data-i18n="badge3">6 év tapasztalat</span></div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.querySelector('#cta').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta1">Projekt indítása</button>
+      <button class="btn-secondary" onclick="document.querySelector('#portfolio').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta2">Munkáink megtekintése</button>
+    </div>
+  </div>
+  <div class="hero-mockup">
+    <div class="mockup-header">
+      <div class="mockup-dots">
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+      </div>
+      <div class="mockup-title" data-i18n="mockup_title">Analytics Dashboard</div>
+      <div style="font-size:0.75rem;color:var(--text-muted)">2026</div>
+    </div>
+    <div class="mockup-stats">
+      <div class="mockup-stat"><div class="mockup-stat-val">98%</div><div class="mockup-stat-label" data-i18n="mockup_stat1">Elégedettség</div></div>
+      <div class="mockup-stat"><div class="mockup-stat-val">2.4s</div><div class="mockup-stat-label" data-i18n="mockup_stat2">Betölt. idő</div></div>
+      <div class="mockup-stat"><div class="mockup-stat-val">127</div><div class="mockup-stat-label" data-i18n="mockup_stat3">Projekt</div></div>
+      <div class="mockup-stat"><div class="mockup-stat-val">6yr</div><div class="mockup-stat-label" data-i18n="mockup_stat4">Tapasztalat</div></div>
+    </div>
+    <div class="mockup-chart">
+      <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+      <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+      <div class="chart-bar"></div>
+    </div>
+    <div class="mockup-row">
+      <div class="mockup-avatar" style="background:linear-gradient(135deg,#a084e8,#5c35d4)"></div>
+      <div class="mockup-info"><div class="mockup-name">E-Commerce Platform</div><div class="mockup-desc" data-i18n="mockup_p1">Web fejlesztés · React</div></div>
+      <div class="mockup-badge-pill" data-i18n="mockup_done">Kész ✓</div>
+    </div>
+    <div class="mockup-row">
+      <div class="mockup-avatar" style="background:linear-gradient(135deg,#ff6b9d,#c44569)"></div>
+      <div class="mockup-info"><div class="mockup-name">Mobile Banking App</div><div class="mockup-desc" data-i18n="mockup_p2">iOS · Android · Flutter</div></div>
+      <div class="mockup-badge-pill" style="background:rgba(255,107,157,0.1);color:var(--pink)" data-i18n="mockup_prog">Folyamatban</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label" data-i18n="services_label">Szolgáltatásaink</div>
+  <h2 class="section-title" data-i18n="services_title">Amit kínálunk<br><span>a sikerért</span></h2>
+  <p class="section-sub" data-i18n="services_sub">Teljes körű digitális megoldásokat nyújtunk a tervezéstől a fejlesztésig és a piaci megjelenésig.</p>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-icon">🌐</div>
+      <div class="service-name" data-i18n="s1_name">Webfejlesztés</div>
+      <div class="service-desc" data-i18n="s1_desc">Modern, gyors és reszponzív weboldalak és webalkalmazások fejlesztése a legújabb technológiákkal. SEO-optimalizált, konverzióra tervezett megoldások.</div>
+      <div class="service-tags">
+        <span class="service-tag">React</span><span class="service-tag">Next.js</span><span class="service-tag">TypeScript</span><span class="service-tag">Node.js</span>
+      </div>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.1s">
+      <div class="service-icon">📱</div>
+      <div class="service-name" data-i18n="s2_name">Mobilfejlesztés</div>
+      <div class="service-desc" data-i18n="s2_desc">Natív élményt nyújtó cross-platform mobilalkalmazások iOS-re és Androidra. Flutter és React Native alapú megoldások üzleti igényekre.</div>
+      <div class="service-tags">
+        <span class="service-tag">Flutter</span><span class="service-tag">React Native</span><span class="service-tag">iOS</span><span class="service-tag">Android</span>
+      </div>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.2s">
+      <div class="service-icon">🎨</div>
+      <div class="service-name" data-i18n="s3_name">UI/UX Design</div>
+      <div class="service-desc" data-i18n="s3_desc">Felhasználóközpontú tervezés, amely ötvözi az esztétikát a funkcionalitással. Prototípusoktól a teljes design rendszerekig.</div>
+      <div class="service-tags">
+        <span class="service-tag">Figma</span><span class="service-tag">Design System</span><span class="service-tag">Prototyping</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="127">0</div>
+      <div class="stat-label" data-i18n="stat1">Befejezett projekt</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.1s">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-label" data-i18n="stat2">Elégedett ügyfél (%)</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.2s">
+      <div class="stat-num" data-count="6">0</div>
+      <div class="stat-label" data-i18n="stat3">Év tapasztalat</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.3s">
+      <div class="stat-num" data-count="24">0</div>
+      <div class="stat-label" data-i18n="stat4">Aktív ügyfél</div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-label" data-i18n="portfolio_label">Portfólió</div>
+  <h2 class="section-title" data-i18n="portfolio_title">Büszkeségeink:<br><span>legújabb munkáink</span></h2>
+  <p class="section-sub" data-i18n="portfolio_sub">Minden projekt egy egyedi kihívás volt, amelyet kreatívan és szakszerűen oldottunk meg.</p>
+  <div class="portfolio-grid">
+    <div class="portfolio-card reveal">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">🛒</div>
+        <div class="portfolio-overlay">
+          <div class="portfolio-overlay-tag" data-i18n="port_tag_web">Web Platform</div>
+          <div class="portfolio-overlay-name" data-i18n="port1_name">LuxShop E-Commerce</div>
+          <div class="portfolio-overlay-desc" data-i18n="port1_desc">Teljes e-kereskedelmi platform Next.js és Stripe integrációval, 340% konverzió növekedéssel.</div>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <div><div class="portfolio-name" data-i18n="port1_name">LuxShop E-Commerce</div><div class="portfolio-category">React · Next.js · Stripe</div></div>
+        <div class="portfolio-arrow">→</div>
+      </div>
+    </div>
+    <div class="portfolio-card reveal" style="transition-delay:0.1s">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">🏦</div>
+        <div class="portfolio-overlay">
+          <div class="portfolio-overlay-tag" data-i18n="port_tag_mobile">Mobile App</div>
+          <div class="portfolio-overlay-name" data-i18n="port2_name">FinanceAI Mobile</div>
+          <div class="portfolio-overlay-desc" data-i18n="port2_desc">AI-alapú pénzügyi tervező alkalmazás 50,000+ letöltéssel az első hónapban.</div>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <div><div class="portfolio-name" data-i18n="port2_name">FinanceAI Mobile</div><div class="portfolio-category">Flutter · Firebase · AI</div></div>
+        <div class="portfolio-arrow">→</div>
+      </div>
+    </div>
+    <div class="portfolio-card reveal" style="transition-delay:0.2s">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">🏥</div>
+        <div class="portfolio-overlay">
+          <div class="portfolio-overlay-tag" data-i18n="port_tag_saas">SaaS Platform</div>
+          <div class="portfolio-overlay-name" data-i18n="port3_name">MedConnect SaaS</div>
+          <div class="portfolio-overlay-desc" data-i18n="port3_desc">Orvosi időpontfoglalási platform 200+ klinikának, HIPAA megfelelőséggel.</div>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <div><div class="portfolio-name" data-i18n="port3_name">MedConnect SaaS</div><div class="portfolio-category">React · PostgreSQL · AWS</div></div>
+        <div class="portfolio-arrow">→</div>
+      </div>
+    </div>
+    <div class="portfolio-card reveal" style="transition-delay:0.3s">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">🎓</div>
+        <div class="portfolio-overlay">
+          <div class="portfolio-overlay-tag" data-i18n="port_tag_edu">EdTech</div>
+          <div class="portfolio-overlay-name" data-i18n="port4_name">LearnPro Platform</div>
+          <div class="portfolio-overlay-desc" data-i18n="port4_desc">Online tanulási platform gamification elemekkel és AI-alapú személyre szabással.</div>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <div><div class="portfolio-name" data-i18n="port4_name">LearnPro Platform</div><div class="portfolio-category">Vue.js · Python · ML</div></div>
+        <div class="portfolio-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-label" data-i18n="process_label">Munkamódszerünk</div>
+  <h2 class="section-title" data-i18n="process_title">Hogyan dolgozunk<br><span>együtt</span></h2>
+  <div class="process-grid">
+    <div class="process-steps">
+      <div class="process-step reveal">
+        <div class="process-step-num">01</div>
+        <div>
+          <div class="process-step-title" data-i18n="proc1_title">Felfedezés & Tervezés</div>
+          <div class="process-step-desc" data-i18n="proc1_desc">Megismerjük vállalkozásodat, céljaidat és célközönségedet. Részletes projekt tervet és technológiai javaslatot készítünk.</div>
+        </div>
+      </div>
+      <div class="process-step reveal" style="transition-delay:0.1s">
+        <div class="process-step-num">02</div>
+        <div>
+          <div class="process-step-title" data-i18n="proc2_title">UI/UX Design</div>
+          <div class="process-step-desc" data-i18n="proc2_desc">Wireframe-ektől a végleges designig. Figma prototípusokat készítünk, amelyeket közösen finomítunk.</div>
+        </div>
+      </div>
+      <div class="process-step reveal" style="transition-delay:0.2s">
+        <div class="process-step-num">03</div>
+        <div>
+          <div class="process-step-title" data-i18n="proc3_title">Fejlesztés & Tesztelés</div>
+          <div class="process-step-desc" data-i18n="proc3_desc">Agilis sprint-alapú fejlesztés, kéthetes iterációkkal. Folyamatos tesztelés és minőségbiztosítás.</div>
+        </div>
+      </div>
+      <div class="process-step reveal" style="transition-delay:0.3s">
+        <div class="process-step-num">04</div>
+        <div>
+          <div class="process-step-title" data-i18n="proc4_title">Indítás & Támogatás</div>
+          <div class="process-step-desc" data-i18n="proc4_desc">Zökkenőmentes élesítés, teljes körű dokumentáció és hosszú távú technikai támogatás.</div>
+        </div>
+      </div>
+    </div>
+    <div class="process-visual reveal" style="transition-delay:0.2s">
+      <div class="process-visual-title" data-i18n="proc_timeline">PROJEKT IDŐVONAL</div>
+      <div class="process-timeline">
+        <div class="process-tl-item">
+          <div class="process-tl-dot" style="background:var(--violet)"></div>
+          <div class="process-tl-bar"><div class="process-tl-fill" style="width:100%;background:linear-gradient(90deg,var(--violet),var(--violet-light))"></div></div>
+          <div class="process-tl-label" data-i18n="tl1">Hét 1-2</div>
+        </div>
+        <div class="process-tl-item">
+          <div class="process-tl-dot" style="background:var(--pink)"></div>
+          <div class="process-tl-bar"><div class="process-tl-fill" style="width:80%;background:linear-gradient(90deg,var(--pink),#ff99bb)"></div></div>
+          <div class="process-tl-label" data-i18n="tl2">Hét 3-5</div>
+        </div>
+        <div class="process-tl-item">
+          <div class="process-tl-dot" style="background:#a084e8"></div>
+          <div class="process-tl-bar"><div class="process-tl-fill" style="width:60%;background:linear-gradient(90deg,#a084e8,#c3b0ff)"></div></div>
+          <div class="process-tl-label" data-i18n="tl3">Hét 6-10</div>
+        </div>
+        <div class="process-tl-item">
+          <div class="process-tl-dot" style="background:#ff6b9d"></div>
+          <div class="process-tl-bar"><div class="process-tl-fill" style="width:40%;background:linear-gradient(90deg,#ff6b9d,#ffa0c5)"></div></div>
+          <div class="process-tl-label" data-i18n="tl4">Hét 11+</div>
+        </div>
+      </div>
+      <div style="margin-top:2rem;background:var(--bg);border-radius:14px;padding:16px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-bottom:12px" data-i18n="proc_tech_used">HASZNÁLT TECHNOLÓGIÁK</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">React</span>
+          <span style="background:rgba(255,107,157,0.1);color:var(--pink);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Flutter</span>
+          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Node.js</span>
+          <span style="background:rgba(255,107,157,0.1);color:var(--pink);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Figma</span>
+          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">AWS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="section-label" data-i18n="tech_label">Tech Stack</div>
+  <h2 class="section-title" data-i18n="tech_title">Technológiák,<br><span>amikre esküszünk</span></h2>
+  <div class="tech-grid">
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#61dafb"></div>React</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#000000"></div>Next.js</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#3178c6"></div>TypeScript</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#02569b"></div>Flutter</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#68a063"></div>Node.js</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#4169e1"></div>PostgreSQL</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff9900"></div>AWS</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff4154"></div>React Native</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#f05032"></div>Git</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#2496ed"></div>Docker</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#764abc"></div>Redux</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#38bdf8"></div>Tailwind CSS</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#e34f26"></div>GraphQL</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#f7df1e"></div>JavaScript</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff2d20"></div>Firebase</div>
+    <div class="tech-pill"><div class="tech-pill-dot" style="background:#a259ff"></div>Figma</div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-label" data-i18n="test_label">Ügyfeleink mondják</div>
+  <h2 class="section-title" data-i18n="test_title">Amit <span>partnereink</span><br>mondanak rólunk</h2>
+  <div class="testimonials-slider">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test1_text">"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👔</div>
+        <div><div class="testimonial-name">Kovács András</div><div class="testimonial-role" data-i18n="test1_role">CEO, TechStart Hungary</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.1s">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test2_text">"Mobilalkalmazásunk fejlesztése zökkenőmentesen zajlott. Az applikáció az első héten felkerült az App Store Top 10 listájára. Hihetetlen eredmény!"</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👩‍💼</div>
+        <div><div class="testimonial-name">Maria Popescu</div><div class="testimonial-role" data-i18n="test2_role">Founder, FinTech Cluj</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.2s">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test3_text">"Professzionális csapat, határidőre szállítanak, és valóban törődnek az ügyfelek sikerével. Negyedik projektünket is rájuk bízzuk már."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👨‍💻</div>
+        <div><div class="testimonial-name">Stefan Ionescu</div><div class="testimonial-role" data-i18n="test3_role">CTO, RomaTech Solutions</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-label" data-i18n="cta_label">Kezdjük el</div>
+  <div class="cta-title" data-i18n="cta_title">Készen állsz a<br>következő szintre?</div>
+  <div class="cta-sub" data-i18n="cta_sub">Vedd fel velünk a kapcsolatot, és 48 órán belül visszajelzünk egy részletes ajánlattal.</div>
+  <form class="cta-form" onsubmit="handleSubmit(event)">
+    <div class="cta-row">
+      <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_name" data-i18n-key="form_name">
+      <input class="cta-input" type="email" placeholder="" data-i18n-placeholder="form_email" data-i18n-key="form_email">
+    </div>
+    <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_company" data-i18n-key="form_company">
+    <textarea class="cta-input cta-textarea" placeholder="" data-i18n-placeholder="form_message" data-i18n-key="form_message"></textarea>
+    <button type="submit" class="cta-submit" data-i18n="form_submit">Üzenet küldése →</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">Studio</div>
+      <div class="footer-desc" data-i18n="footer_desc">Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.</div>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_services">Szolgáltatások</div>
+      <ul class="footer-links">
+        <li><a href="#" data-i18n="footer_s1">Webfejlesztés</a></li>
+        <li><a href="#" data-i18n="footer_s2">Mobilfejlesztés</a></li>
+        <li><a href="#" data-i18n="footer_s3">UI/UX Design</a></li>
+        <li><a href="#" data-i18n="footer_s4">SEO & Marketing</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_company">Cégünk</div>
+      <ul class="footer-links">
+        <li><a href="#" data-i18n="footer_c1">Rólunk</a></li>
+        <li><a href="#" data-i18n="footer_c2">Csapat</a></li>
+        <li><a href="#" data-i18n="footer_c3">Karrier</a></li>
+        <li><a href="#" data-i18n="footer_c4">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_contact">Kapcsolat</div>
+      <ul class="footer-links">
+        <li><a href="mailto:hello@studio.dev">hello@studio.dev</a></li>
+        <li><a href="#">+36 30 123 4567</a></li>
+        <li><a href="#" data-i18n="footer_address">Budapest, Magyarország</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy" data-i18n="footer_copy">© 2026 Studio. Minden jog fenntartva.</div>
+    <div class="footer-socials">
+      <div class="footer-social">in</div>
+      <div class="footer-social">𝕏</div>
+      <div class="footer-social">▶</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+const i18n = {
+  hu: {
+    nav_services: 'Szolgáltatások', nav_portfolio: 'Portfólió', nav_process: 'Folyamat',
+    nav_testimonials: 'Vélemények', nav_contact: 'Kapcsolat', nav_cta: 'Ajánlatkérés',
+    hero_tag: 'Prémium digitális ügynökség',
+    hero_title: 'Digitális élmények,<br>amelyek <span>megkülönböztetnek</span>',
+    hero_sub: 'Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.',
+    badge1: '127+ Projekt', badge2: '4.9★ Értékelés', badge3: '6 év tapasztalat',
+    hero_cta1: 'Projekt indítása', hero_cta2: 'Munkáink megtekintése',
+    mockup_title: 'Analytics Dashboard', mockup_stat1: 'Elégedettség', mockup_stat2: 'Betölt. idő',
+    mockup_stat3: 'Projekt', mockup_stat4: 'Tapasztalat',
+    mockup_p1: 'Web fejlesztés · React', mockup_p2: 'iOS · Android · Flutter',
+    mockup_done: 'Kész ✓', mockup_prog: 'Folyamatban',
+    services_label: 'Szolgáltatásaink',
+    services_title: 'Amit kínálunk<br><span>a sikerért</span>',
+    services_sub: 'Teljes körű digitális megoldásokat nyújtunk a tervezéstől a fejlesztésig és a piaci megjelenésig.',
+    s1_name: 'Webfejlesztés', s1_desc: 'Modern, gyors és reszponzív weboldalak és webalkalmazások fejlesztése a legújabb technológiákkal. SEO-optimalizált, konverzióra tervezett megoldások.',
+    s2_name: 'Mobilfejlesztés', s2_desc: 'Natív élményt nyújtó cross-platform mobilalkalmazások iOS-re és Androidra. Flutter és React Native alapú megoldások üzleti igényekre.',
+    s3_name: 'UI/UX Design', s3_desc: 'Felhasználóközpontú tervezés, amely ötvözi az esztétikát a funkcionalitással. Prototípusoktól a teljes design rendszerekig.',
+    stat1: 'Befejezett projekt', stat2: 'Elégedett ügyfél (%)', stat3: 'Év tapasztalat', stat4: 'Aktív ügyfél',
+    portfolio_label: 'Portfólió',
+    portfolio_title: 'Büszkeségeink:<br><span>legújabb munkáink</span>',
+    portfolio_sub: 'Minden projekt egy egyedi kihívás volt, amelyet kreatívan és szakszerűen oldottunk meg.',
+    port_tag_web: 'Web Platform', port_tag_mobile: 'Mobile App', port_tag_saas: 'SaaS Platform', port_tag_edu: 'EdTech',
+    port1_name: 'LuxShop E-Commerce', port1_desc: 'Teljes e-kereskedelmi platform Next.js és Stripe integrációval, 340% konverzió növekedéssel.',
+    port2_name: 'FinanceAI Mobile', port2_desc: 'AI-alapú pénzügyi tervező alkalmazás 50,000+ letöltéssel az első hónapban.',
+    port3_name: 'MedConnect SaaS', port3_desc: 'Orvosi időpontfoglalási platform 200+ klinikának, HIPAA megfelelőséggel.',
+    port4_name: 'LearnPro Platform', port4_desc: 'Online tanulási platform gamification elemekkel és AI-alapú személyre szabással.',
+    process_label: 'Munkamódszerünk',
+    process_title: 'Hogyan dolgozunk<br><span>együtt</span>',
+    proc1_title: 'Felfedezés & Tervezés', proc1_desc: 'Megismerjük vállalkozásodat, céljaidat és célközönségedet. Részletes projekt tervet és technológiai javaslatot készítünk.',
+    proc2_title: 'UI/UX Design', proc2_desc: 'Wireframe-ektől a végleges designig. Figma prototípusokat készítünk, amelyeket közösen finomítunk.',
+    proc3_title: 'Fejlesztés & Tesztelés', proc3_desc: 'Agilis sprint-alapú fejlesztés, kéthetes iterációkkal. Folyamatos tesztelés és minőségbiztosítás.',
+    proc4_title: 'Indítás & Támogatás', proc4_desc: 'Zökkenőmentes élesítés, teljes körű dokumentáció és hosszú távú technikai támogatás.',
+    proc_timeline: 'PROJEKT IDŐVONAL',
+    proc_tech_used: 'HASZNÁLT TECHNOLÓGIÁK',
+    tl1: 'Hét 1-2', tl2: 'Hét 3-5', tl3: 'Hét 6-10', tl4: 'Hét 11+',
+    tech_label: 'Tech Stack', tech_title: 'Technológiák,<br><span>amikre esküszünk</span>',
+    test_label: 'Ügyfeleink mondják',
+    test_title: 'Amit <span>partnereink</span><br>mondanak rólunk',
+    test1_text: '"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."',
+    test1_role: 'CEO, TechStart Hungary',
+    test2_text: '"Mobilalkalmazásunk fejlesztése zökkenőmentesen zajlott. Az applikáció az első héten felkerült az App Store Top 10 listájára. Hihetetlen eredmény!"',
+    test2_role: 'Founder, FinTech Cluj',
+    test3_text: '"Professzionális csapat, határidőre szállítanak, és valóban törődnek az ügyfelek sikerével. Negyedik projektünket is rájuk bízzuk már."',
+    test3_role: 'CTO, RomaTech Solutions',
+    cta_label: 'Kezdjük el', cta_title: 'Készen állsz a<br>következő szintre?',
+    cta_sub: 'Vedd fel velünk a kapcsolatot, és 48 órán belül visszajelzünk egy részletes ajánlattal.',
+    form_name: 'Neved', form_email: 'Email címed', form_company: 'Cégnév (opcionális)', form_message: 'Projekt leírása...', form_submit: 'Üzenet küldése →',
+    footer_desc: 'Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.',
+    footer_services: 'Szolgáltatások', footer_s1: 'Webfejlesztés', footer_s2: 'Mobilfejlesztés', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
+    footer_company: 'Cégünk', footer_c1: 'Rólunk', footer_c2: 'Csapat', footer_c3: 'Karrier', footer_c4: 'Blog',
+    footer_contact: 'Kapcsolat', footer_address: 'Budapest, Magyarország',
+    footer_copy: '© 2026 Studio. Minden jog fenntartva.'
+  },
+  ro: {
+    nav_services: 'Servicii', nav_portfolio: 'Portofoliu', nav_process: 'Proces',
+    nav_testimonials: 'Recenzii', nav_contact: 'Contact', nav_cta: 'Solicită ofertă',
+    hero_tag: 'Agenție digitală premium',
+    hero_title: 'Experiențe digitale<br>care te <span>diferențiază</span>',
+    hero_sub: 'Dezvoltăm aplicații web și mobile care nu sunt doar frumoase, ci aduc rezultate reale afacerii tale.',
+    badge1: '127+ Proiecte', badge2: '4.9★ Rating', badge3: '6 ani experiență',
+    hero_cta1: 'Lansează proiectul', hero_cta2: 'Vezi lucrările noastre',
+    mockup_title: 'Analytics Dashboard', mockup_stat1: 'Satisfacție', mockup_stat2: 'Timp încărcare',
+    mockup_stat3: 'Proiecte', mockup_stat4: 'Experiență',
+    mockup_p1: 'Dezvoltare web · React', mockup_p2: 'iOS · Android · Flutter',
+    mockup_done: 'Finalizat ✓', mockup_prog: 'În progres',
+    services_label: 'Serviciile noastre',
+    services_title: 'Ce oferim<br><span>pentru succes</span>',
+    services_sub: 'Soluții digitale complete de la design până la dezvoltare și lansare pe piață.',
+    s1_name: 'Dezvoltare Web', s1_desc: 'Website-uri și aplicații web moderne, rapide și responsive, dezvoltate cu cele mai noi tehnologii. Soluții optimizate SEO, concepute pentru conversii.',
+    s2_name: 'Dezvoltare Mobilă', s2_desc: 'Aplicații mobile cross-platform cu experiență nativă pentru iOS și Android. Soluții bazate pe Flutter și React Native pentru nevoi de afaceri.',
+    s3_name: 'UI/UX Design', s3_desc: 'Design centrat pe utilizator care îmbină estetica cu funcționalitatea. De la prototipuri la sisteme complete de design.',
+    stat1: 'Proiecte finalizate', stat2: 'Clienți mulțumiți (%)', stat3: 'Ani experiență', stat4: 'Clienți activi',
+    portfolio_label: 'Portofoliu',
+    portfolio_title: 'Mândria noastră:<br><span>lucrările recente</span>',
+    portfolio_sub: 'Fiecare proiect a fost o provocare unică pe care am rezolvat-o creativ și profesional.',
+    port_tag_web: 'Platformă Web', port_tag_mobile: 'Aplicație Mobilă', port_tag_saas: 'Platformă SaaS', port_tag_edu: 'EdTech',
+    port1_name: 'LuxShop E-Commerce', port1_desc: 'Platformă completă de e-commerce cu Next.js și integrare Stripe, cu o creștere a conversiei de 340%.',
+    port2_name: 'FinanceAI Mobile', port2_desc: 'Aplicație de planificare financiară bazată pe AI cu 50.000+ descărcări în prima lună.',
+    port3_name: 'MedConnect SaaS', port3_desc: 'Platformă de programări medicale pentru 200+ clinici, cu conformitate HIPAA.',
+    port4_name: 'LearnPro Platform', port4_desc: 'Platformă de învățare online cu elemente de gamification și personalizare bazată pe AI.',
+    process_label: 'Cum lucrăm',
+    process_title: 'Cum colaborăm<br><span>împreună</span>',
+    proc1_title: 'Descoperire & Planificare', proc1_desc: 'Îți înțelegem afacerea, obiectivele și publicul țintă. Elaborăm un plan detaliat de proiect și propuneri tehnologice.',
+    proc2_title: 'UI/UX Design', proc2_desc: 'De la wireframe-uri la design final. Creăm prototipuri Figma pe care le rafinăm împreună.',
+    proc3_title: 'Dezvoltare & Testare', proc3_desc: 'Dezvoltare agilă bazată pe sprint-uri, cu iterații de două săptămâni. Testare continuă și asigurarea calității.',
+    proc4_title: 'Lansare & Suport', proc4_desc: 'Lansare fără probleme, documentație completă și suport tehnic pe termen lung.',
+    proc_timeline: 'CRONOLOGIE PROIECT',
+    proc_tech_used: 'TEHNOLOGII UTILIZATE',
+    tl1: 'Săpt. 1-2', tl2: 'Săpt. 3-5', tl3: 'Săpt. 6-10', tl4: 'Săpt. 11+',
+    tech_label: 'Tech Stack', tech_title: 'Tehnologii pe<br><span>care le stăpânim</span>',
+    test_label: 'Ce spun clienții',
+    test_title: 'Ce spun <span>partenerii</span><br>despre noi',
+    test1_text: '"Echipa Studio a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat după reproiectare. Profesionalismul și creativitatea lor sunt impresionante."',
+    test1_role: 'CEO, TechStart Hungary',
+    test2_text: '"Dezvoltarea aplicației noastre mobile a decurs fără probleme. Aplicația a ajuns în Top 10 App Store în prima săptămână. Rezultat incredibil!"',
+    test2_role: 'Fondator, FinTech Cluj',
+    test3_text: '"Echipă profesionistă, livrează la timp și chiar le pasă de succesul clienților. Le încredințăm deja al patrulea proiect."',
+    test3_role: 'CTO, RomaTech Solutions',
+    cta_label: 'Să începem', cta_title: 'Ești pregătit pentru<br>următorul nivel?',
+    cta_sub: 'Contactează-ne și vom răspunde în 48 de ore cu o ofertă detaliată.',
+    form_name: 'Numele tău', form_email: 'Adresa ta de email', form_company: 'Companie (opțional)', form_message: 'Descrierea proiectului...', form_submit: 'Trimite mesaj →',
+    footer_desc: 'Agenție premium de dezvoltare web și mobilă care creează succese digitale cu tehnologii inovatoare.',
+    footer_services: 'Servicii', footer_s1: 'Dezvoltare Web', footer_s2: 'Dezvoltare Mobilă', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
+    footer_company: 'Compania', footer_c1: 'Despre noi', footer_c2: 'Echipă', footer_c3: 'Cariere', footer_c4: 'Blog',
+    footer_contact: 'Contact', footer_address: 'Cluj-Napoca, România',
+    footer_copy: '© 2026 Studio. Toate drepturile rezervate.'
+  }
+};
+
+let currentLang = 'hu';
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.getAttribute('data-lang')));
+});
+
+// ─── CUSTOM CURSOR ───────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.12;
+  ringY += (mouseY - ringY) * 0.12;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .portfolio-card, .service-card, .tech-pill').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '20px'; cursor.style.height = '20px';
+    cursorRing.style.width = '56px'; cursorRing.style.height = '56px';
+    cursorRing.style.borderColor = 'rgba(92,53,212,0.6)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '14px'; cursor.style.height = '14px';
+    cursorRing.style.width = '40px'; cursorRing.style.height = '40px';
+    cursorRing.style.borderColor = 'rgba(92,53,212,0.4)';
+  });
+});
+
+// ─── SCROLL REVEAL ───────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ─── COUNT UP ANIMATION ──────────────────────────────────────────────────────
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseInt(el.getAttribute('data-count'));
+        let current = 0;
+        const increment = target / 60;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) { current = target; clearInterval(timer); }
+          el.textContent = Math.round(current) + (target === 98 ? '%' : '+');
+        }, 25);
+      });
+      countObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+const statsSection = document.getElementById('stats');
+if (statsSection) countObserver.observe(statsSection);
+
+// ─── NAV SCROLL ──────────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    nav.style.boxShadow = '0 4px 30px rgba(92,53,212,0.12)';
+  } else {
+    nav.style.boxShadow = '0 2px 20px rgba(92,53,212,0.08)';
+  }
+});
+
+// ─── FORM SUBMIT ─────────────────────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.cta-submit');
+  btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : 'Trimis! ✓';
+  btn.style.background = '#28c840';
+  btn.style.color = 'white';
+  setTimeout(() => {
+    btn.textContent = i18n[currentLang]['form_submit'];
+    btn.style.background = 'white';
+    btn.style.color = 'var(--violet)';
+  }, 3000);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+applyLang('hu');
+</script>
+</body>
+</html>

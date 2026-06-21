@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Bold Red & Black</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #ff2d20;
+    --red-dark: #cc1f14;
+    --bg: #0a0a0a;
+    --card-bg: #111111;
+    --card-bg2: #161616;
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.55);
+    --border: rgba(255,255,255,0.08);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(20px,5vw,60px);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-size: clamp(20px,2.5vw,26px);
+    font-weight: 900;
+    color: var(--red);
+    letter-spacing: -1px;
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: clamp(16px,2.5vw,32px);
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .nav-cta {
+    background: var(--red);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+  .nav-cta:hover { background: var(--red-dark); transform: translateY(-1px); }
+  .lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: var(--text-muted);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 44px;
+    min-width: 44px;
+    white-space: nowrap;
+  }
+  .lang-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--red);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #0a0a0a;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px clamp(24px,8vw,60px);
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+  .mobile-menu.open { opacity: 1; pointer-events: all; }
+  .mobile-menu-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 30px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: color 0.3s;
+  }
+  .mobile-menu-close:hover { color: var(--red); }
+  .mobile-menu a {
+    font-size: clamp(32px,7vw,52px);
+    font-weight: 900;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -1.5px;
+    line-height: 1.2;
+    transition: color 0.3s;
+    display: block;
+    padding: 6px 0;
+    min-height: 44px;
+  }
+  .mobile-menu a:hover { color: var(--red); }
+  .mobile-menu-bottom {
+    position: absolute;
+    bottom: 40px;
+    left: clamp(24px,8vw,60px);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .mobile-lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: var(--text-muted);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px;
+    transition: all 0.3s;
+  }
+  .mobile-lang-btn:hover { border-color: var(--red); color: var(--red); }
+  .mobile-cta-link {
+    background: var(--red) !important;
+    color: var(--text) !important;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* SECTIONS */
+  section { position: relative; }
+  .section-pad {
+    padding: clamp(60px,10vw,120px) clamp(20px,5vw,80px);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: clamp(10px,1.2vw,12px);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: clamp(30px,5.5vw,60px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: clamp(14px,1.5vw,17px);
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 80px clamp(20px,5vw,80px) clamp(60px,8vw,80px);
+    gap: clamp(40px,5vw,80px);
+    overflow: hidden;
+  }
+  .hero-left {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,45,32,0.1);
+    border: 1px solid rgba(255,45,32,0.25);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: clamp(11px,1.2vw,13px);
+    color: var(--red);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards 0.2s;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .hero-title-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    line-height: 0.95;
+    margin-bottom: 32px;
+  }
+  .hero-word {
+    font-size: clamp(52px,10vw,130px);
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 0.95;
+    opacity: 0;
+    animation: slideInLeft 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .hw-1 { animation-delay: 0.4s; color: var(--text); }
+  .hw-2 { animation-delay: 0.55s; color: var(--text); }
+  .hw-3 { animation-delay: 0.7s; color: var(--red); }
+  .hw-4 { animation-delay: 0.85s; color: var(--text); }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .hero-desc {
+    font-size: clamp(14px,1.6vw,18px);
+    color: var(--text-muted);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards 1.05s;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards 1.15s;
+  }
+  .btn-red {
+    background: var(--red);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 16px 36px;
+    font-size: clamp(14px,1.5vw,16px);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    min-height: 52px;
+  }
+  .btn-red:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,45,32,0.4); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 16px 36px;
+    font-size: clamp(14px,1.5vw,16px);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s;
+    min-height: 52px;
+  }
+  .btn-outline:hover { border-color: var(--red); color: var(--red); }
+  .hero-stats-row {
+    display: flex;
+    gap: clamp(24px,4vw,48px);
+    margin-top: 48px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards 1.3s;
+  }
+  .hero-stat-item { min-width: 80px; }
+  .hero-stat-num {
+    font-size: clamp(24px,3.5vw,38px);
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+  }
+  .hero-stat-num span { color: var(--red); }
+  .hero-stat-lbl {
+    font-size: clamp(11px,1.2vw,13px);
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .hero-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.1);
+    align-self: stretch;
+  }
+
+  /* PHONE MOCKUP */
+  .hero-right {
+    flex: 0 0 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    opacity: 0;
+    animation: slideInLeft 0.9s cubic-bezier(0.22,1,0.36,1) forwards 0.6s;
+  }
+  .phone-mockup {
+    width: 200px;
+    height: 400px;
+    background: #111;
+    border-radius: 36px;
+    border: 2px solid #222;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+    overflow: hidden;
+    transform: rotate(-5deg);
+    animation: phoneFloat 5s ease-in-out infinite 2s;
+  }
+  @keyframes phoneFloat {
+    0%,100% { transform: rotate(-5deg) translateY(0); }
+    50% { transform: rotate(-5deg) translateY(-16px); }
+  }
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 28px;
+    background: #0a0a0a;
+    border-radius: 0 0 20px 20px;
+    z-index: 10;
+  }
+  .phone-screen {
+    position: absolute;
+    inset: 0;
+    background: #0d0d0d;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 16px 20px;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .phone-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+  }
+  .phone-bar.red { background: var(--red); width: 60%; }
+  .phone-bar.short { width: 40%; }
+  .phone-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 12px;
+    border-left: 3px solid var(--red);
+  }
+  .phone-card-dot { width: 20px; height: 4px; background: var(--red); border-radius: 2px; margin-bottom: 6px; }
+  .phone-card-line { height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 4px; }
+  .phone-card-line.short { width: 60%; }
+  .phone-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 60px;
+    margin-top: 8px;
+  }
+  .phone-chart-bar {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .phone-chart-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--red);
+    border-radius: 3px 3px 0 0;
+    animation: chartGrow 2s ease forwards;
+    animation-delay: 1.5s;
+  }
+  .cb1::after { height: 40%; }
+  .cb2::after { height: 60%; }
+  .cb3::after { height: 80%; animation-delay: 1.7s; }
+  .cb4::after { height: 55%; animation-delay: 1.6s; }
+  .cb5::after { height: 95%; animation-delay: 1.9s; }
+  @keyframes chartGrow { from { height: 0; } }
+  .phone-glow {
+    position: absolute;
+    width: 200px; height: 200px;
+    background: var(--red);
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: phoneFloat 5s ease-in-out infinite 2.5s;
+  }
+  .phone-ring {
+    position: absolute;
+    width: 280px; height: 280px;
+    border: 1px solid rgba(255,45,32,0.15);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: phoneFloat 5s ease-in-out infinite 3s;
+  }
+  .phone-ring-2 {
+    position: absolute;
+    width: 340px; height: 340px;
+    border: 1px solid rgba(255,45,32,0.08);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* SERVICES */
+  #services { background: #0d0d0d; }
+  .services-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .svc-card {
+    background: var(--card-bg);
+    padding: clamp(28px,4vw,48px);
+    position: relative;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+    overflow: hidden;
+  }
+  .svc-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,45,32,0.04);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .svc-card:hover {
+    border-left-color: var(--red);
+    background: #141414;
+  }
+  .svc-card:hover::before { opacity: 1; }
+  .svc-num {
+    font-size: clamp(36px,6vw,72px);
+    font-weight: 900;
+    color: rgba(255,45,32,0.15);
+    line-height: 1;
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .svc-card:hover .svc-num { color: rgba(255,45,32,0.35); }
+  .svc-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+  .svc-title {
+    font-size: clamp(17px,2vw,22px);
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .svc-desc {
+    font-size: clamp(13px,1.3vw,15px);
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .svc-arrow {
+    position: absolute;
+    top: clamp(20px,3vw,32px);
+    right: clamp(20px,3vw,32px);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  .svc-card:hover .svc-arrow { background: var(--red); border-color: var(--red); color: white; }
+
+  /* STATS STRIP */
+  #stats {
+    background: var(--red);
+    padding: clamp(40px,6vw,70px) clamp(20px,5vw,80px);
+  }
+  .stats-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    text-align: center;
+  }
+  .stat-item {
+    padding: clamp(16px,2vw,24px);
+    border-right: 1px solid rgba(255,255,255,0.2);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num-big {
+    font-size: clamp(36px,6vw,72px);
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .stat-suffix { color: rgba(255,255,255,0.8); }
+  .stat-desc {
+    font-size: clamp(12px,1.3vw,14px);
+    color: rgba(255,255,255,0.75);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* PORTFOLIO */
+  #portfolio { background: #0a0a0a; }
+  .portfolio-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .port-card {
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: all 0.4s;
+    cursor: pointer;
+  }
+  .port-card:hover { border-color: rgba(255,45,32,0.4); transform: translateY(-4px); }
+  .port-art {
+    height: clamp(180px,25vw,240px);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pa-1 { background: linear-gradient(135deg, #1a0a0a 0%, #3d0f0a 100%); }
+  .pa-2 { background: linear-gradient(135deg, #0a0f1a 0%, #0a2040 100%); }
+  .pa-3 { background: linear-gradient(135deg, #0a1a0a 0%, #0f3018 100%); }
+  .pa-4 { background: linear-gradient(135deg, #1a0a1a 0%, #2d0a40 100%); }
+  .port-art-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .port-corner {
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 50px 50px 0;
+    border-color: transparent var(--red) transparent transparent;
+  }
+  .port-art-icon {
+    font-size: clamp(36px,5vw,56px);
+    position: relative;
+    z-index: 1;
+    opacity: 0.4;
+  }
+  .port-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,45,32,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .port-card:hover .port-overlay { opacity: 1; }
+  .port-overlay-tag {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .port-overlay-cta {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .port-info { padding: clamp(16px,2vw,24px); }
+  .port-title {
+    font-size: clamp(15px,1.8vw,19px);
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .port-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .port-tag-sm {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .port-result {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .port-result::before { content: '↑'; color: #22c55e; font-weight: 700; }
+
+  /* PROCESS */
+  #process { background: #0d0d0d; }
+  .process-wrapper {
+    position: relative;
+  }
+  .process-line {
+    position: absolute;
+    top: 32px; left: 32px; right: 32px;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+    overflow: hidden;
+  }
+  .process-line-fill {
+    height: 100%;
+    background: var(--red);
+    width: 0;
+    transition: width 1.5s ease;
+  }
+  .process-line-fill.animate { width: 100%; }
+  .process-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .proc-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: clamp(20px,2.5vw,32px);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .proc-card:hover { border-color: rgba(255,45,32,0.4); transform: translateY(-4px); }
+  .proc-step-num {
+    width: 48px;
+    height: 48px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .proc-title {
+    font-size: clamp(15px,1.7vw,19px);
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .proc-desc {
+    font-size: clamp(12px,1.2vw,14px);
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* TESTIMONIALS */
+  #testimonials { background: #0a0a0a; }
+  .testi-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .test-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: clamp(20px,3vw,36px);
+    position: relative;
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  .test-card:hover { border-color: rgba(255,45,32,0.3); transform: translateY(-4px); }
+  .test-quote-mark {
+    font-size: 80px;
+    color: rgba(255,45,32,0.15);
+    line-height: 0.8;
+    font-family: Georgia, serif;
+    font-weight: 900;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .test-quote {
+    font-size: clamp(13px,1.4vw,15px);
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .test-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .test-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: white;
+    border: 2px solid rgba(255,45,32,0.3);
+  }
+  .ta-1 { background: linear-gradient(135deg, var(--red), #ff6b35); }
+  .ta-2 { background: linear-gradient(135deg, #222, #333); }
+  .ta-3 { background: linear-gradient(135deg, #1a1a2e, var(--red)); }
+  .test-name { font-weight: 800; font-size: clamp(13px,1.3vw,15px); }
+  .test-role { font-size: clamp(11px,1.1vw,13px); color: var(--text-muted); margin-top: 2px; }
+  .test-stars { color: var(--red); font-size: 13px; margin-left: auto; letter-spacing: 2px; }
+  .test-ribbon {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--red);
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 0 12px 0 8px;
+  }
+
+  /* CTA */
+  #cta { background: var(--red); }
+  .cta-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(60px,10vw,120px) clamp(20px,5vw,80px);
+    display: flex;
+    gap: clamp(40px,6vw,80px);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .cta-left { flex: 1; min-width: 280px; }
+  .cta-label {
+    font-size: clamp(10px,1.2vw,12px);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .cta-title {
+    font-size: clamp(30px,5vw,60px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+    color: white;
+  }
+  .cta-desc {
+    font-size: clamp(14px,1.5vw,17px);
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+    max-width: 400px;
+  }
+  .cta-right { flex: 1; min-width: 280px; }
+  .cta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cta-input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 16px 18px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+    width: 100%;
+    font-family: inherit;
+    min-height: 52px;
+  }
+  .cta-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.4); }
+  .cta-input::placeholder { color: rgba(255,255,255,0.4); }
+  .cta-row { display: flex; gap: 12px; }
+  .cta-row .cta-input { flex: 1; }
+  .cta-select {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 16px 18px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 52px;
+    -webkit-appearance: none;
+  }
+  .cta-select option { background: #1a0a0a; }
+  .cta-btn {
+    background: white;
+    color: var(--red);
+    border: none;
+    border-radius: 8px;
+    padding: 18px 28px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 56px;
+    letter-spacing: -0.3px;
+  }
+  .cta-btn:hover { background: #0a0a0a; color: white; transform: translateY(-2px); }
+
+  /* FOOTER */
+  footer {
+    background: #0a0a0a;
+    border-top: 1px solid var(--border);
+    padding: clamp(40px,5vw,60px) clamp(20px,5vw,80px);
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-brand .footer-logo {
+    font-size: clamp(22px,3vw,30px);
+    font-weight: 900;
+    color: var(--red);
+    letter-spacing: -1px;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .footer-tagline {
+    font-size: clamp(12px,1.3vw,14px);
+    color: var(--text-muted);
+    max-width: 200px;
+    line-height: 1.5;
+  }
+  .footer-cols {
+    display: flex;
+    gap: clamp(32px,5vw,64px);
+    flex-wrap: wrap;
+  }
+  .footer-col h4 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: clamp(13px,1.3vw,14px);
+    transition: color 0.3s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .footer-col a:hover { color: var(--red); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: rgba(255,255,255,0.25);
+  }
+  .footer-badge {
+    background: rgba(255,45,32,0.1);
+    border: 1px solid rgba(255,45,32,0.2);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 700;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-right { display: none; }
+    #hero { justify-content: center; }
+    .hero-left { text-align: center; }
+    .hero-desc { margin-left: auto; margin-right: auto; }
+    .hero-btns { justify-content: center; }
+    .hero-stats-row { justify-content: center; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .mobile-menu { display: flex; }
+
+    .services-grid-2 { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .stat-item:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.15); }
+    .stat-item:nth-child(3), .stat-item:nth-child(4) { border-bottom: none; }
+    .portfolio-grid-4 { grid-template-columns: 1fr; }
+    .process-grid-4 { grid-template-columns: 1fr; }
+    .process-line { display: none; }
+    .proc-card { border-left: 3px solid var(--red); }
+    .testi-grid-3 { grid-template-columns: 1fr; }
+    .cta-content { flex-direction: column; }
+    .cta-row { flex-direction: column; }
+    .footer-top { flex-direction: column; }
+    .footer-cols { gap: 24px; }
+  }
+  @media (max-width: 480px) {
+    .hero-btns { flex-direction: column; align-items: center; }
+    .btn-red, .btn-outline { width: 100%; max-width: 300px; justify-content: center; }
+    .hero-word { letter-spacing: -2px; }
+    .hero-stats-row { gap: 16px; }
+    .hero-divider { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-menu-close" id="mobileClose" aria-label="Bezárás">✕</button>
+  <a href="#services" class="mobile-nav-link" data-hu="Szolgáltatások" data-ro="Servicii">Szolgáltatások</a>
+  <a href="#portfolio" class="mobile-nav-link" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a>
+  <a href="#process" class="mobile-nav-link" data-hu="Folyamat" data-ro="Proces">Folyamat</a>
+  <a href="#testimonials" class="mobile-nav-link" data-hu="Vélemények" data-ro="Recenzii">Vélemények</a>
+  <div class="mobile-menu-bottom">
+    <button class="mobile-lang-btn" id="mobileLangBtn">RO</button>
+    <a href="#cta" class="mobile-cta-link mobile-nav-link" data-hu="Kapcsolat" data-ro="Contact">Kapcsolat</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Studio</a>
+  <ul class="nav-links">
+    <li><a href="#services" data-hu="Szolgáltatások" data-ro="Servicii">Szolgáltatások</a></li>
+    <li><a href="#portfolio" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a></li>
+    <li><a href="#process" data-hu="Folyamat" data-ro="Proces">Folyamat</a></li>
+    <li><a href="#testimonials" data-hu="Vélemények" data-ro="Recenzii">Vélemények</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="lang-btn" id="langBtn">RO</button>
+    <a href="#cta" class="nav-cta" data-hu="Projektet indítok" data-ro="Pornesc un proiect">Projektet indítok</a>
+    <button class="hamburger" id="hamburger" aria-label="Menü">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow" data-hu="Web & Mobil Ügynökség" data-ro="Agenție Web & Mobile">Web &amp; Mobil Ügynökség</div>
+    <div class="hero-title-stack">
+      <div class="hero-word hw-1" data-hu="WE" data-ro="NE">WE</div>
+      <div class="hero-word hw-2" data-hu="BUILD" data-ro="CONSTRUIM">BUILD</div>
+      <div class="hero-word hw-3" data-hu="DIGITAL" data-ro="PRODUSE">DIGITAL</div>
+      <div class="hero-word hw-4" data-hu="PRODUCTS" data-ro="DIGITALE">PRODUCTS</div>
+    </div>
+    <p class="hero-desc" data-hu="Weboldalak és mobilalkalmazások, amik növekedést hoznak. Gyors szállítás, átlátható ár, valódi eredmények." data-ro="Site-uri web și aplicații mobile care aduc creștere. Livrare rapidă, preț transparent, rezultate reale.">Weboldalak és mobilalkalmazások, amik növekedést hoznak. Gyors szállítás, átlátható ár, valódi eredmények.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-red" data-hu="Kezdjük el →" data-ro="Să începem →">Kezdjük el →</a>
+      <a href="#portfolio" class="btn-outline" data-hu="Munkáink" data-ro="Lucrările noastre">Munkáink</a>
+    </div>
+    <div class="hero-stats-row">
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span data-counter="120">0</span>+</div>
+        <div class="hero-stat-lbl" data-hu="Projekt" data-ro="Proiecte">Projekt</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span data-counter="47">0</span></div>
+        <div class="hero-stat-lbl" data-hu="Ügyfél" data-ro="Clienți">Ügyfél</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span data-counter="5">0</span> <span style="color:var(--red)">év</span></div>
+        <div class="hero-stat-lbl" data-hu="Tapasztalat" data-ro="Experiență">Tapasztalat</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="phone-glow"></div>
+    <div class="phone-ring"></div>
+    <div class="phone-ring-2"></div>
+    <div class="phone-mockup">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-bar red"></div>
+        <div class="phone-bar short"></div>
+        <div class="phone-card">
+          <div class="phone-card-dot"></div>
+          <div class="phone-card-line"></div>
+          <div class="phone-card-line short"></div>
+        </div>
+        <div class="phone-chart">
+          <div class="phone-chart-bar cb1"></div>
+          <div class="phone-chart-bar cb2"></div>
+          <div class="phone-chart-bar cb3"></div>
+          <div class="phone-chart-bar cb4"></div>
+          <div class="phone-chart-bar cb5"></div>
+        </div>
+        <div class="phone-card">
+          <div class="phone-card-dot"></div>
+          <div class="phone-card-line"></div>
+          <div class="phone-card-line short"></div>
+        </div>
+        <div class="phone-bar" style="margin-top:8px;"></div>
+        <div class="phone-bar short" style="width:55%;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="SZOLGÁLTATÁSOK" data-ro="SERVICII">SZOLGÁLTATÁSOK</p>
+    <h2 class="section-title reveal" data-hu="Amit a legjobban<br>csinálunk" data-ro="Ce facem<br>cel mai bine">Amit a legjobban<br>csinálunk</h2>
+    <p class="section-desc reveal" data-hu="Nem vállalunk el mindent — csak azt, amiben valóban ki tudunk tűnni és értéket teremteni." data-ro="Nu acceptăm orice — doar ce putem face cu adevărat excelent și crea valoare.">Nem vállalunk el mindent — csak azt, amiben valóban ki tudunk tűnni és értéket teremteni.</p>
+    <div class="services-grid-2">
+      <div class="svc-card reveal">
+        <div class="svc-num">01</div>
+        <span class="svc-icon">🌐</span>
+        <h3 class="svc-title" data-hu="Webfejlesztés" data-ro="Dezvoltare Web">Webfejlesztés</h3>
+        <p class="svc-desc" data-hu="Gyors, modern weboldalak és webappok React/Next.js alapokon. SEO-ready, mobilbarát, teljesítmény-optimalizált." data-ro="Site-uri web și aplicații moderne și rapide pe baza React/Next.js. SEO-ready, mobile-friendly, optimizate pentru performanță.">Gyors, modern weboldalak és webappok React/Next.js alapokon. SEO-ready, mobilbarát, teljesítmény-optimalizált.</p>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-num">02</div>
+        <span class="svc-icon">📱</span>
+        <h3 class="svc-title" data-hu="Mobilalkalmazás" data-ro="Aplicație Mobilă">Mobilalkalmazás</h3>
+        <p class="svc-desc" data-hu="Cross-platform és natív iOS/Android fejlesztés. Flutter vagy React Native — a legjobb a projekted szempontjából." data-ro="Dezvoltare cross-platform și nativă iOS/Android. Flutter sau React Native — ce e mai bun pentru proiectul tău.">Cross-platform és natív iOS/Android fejlesztés. Flutter vagy React Native — a legjobb a projekted szempontjából.</p>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-num">03</div>
+        <span class="svc-icon">🎨</span>
+        <h3 class="svc-title" data-hu="UI/UX Design" data-ro="UI/UX Design">UI/UX Design</h3>
+        <p class="svc-desc" data-hu="Felhasználói kutatástól a pixeltökéletes designig. Figma prototípusok, design rendszerek, A/B tesztelés." data-ro="De la cercetarea utilizatorilor la design pixel-perfect. Prototipuri Figma, sisteme de design, testare A/B.">Felhasználói kutatástól a pixeltökéletes designig. Figma prototípusok, design rendszerek, A/B tesztelés.</p>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-num">04</div>
+        <span class="svc-icon">⚡</span>
+        <h3 class="svc-title" data-hu="Teljesítmény & SEO" data-ro="Performanță & SEO">Teljesítmény &amp; SEO</h3>
+        <p class="svc-desc" data-hu="Core Web Vitals optimalizálás, technikai SEO, sebességjavítás. Meglévő oldalak turbófeltöltése is." data-ro="Optimizare Core Web Vitals, SEO tehnic, îmbunătățire viteză. Turbo-boost și pentru site-uri existente.">Core Web Vitals optimalizálás, technikai SEO, sebességjavítás. Meglévő oldalak turbófeltöltése is.</p>
+        <div class="svc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-num-big"><span data-counter="120" data-suffix="+">0</span><span class="stat-suffix">+</span></div>
+      <div class="stat-desc" data-hu="Elkészült projekt" data-ro="Proiecte finalizate">Elkészült projekt</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num-big"><span data-counter="98" data-suffix="%">0</span><span class="stat-suffix">%</span></div>
+      <div class="stat-desc" data-hu="Ügyfél-elégedettség" data-ro="Satisfacție clienți">Ügyfél-elégedettség</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num-big"><span data-counter="47">0</span></div>
+      <div class="stat-desc" data-hu="Aktív ügyfél" data-ro="Clienți activi">Aktív ügyfél</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num-big"><span data-counter="5">0</span><span class="stat-suffix"> év</span></div>
+      <div class="stat-desc" data-hu="Iparági tapasztalat" data-ro="Experiență în industrie">Iparági tapasztalat</div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="PORTFÓLIÓ" data-ro="PORTOFOLIU">PORTFÓLIÓ</p>
+    <h2 class="section-title reveal" data-hu="Projektek, amikre<br>büszkék vagyunk" data-ro="Proiecte de care<br>suntem mândri">Projektek, amikre<br>büszkék vagyunk</h2>
+    <p class="section-desc reveal" data-hu="Minden projekt valódi problémát old meg. Nincs showpiece — csak eredmények." data-ro="Fiecare proiect rezolvă o problemă reală. Nu există showpiece — doar rezultate.">Minden projekt valódi problémát old meg. Nincs showpiece — csak eredmények.</p>
+    <div class="portfolio-grid-4">
+      <div class="port-card reveal">
+        <div class="port-art pa-1">
+          <div class="port-art-grid"></div>
+          <div class="port-corner"></div>
+          <div class="port-art-icon">🛒</div>
+          <div class="port-overlay">
+            <div class="port-overlay-tag" data-hu="Megnézem" data-ro="Vizualizez">Megnézem</div>
+            <div class="port-overlay-cta" data-hu="Webshop Platform" data-ro="Platformă Webshop">Webshop Platform</div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-meta" style="margin-bottom:8px;">
+            <span class="port-tag-sm" data-hu="E-COMMERCE" data-ro="E-COMMERCE">E-COMMERCE</span>
+            <span class="test-stars">★★★★★</span>
+          </div>
+          <div class="port-title" data-hu="LuxShop Platform" data-ro="Platformă LuxShop">LuxShop Platform</div>
+          <div class="port-meta">
+            <span class="port-result" data-hu="240% konverzió növekedés" data-ro="240% creștere conversie">240% konverzió növekedés</span>
+          </div>
+        </div>
+      </div>
+      <div class="port-card reveal">
+        <div class="port-art pa-2">
+          <div class="port-art-grid"></div>
+          <div class="port-corner"></div>
+          <div class="port-art-icon">💪</div>
+          <div class="port-overlay">
+            <div class="port-overlay-tag" data-hu="Megnézem" data-ro="Vizualizez">Megnézem</div>
+            <div class="port-overlay-cta" data-hu="Fitness Mobile App" data-ro="Aplicație Fitness">Fitness Mobile App</div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-meta" style="margin-bottom:8px;">
+            <span class="port-tag-sm" data-hu="MOBILAPP" data-ro="APLICAȚIE MOBILĂ">MOBILAPP</span>
+            <span class="test-stars">★★★★★</span>
+          </div>
+          <div class="port-title" data-hu="FitPulse Mobile" data-ro="FitPulse Mobile">FitPulse Mobile</div>
+          <div class="port-meta">
+            <span class="port-result" data-hu="50K letöltés az első hónapban" data-ro="50K descărcări în prima lună">50K letöltés az első hónapban</span>
+          </div>
+        </div>
+      </div>
+      <div class="port-card reveal">
+        <div class="port-art pa-3">
+          <div class="port-art-grid"></div>
+          <div class="port-corner"></div>
+          <div class="port-art-icon">📊</div>
+          <div class="port-overlay">
+            <div class="port-overlay-tag" data-hu="Megnézem" data-ro="Vizualizez">Megnézem</div>
+            <div class="port-overlay-cta" data-hu="SaaS Dashboard" data-ro="SaaS Dashboard">SaaS Dashboard</div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-meta" style="margin-bottom:8px;">
+            <span class="port-tag-sm" data-hu="SAAS" data-ro="SAAS">SAAS</span>
+            <span class="test-stars">★★★★★</span>
+          </div>
+          <div class="port-title" data-hu="DataVault Analytics" data-ro="DataVault Analytics">DataVault Analytics</div>
+          <div class="port-meta">
+            <span class="port-result" data-hu="Real-time adatvizualizáció" data-ro="Vizualizare date real-time">Real-time adatvizualizáció</span>
+          </div>
+        </div>
+      </div>
+      <div class="port-card reveal">
+        <div class="port-art pa-4">
+          <div class="port-art-grid"></div>
+          <div class="port-corner"></div>
+          <div class="port-art-icon">🍽️</div>
+          <div class="port-overlay">
+            <div class="port-overlay-tag" data-hu="Megnézem" data-ro="Vizualizez">Megnézem</div>
+            <div class="port-overlay-cta" data-hu="Restaurant Booking" data-ro="Rezervare Restaurant">Restaurant Booking</div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-meta" style="margin-bottom:8px;">
+            <span class="port-tag-sm" data-hu="MOBILAPP" data-ro="APLICAȚIE MOBILĂ">MOBILAPP</span>
+            <span class="test-stars">★★★★★</span>
+          </div>
+          <div class="port-title" data-hu="TableMate Booking" data-ro="TableMate Booking">TableMate Booking</div>
+          <div class="port-meta">
+            <span class="port-result" data-hu="Azonnali asztalfoglalás, POS int." data-ro="Rezervare instant, integrare POS">Azonnali asztalfoglalás, POS int.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="FOLYAMAT" data-ro="PROCES">FOLYAMAT</p>
+    <h2 class="section-title reveal" data-hu="Hogyan dolgozunk<br>együtt?" data-ro="Cum lucrăm<br>împreună?">Hogyan dolgozunk<br>együtt?</h2>
+    <p class="section-desc reveal" data-hu="Bevált 4 lépéses folyamat, amit minden projektnél alkalmazunk. Nincs meglepetés." data-ro="Proces în 4 pași dovedit, pe care îl aplicăm la fiecare proiect. Fără surprize.">Bevált 4 lépéses folyamat, amit minden projektnél alkalmazunk. Nincs meglepetés.</p>
+    <div class="process-wrapper">
+      <div class="process-line"><div class="process-line-fill" id="processLine"></div></div>
+      <div class="process-grid-4">
+        <div class="proc-card reveal">
+          <div class="proc-step-num">1</div>
+          <div class="proc-title" data-hu="Felfedezés" data-ro="Descoperire">Felfedezés</div>
+          <div class="proc-desc" data-hu="Részletes igényfelmérés, versenytárselemzés, célcsoport-meghatározás. Megalapozzuk a döntéseket." data-ro="Evaluare detaliată a nevoilor, analiză concurențială, definire grup țintă. Fundamentăm deciziile.">Részletes igényfelmérés, versenytárselemzés, célcsoport-meghatározás. Megalapozzuk a döntéseket.</div>
+        </div>
+        <div class="proc-card reveal">
+          <div class="proc-step-num">2</div>
+          <div class="proc-title" data-hu="Design" data-ro="Design">Design</div>
+          <div class="proc-desc" data-hu="Wireframe-ek, magas fidelitású prototípusok, design rendszer. Jóváhagyás után fejlesztés." data-ro="Wireframe-uri, prototipuri de înaltă fidelitate, sistem de design. Dezvoltare după aprobare.">Wireframe-ek, magas fidelitású prototípusok, design rendszer. Jóváhagyás után fejlesztés.</div>
+        </div>
+        <div class="proc-card reveal">
+          <div class="proc-step-num">3</div>
+          <div class="proc-title" data-hu="Fejlesztés" data-ro="Dezvoltare">Fejlesztés</div>
+          <div class="proc-desc" data-hu="Agile sprint-ek, heti demo-k, folyamatos kommunikáció. Te mindig tudod, hol tartunk." data-ro="Sprint-uri Agile, demo-uri săptămânale, comunicare continuă. Știi mereu unde suntem.">Agile sprint-ek, heti demo-k, folyamatos kommunikáció. Te mindig tudod, hol tartunk.</div>
+        </div>
+        <div class="proc-card reveal">
+          <div class="proc-step-num">4</div>
+          <div class="proc-title" data-hu="Indítás & Támogatás" data-ro="Lansare & Suport">Indítás &amp; Támogatás</div>
+          <div class="proc-desc" data-hu="Gondos deploy, monitorozás, bug fix garancia. Az indítás csak a kezdet — ott vagyunk utána is." data-ro="Deploy atent, monitorizare, garanție bug fix. Lansarea este doar începutul — suntem acolo și după.">Gondos deploy, monitorozás, bug fix garancia. Az indítás csak a kezdet — ott vagyunk utána is.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="VÉLEMÉNYEK" data-ro="RECENZII">VÉLEMÉNYEK</p>
+    <h2 class="section-title reveal" data-hu="Amit az ügyfeleink<br>mondanak" data-ro="Ce spun<br>clienții noștri">Amit az ügyfeleink<br>mondanak</h2>
+    <div class="testi-grid-3">
+      <div class="test-card reveal">
+        <div class="test-ribbon" data-hu="Kiemelt" data-ro="Recomandat">Kiemelt</div>
+        <span class="test-quote-mark">"</span>
+        <p class="test-quote" data-hu="A Studio nem ügynökségként viselkedett — partnerként. Minden döntésbe bevontak, és az eredmény magáért beszél: az eladásaink megháromszorozódtak." data-ro="Studio nu s-a comportat ca o agenție — ci ca un partener. M-au implicat în fiecare decizie, iar rezultatul vorbește de la sine: vânzările noastre s-au triplat.">A Studio nem ügynökségként viselkedett — partnerként. Minden döntésbe bevontak, és az eredmény magáért beszél: az eladásaink megháromszorozódtak.</p>
+        <div class="test-author">
+          <div class="test-avatar ta-1">KP</div>
+          <div>
+            <div class="test-name">Kovács Péter</div>
+            <div class="test-role" data-hu="CEO, LuxShop" data-ro="CEO, LuxShop">CEO, LuxShop</div>
+          </div>
+          <div class="test-stars">★★★★★</div>
+        </div>
+      </div>
+      <div class="test-card reveal">
+        <span class="test-quote-mark">"</span>
+        <p class="test-quote" data-hu="Szigorú határidőnk volt — az App Store launch dátuma fix volt. A Studio tartotta az ígéretét. Az app az első héten a Top 10-be kerüit." data-ro="Aveam un termen strict — data lansării App Store era fixă. Studio și-a ținut promisiunea. Aplicația a intrat în Top 10 în prima săptămână.">Szigorú határidőnk volt — az App Store launch dátuma fix volt. A Studio tartotta az ígéretét. Az app az első héten a Top 10-be kerüit.</p>
+        <div class="test-author">
+          <div class="test-avatar ta-2">SN</div>
+          <div>
+            <div class="test-name">Szabó Nikolett</div>
+            <div class="test-role" data-hu="Alapító, FitPulse" data-ro="Fondator, FitPulse">Alapító, FitPulse</div>
+          </div>
+          <div class="test-stars">★★★★★</div>
+        </div>
+      </div>
+      <div class="test-card reveal">
+        <span class="test-quote-mark">"</span>
+        <p class="test-quote" data-hu="Technikai oldalról magasan a legjobb csapat, akivel valaha dolgoztam. Clean code, jó dokumentáció, gyors support. Nem kapnak elég elismerést." data-ro="Din punct de vedere tehnic, de departe cea mai bună echipă cu care am lucrat vreodată. Cod curat, documentație bună, support rapid. Nu primesc suficientă recunoaștere.">Technikai oldalról magasan a legjobb csapat, akivel valaha dolgoztam. Clean code, jó dokumentáció, gyors support. Nem kapnak elég elismerést.</p>
+        <div class="test-author">
+          <div class="test-avatar ta-3">NB</div>
+          <div>
+            <div class="test-name">Nagy Balázs</div>
+            <div class="test-role" data-hu="CTO, DataVault" data-ro="CTO, DataVault">CTO, DataVault</div>
+          </div>
+          <div class="test-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-content">
+    <div class="cta-left reveal-left">
+      <span class="cta-label" data-hu="INDÍTSUK EL EGYÜTT" data-ro="SĂ ÎNCEPEM ÎMPREUNĂ">INDÍTSUK EL EGYÜTT</span>
+      <h2 class="cta-title" data-hu="Készen állsz<br>a növekedésre?" data-ro="Ești gata<br>pentru creștere?">Készen állsz<br>a növekedésre?</h2>
+      <p class="cta-desc" data-hu="Ingyenes konzultáció, ahol megmutatjuk, mit tudunk tenni a te projektedért. Nincs kötelezettség." data-ro="Consultanță gratuită, unde îți arătăm ce putem face pentru proiectul tău. Fără obligații.">Ingyenes konzultáció, ahol megmutatjuk, mit tudunk tenni a te projektedért. Nincs kötelezettség.</p>
+    </div>
+    <div class="cta-right reveal">
+      <form class="cta-form" onsubmit="handleSubmit(event)">
+        <div class="cta-row">
+          <input type="text" class="cta-input" id="nameInput" data-hu-placeholder="Neved" data-ro-placeholder="Numele tău" placeholder="Neved" required>
+          <input type="email" class="cta-input" id="emailInput" placeholder="Email" required>
+        </div>
+        <select class="cta-select" id="projectType">
+          <option value="" data-hu="Projekt típusa" data-ro="Tipul proiectului">Projekt típusa</option>
+          <option value="web" data-hu="Weboldal / Webshop" data-ro="Site web / Webshop">Weboldal / Webshop</option>
+          <option value="app" data-hu="Mobilalkalmazás" data-ro="Aplicație mobilă">Mobilalkalmazás</option>
+          <option value="design" data-hu="UI/UX Design" data-ro="UI/UX Design">UI/UX Design</option>
+          <option value="perf" data-hu="Teljesítmény / SEO" data-ro="Performanță / SEO">Teljesítmény / SEO</option>
+        </select>
+        <input type="text" class="cta-input" id="msgInput" data-hu-placeholder="Röviden: miről szól a projekted?" data-ro-placeholder="Pe scurt: despre ce este proiectul tău?" placeholder="Röviden: miről szól a projekted?">
+        <button type="submit" class="cta-btn" id="ctaBtn" data-hu="KÜLDÖM AZ ÜZENETET →" data-ro="TRIMIT MESAJUL →">KÜLDÖM AZ ÜZENETET →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo">Studio</span>
+        <p class="footer-tagline" data-hu="Web & mobil ügynökség, aki eredményekben gondolkodik." data-ro="Agenție web & mobile care gândește în rezultate.">Web &amp; mobil ügynökség, aki eredményekben gondolkodik.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4 data-hu="SZOLGÁLTATÁSOK" data-ro="SERVICII">SZOLGÁLTATÁSOK</h4>
+          <ul>
+            <li><a href="#services" data-hu="Webfejlesztés" data-ro="Dezvoltare Web">Webfejlesztés</a></li>
+            <li><a href="#services" data-hu="Mobilalkalmazás" data-ro="Aplicație Mobilă">Mobilalkalmazás</a></li>
+            <li><a href="#services" data-hu="UI/UX Design" data-ro="UI/UX Design">UI/UX Design</a></li>
+            <li><a href="#services" data-hu="SEO & Teljesítmény" data-ro="SEO & Performanță">SEO &amp; Teljesítmény</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-hu="CÉGRŐL" data-ro="DESPRE NOI">CÉGRŐL</h4>
+          <ul>
+            <li><a href="#portfolio" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a></li>
+            <li><a href="#process" data-hu="Folyamat" data-ro="Proces">Folyamat</a></li>
+            <li><a href="#testimonials" data-hu="Vélemények" data-ro="Recenzii">Vélemények</a></li>
+            <li><a href="#cta" data-hu="Kapcsolat" data-ro="Contact">Kapcsolat</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy" data-hu="© 2025 Studio. Minden jog fenntartva." data-ro="© 2025 Studio. Toate drepturile rezervate.">© 2025 Studio. Minden jog fenntartva.</div>
+      <div class="footer-badge" data-hu="🇭🇺 Budapest alapú csapat" data-ro="🇷🇴 Echipă bazată în România">🇭🇺 Budapest alapú csapat</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // LANGUAGE TOGGLE
+  let lang = 'hu';
+  function setLang(l) {
+    lang = l;
+    // Update all data-hu / data-ro elements
+    document.querySelectorAll('[data-hu]').forEach(el => {
+      const val = el.getAttribute('data-' + l);
+      if (!val) return;
+      if (el.tagName === 'OPTION') {
+        el.textContent = val;
+      } else if (el.tagName !== 'INPUT' && el.tagName !== 'SELECT') {
+        el.innerHTML = val;
+      }
+    });
+    // Placeholders
+    document.querySelectorAll('[data-hu-placeholder]').forEach(el => {
+      const ph = el.getAttribute('data-' + l + '-placeholder');
+      if (ph) el.placeholder = ph;
+    });
+    // Hero words (these might have been innerHTML'd, keep separate)
+    document.querySelectorAll('.hero-word[data-hu]').forEach(el => {
+      const val = el.getAttribute('data-' + l);
+      if (val) el.textContent = val;
+    });
+    // Selects — update options
+    document.querySelectorAll('select option[data-hu]').forEach(opt => {
+      const val = opt.getAttribute('data-' + l);
+      if (val) opt.textContent = val;
+    });
+    const otherLang = l === 'hu' ? 'RO' : 'HU';
+    document.getElementById('langBtn').textContent = otherLang;
+    document.getElementById('mobileLangBtn').textContent = otherLang;
+    document.documentElement.lang = l;
+  }
+  document.getElementById('langBtn').addEventListener('click', () => setLang(lang === 'hu' ? 'ro' : 'hu'));
+  document.getElementById('mobileLangBtn').addEventListener('click', () => {
+    setLang(lang === 'hu' ? 'ro' : 'hu');
+    closeMobileMenu();
+  });
+
+  // MOBILE MENU
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.getElementById('mobileClose');
+  function openMobileMenu() {
+    mobileMenu.style.display = 'flex';
+    requestAnimationFrame(() => mobileMenu.classList.add('open'));
+    hamburger.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (!mobileMenu.classList.contains('open')) mobileMenu.style.display = 'none'; }, 350);
+  }
+  hamburger.addEventListener('click', () => {
+    if (mobileMenu.classList.contains('open')) closeMobileMenu();
+    else openMobileMenu();
+  });
+  mobileClose.addEventListener('click', closeMobileMenu);
+  mobileMenu.addEventListener('click', e => { if (e.target === mobileMenu) closeMobileMenu(); });
+  document.querySelectorAll('.mobile-nav-link').forEach(a => {
+    a.addEventListener('click', () => closeMobileMenu());
+  });
+
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.reveal, .reveal-left');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => revealObs.observe(el));
+
+  // PROCESS LINE ANIMATION
+  const processLine = document.getElementById('processLine');
+  if (processLine) {
+    const lineObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          processLine.classList.add('animate');
+          lineObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    lineObs.observe(document.getElementById('process'));
+  }
+
+  // COUNTER
+  function animateCounter(el, target) {
+    let current = 0;
+    const duration = 2200;
+    const increment = target / (duration / 16);
+    function tick() {
+      current += increment;
+      if (current >= target) { el.textContent = target; return; }
+      el.textContent = Math.floor(current);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const target = parseInt(el.getAttribute('data-counter'));
+        animateCounter(el, target);
+        counterObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-counter]').forEach(el => counterObs.observe(el));
+
+  // FORM SUBMIT
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('ctaBtn');
+    btn.textContent = lang === 'hu' ? '✓ ELKÜLDVE! HAMAROSAN KERESÜNK.' : '✓ TRIMIS! TE CONTACTĂM ÎN CURÂND.';
+    btn.style.background = '#0a0a0a';
+    btn.style.color = 'white';
+    btn.disabled = true;
+  }
+
+  // SMOOTH SCROLL
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>

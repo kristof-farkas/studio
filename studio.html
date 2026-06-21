@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STUDIO — Digitális Élmények Alkotói</title>
+<style>
+:root {
+  --bg: #020204;
+  --fg: #fff;
+  --accent: #7c3aed;
+  --accent2: #06b6d4;
+  --accent3: #f43f5e;
+  --accent4: #10b981;
+  --gray: #71717a;
+  --gray-light: #18181b;
+  --font: 'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);overflow-x:hidden;cursor:none}
+
+/* ── Cursor ── */
+.cur{position:fixed;width:8px;height:8px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .3s,height .3s,background .3s}
+.cur-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(255,255,255,0.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .4s,height .4s,border-color .3s,opacity .3s}
+.cur.active{width:4px;height:4px;background:var(--accent2)}
+.cur-ring.active{width:52px;height:52px;border-color:rgba(124,58,237,0.6)}
+
+/* ── Noise ── */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9997;opacity:.6}
+
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
+nav.scrolled{background:rgba(2,2,4,0.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.05)}
+.nav-logo{font-size:1rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(120deg,#fff 0%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-center{display:flex;gap:32px;list-style:none}
+.nav-center a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.04em;transition:color .2s}
+.nav-center a:hover{color:#fff}
+.nav-right{display:flex;align-items:center;gap:12px}
+
+/* Lang toggle */
+.lang-toggle{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:3px;gap:2px}
+.lang-btn{padding:5px 12px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,0.3);border:none;background:none;font-family:var(--font);cursor:none;transition:all .25s;display:flex;align-items:center;gap:5px}
+.lang-btn.active{background:rgba(124,58,237,.45);color:#fff;box-shadow:0 2px 12px rgba(124,58,237,.35)}
+
+.nav-cta{display:inline-flex;align-items:center;gap:7px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.35);color:#fff;padding:9px 20px;border-radius:100px;font-size:.8rem;font-weight:600;text-decoration:none;cursor:none;transition:all .3s;letter-spacing:.02em}
+.nav-cta:hover{background:rgba(124,58,237,.3);border-color:var(--accent);box-shadow:0 0 24px rgba(124,58,237,.25)}
+
+/* ── Hero ── */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;position:relative;overflow:hidden}
+
+/* Mesh background */
+.mesh{position:absolute;inset:-50%;width:200%;height:200%;pointer-events:none}
+.mesh-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:blobFloat 0s ease-in-out infinite}
+.mb1{width:60vw;height:60vw;background:radial-gradient(circle,rgba(124,58,237,.4),transparent 70%);top:10%;left:10%;animation-duration:14s}
+.mb2{width:40vw;height:40vw;background:radial-gradient(circle,rgba(6,182,212,.3),transparent 70%);top:20%;right:5%;animation-duration:18s;animation-delay:-4s}
+.mb3{width:30vw;height:30vw;background:radial-gradient(circle,rgba(244,63,94,.2),transparent 70%);bottom:10%;left:20%;animation-duration:22s;animation-delay:-8s}
+.mb4{width:25vw;height:25vw;background:radial-gradient(circle,rgba(16,185,129,.2),transparent 70%);bottom:5%;right:15%;animation-duration:16s;animation-delay:-2s}
+@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.05)}50%{transform:translate(-20px,30px) scale(.95)}75%{transform:translate(20px,10px) scale(1.02)}}
+
+/* Grid overlay */
+#hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%)}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:100px;padding:7px 16px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:36px;opacity:0;animation:fadeUp .8s .2s forwards}
+.hero-pulse{width:6px;height:6px;background:var(--accent2);border-radius:50%;position:relative}
+.hero-pulse::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:var(--accent2);opacity:.4;animation:ripple 2s infinite}
+@keyframes ripple{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.5);opacity:0}}
+
+.hero-title{font-size:clamp(3.5rem,9vw,8rem);font-weight:800;line-height:.96;letter-spacing:-.04em;margin-bottom:28px;overflow:hidden}
+.hero-title .line{display:block;overflow:hidden}
+.hero-title .line span{display:block;transform:translateY(110%);animation:lineReveal .9s cubic-bezier(.16,1,.3,1) forwards}
+.line-1 span{animation-delay:.3s}
+.line-2 span{animation-delay:.45s}
+.line-3 span{animation-delay:.6s}
+.hero-title .gradient-word{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 40%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% auto;animation:shimmer 4s linear infinite}
+@keyframes lineReveal{to{transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:200% center}}
+
+.hero-sub{font-size:clamp(1rem,1.8vw,1.2rem);color:var(--gray);max-width:520px;line-height:1.75;margin:0 auto 52px;opacity:0;animation:fadeUp .8s .7s forwards}
+
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .85s forwards}
+
+.btn-mag{display:inline-flex;align-items:center;gap:9px;padding:16px 34px;border-radius:100px;font-size:.9rem;font-weight:600;cursor:none;transition:box-shadow .3s,transform .15s;letter-spacing:.01em;position:relative;overflow:hidden}
+.btn-mag::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .3s}
+.btn-mag:hover::before{opacity:1}
+.btn-primary-mag{background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;border:none;box-shadow:0 8px 32px rgba(124,58,237,.4),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-primary-mag:hover{box-shadow:0 16px 48px rgba(124,58,237,.6),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn-ghost-mag{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.1);text-decoration:none}
+.btn-ghost-mag:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+
+/* Floating hero cards */
+.hero-cards{position:absolute;inset:0;pointer-events:none;opacity:0;animation:fadeIn 1s 1.2s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.hcard{position:absolute;background:rgba(20,20,28,.8);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:16px 20px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.hcard-1{top:18%;left:4%;animation:cardFloat 7s ease-in-out infinite}
+.hcard-2{top:22%;right:4%;animation:cardFloat 9s ease-in-out infinite reverse;animation-delay:-3s}
+.hcard-3{bottom:18%;left:6%;animation:cardFloat 11s ease-in-out infinite;animation-delay:-5s}
+.hcard-4{bottom:22%;right:5%;animation:cardFloat 8s ease-in-out infinite reverse;animation-delay:-2s}
+@keyframes cardFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-14px)}}
+.hcard-label{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.hcard-value{font-size:1.3rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.hcard-sub{font-size:.65rem;margin-top:4px}
+.hcard-green{color:#4ade80}.hcard-cyan{color:var(--accent2)}.hcard-purple{color:#a78bfa}
+.hcard-trend{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:.62rem;color:#4ade80}
+.hcard-bar{display:flex;align-items:flex-end;gap:2px;height:24px;margin-top:8px}
+.hbar{width:6px;border-radius:2px 2px 0 0;background:linear-gradient(to top,var(--accent),var(--accent2))}
+.hbar:nth-child(1){height:40%}.hbar:nth-child(2){height:65%}.hbar:nth-child(3){height:50%}
+.hbar:nth-child(4){height:80%}.hbar:nth-child(5){height:70%}.hbar:nth-child(6){height:95%}
+.avatar-row{display:flex;margin-top:8px}
+.avc{width:24px;height:24px;border-radius:50%;border:2px solid rgba(20,20,28,.8);margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff}
+.avc:first-child{margin-left:0}
+
+.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fadeUp .6s 1.5s forwards}
+.scroll-mouse{width:22px;height:36px;border:1.5px solid rgba(255,255,255,.2);border-radius:11px;display:flex;justify-content:center;padding-top:6px}
+.scroll-dot{width:3px;height:8px;background:#fff;border-radius:2px;animation:scrollDot 2s ease-in-out infinite}
+@keyframes scrollDot{0%{transform:translateY(0);opacity:1}100%{transform:translateY(12px);opacity:0}}
+.scroll-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.2)}
+
+/* ── Stats ── */
+.stats-section{padding:0 48px;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+.stats-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.stat-item{padding:44px 40px;border-right:1px solid rgba(255,255,255,.04);position:relative;overflow:hidden}
+.stat-item:last-child{border-right:none}
+.stat-item::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);transform:scaleX(0);transition:transform .6s}
+.stat-item:hover::before{transform:scaleX(1)}
+.stat-num{font-size:clamp(2.2rem,4vw,3.8rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:8px;background:linear-gradient(120deg,#fff 0%,rgba(255,255,255,.5) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-lbl{font-size:.72rem;color:var(--gray);letter-spacing:.08em;text-transform:uppercase}
+
+/* ── Marquee ── */
+.marquee-wrap{padding:28px 0;overflow:hidden;position:relative}
+.marquee-wrap::before,.marquee-wrap::after{content:'';position:absolute;top:0;bottom:0;width:200px;z-index:1}
+.marquee-wrap::before{left:0;background:linear-gradient(to right,var(--bg),transparent)}
+.marquee-wrap::after{right:0;background:linear-gradient(to left,var(--bg),transparent)}
+.marquee-track{display:flex;gap:56px;animation:marquee 30s linear infinite;width:max-content}
+.marquee-track:hover{animation-play-state:paused}
+.m-item{display:flex;align-items:center;gap:56px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.18);white-space:nowrap}
+.m-dot{width:3px;height:3px;border-radius:50%;background:var(--accent);flex-shrink:0}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── Section shared ── */
+section{padding:120px 48px}
+.s-tag{display:inline-flex;align-items:center;gap:8px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:20px;font-weight:600}
+.s-tag::before{content:'';width:20px;height:1px;background:var(--accent2);flex-shrink:0}
+.s-title{font-size:clamp(2.2rem,4vw,3.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:20px}
+.s-sub{font-size:1rem;color:var(--gray);line-height:1.75;max-width:480px}
+
+/* ── Bento Services ── */
+#services{background:var(--bg)}
+.services-top{max-width:1200px;margin:0 auto 60px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+.bento{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(120px,auto);gap:12px}
+
+.bc{border-radius:24px;position:relative;overflow:hidden;cursor:none;background:var(--gray-light);border:1px solid rgba(255,255,255,.05);transition:border-color .4s;padding:36px}
+.bc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .4s}
+.bc:hover{border-color:rgba(255,255,255,.1)}
+.bc:hover::before{opacity:1}
+
+.bc-web{grid-column:span 4;grid-row:span 2;background:linear-gradient(145deg,#0d0d14,#13111f)}
+.bc-web::before{background:radial-gradient(circle at 80% 20%,rgba(124,58,237,.12),transparent 60%)}
+.bc-mobile{grid-column:span 2;grid-row:span 2;background:linear-gradient(145deg,#0a1219,#091620)}
+.bc-mobile::before{background:radial-gradient(circle at 20% 80%,rgba(6,182,212,.12),transparent 60%)}
+.bc-design{grid-column:span 3;background:linear-gradient(145deg,#130d1a,#1a0d17)}
+.bc-design::before{background:radial-gradient(circle at 50% 50%,rgba(244,63,94,.1),transparent 60%)}
+.bc-stat1{grid-column:span 1;background:#0d0f13;display:flex;flex-direction:column;justify-content:center}
+.bc-stat2{grid-column:span 1;background:#0d0f13;display:flex;flex-direction:column;justify-content:center}
+.bc-cta{grid-column:span 1;background:linear-gradient(135deg,var(--accent),#5b21b6);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:none}
+.bc-cta:hover{transform:scale(1.02)}
+
+.bc-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;position:relative;z-index:1}
+.bc-name{font-size:1.4rem;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;position:relative;z-index:1}
+.bc-desc{font-size:.85rem;color:var(--gray);line-height:1.7;max-width:380px;position:relative;z-index:1}
+.bc-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:24px;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:4px 12px;font-size:.67rem;letter-spacing:.06em;color:rgba(255,255,255,.5);text-transform:uppercase}
+
+/* Browser mockup in web card */
+.browser-mock{position:absolute;bottom:-10px;right:-10px;width:260px;opacity:.35;z-index:0}
+.bm-bar{height:28px;background:rgba(255,255,255,.06);border-radius:8px 8px 0 0;display:flex;align-items:center;gap:5px;padding:0 10px}
+.bm-dot{width:7px;height:7px;border-radius:50%}
+.bm-body{background:rgba(255,255,255,.03);border-radius:0 0 8px 8px;height:160px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.bm-line{height:5px;border-radius:3px;background:rgba(255,255,255,.08)}
+.bm-block{height:50px;border-radius:8px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.2)}
+
+/* Phone mockup in mobile card */
+.phone-mock{position:absolute;bottom:-20px;right:20px;width:100px;opacity:.45;z-index:0}
+.pm-body{background:rgba(255,255,255,.06);border-radius:20px;border:1.5px solid rgba(255,255,255,.1);height:180px;padding:10px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.pm-notch{width:40px;height:8px;background:rgba(0,0,0,.6);border-radius:0 0 8px 8px;margin:0 auto}
+.pm-line{height:4px;border-radius:2px;background:rgba(255,255,255,.1)}
+.pm-pill{height:16px;border-radius:8px;background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.2)}
+
+/* Stat mini numbers */
+.bc-mini-num{font-size:2rem;font-weight:800;letter-spacing:-.04em;margin-bottom:4px}
+.bc-mini-lbl{font-size:.62rem;color:var(--gray);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── Process ── */
+#process{background:#050507;position:relative;overflow:hidden}
+.process-bg-glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(140px);pointer-events:none;background:radial-gradient(circle,rgba(124,58,237,.08),transparent);top:-200px;right:-100px}
+.process-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:start}
+.process-steps{display:flex;flex-direction:column;padding-top:8px}
+.p-step{display:flex;gap:24px;padding:32px 0;border-bottom:1px solid rgba(255,255,255,.05);position:relative;transition:all .3s;cursor:none}
+.p-step:first-child{padding-top:0}
+.p-step:last-child{border-bottom:none}
+.p-step:hover{padding-left:8px}
+.p-step:hover .p-num{color:var(--accent2)}
+.p-step:hover .p-bar{transform:scaleX(1)}
+.p-bar{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent2),transparent);transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.p-num{font-size:.68rem;font-weight:800;color:rgba(255,255,255,.15);letter-spacing:.12em;min-width:28px;padding-top:4px;transition:color .3s;font-variant-numeric:tabular-nums}
+.p-content{flex:1}
+.p-title{font-size:1.05rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
+.p-desc{font-size:.855rem;color:var(--gray);line-height:1.7}
+
+/* Animated phone right side */
+.process-right{display:flex;align-items:flex-start;justify-content:center;padding-top:40px;position:relative}
+.big-phone{width:280px;height:560px;background:linear-gradient(145deg,#101018,#0a0a14);border-radius:48px;border:1.5px solid rgba(255,255,255,.08);position:relative;box-shadow:0 80px 160px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden;flex-shrink:0}
+.bp-notch{width:110px;height:30px;background:#000;border-radius:0 0 22px 22px;position:absolute;top:0;left:50%;transform:translateX(-50%)}
+.bp-screen{position:absolute;inset:34px 14px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.bp-header{display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+.bp-time{font-size:.58rem;font-weight:700;color:rgba(255,255,255,.8)}
+.bp-title-block{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:14px}
+.bp-lbl{font-size:.58rem;color:rgba(255,255,255,.35);margin-bottom:4px}
+.bp-val{font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.03em}
+.bp-chart{flex:1;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.12);border-radius:16px;overflow:hidden;position:relative;display:flex;align-items:flex-end}
+.bp-bars{display:flex;align-items:flex-end;gap:5px;padding:14px;width:100%}
+.bpb{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(to top,var(--accent),var(--accent2));animation:bpGrow 2.5s ease-in-out infinite alternate}
+@keyframes bpGrow{from{opacity:.3}to{opacity:.85}}
+.bpb:nth-child(1){height:38%;animation-delay:0s}
+.bpb:nth-child(2){height:62%;animation-delay:.1s}
+.bpb:nth-child(3){height:48%;animation-delay:.2s}
+.bpb:nth-child(4){height:82%;animation-delay:.3s}
+.bpb:nth-child(5){height:56%;animation-delay:.4s}
+.bpb:nth-child(6){height:92%;animation-delay:.5s}
+.bpb:nth-child(7){height:70%;animation-delay:.6s}
+.bp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bp-mini{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:10px}
+.bp-mini-l{font-size:.5rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.bp-mini-v{font-size:.9rem;font-weight:800}
+
+/* Floating side badges */
+.side-badge{position:absolute;background:rgba(15,15,20,.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 16px;white-space:nowrap;font-size:.68rem;pointer-events:none}
+.sb1{top:80px;left:-130px;animation:sbFloat 7s ease-in-out infinite}
+.sb2{bottom:120px;right:-130px;animation:sbFloat 9s ease-in-out infinite reverse;animation-delay:-3s}
+@keyframes sbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.sb-icon{font-size:1rem}
+.sb-body{}
+.sb-title{font-weight:700;display:block;margin-bottom:1px}
+.sb-sub{color:var(--gray);font-size:.6rem}
+
+/* ── Portfolio Horizontal Scroll ── */
+#work{background:var(--bg);overflow:hidden;padding-bottom:0}
+.work-header{max-width:1200px;margin:0 auto 60px;display:flex;justify-content:space-between;align-items:flex-end}
+.scroll-container{position:relative}
+.scroll-track{display:flex;gap:16px;overflow-x:auto;padding:0 48px 80px;scrollbar-width:none;scroll-snap-type:x mandatory;cursor:grab}
+.scroll-track::-webkit-scrollbar{display:none}
+.scroll-track:active{cursor:grabbing}
+.proj-card{flex-shrink:0;width:440px;height:500px;border-radius:28px;position:relative;overflow:hidden;background:#0f0f14;border:1px solid rgba(255,255,255,.06);scroll-snap-align:start;transition:border-color .4s;cursor:none}
+.proj-card:hover{border-color:rgba(255,255,255,.12)}
+.proj-card:hover .proj-img{transform:scale(1.06)}
+.proj-card:hover .proj-overlay{opacity:1}
+.proj-img{position:absolute;inset:0;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.proj-overlay{position:absolute;inset:0;background:rgba(124,58,237,.08);opacity:0;transition:opacity .4s}
+.proj-content{position:absolute;bottom:0;left:0;right:0;padding:32px;background:linear-gradient(to top,rgba(10,10,16,.97) 40%,transparent)}
+.proj-chips{display:flex;gap:6px;margin-bottom:14px}
+.proj-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:3px 10px;font-size:.62rem;letter-spacing:.06em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.proj-name{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+.proj-desc{font-size:.8rem;color:rgba(255,255,255,.45);line-height:1.55}
+.proj-arrow{position:absolute;top:24px;right:24px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;transition:all .3s}
+.proj-card:hover .proj-arrow{background:var(--accent);border-color:var(--accent);box-shadow:0 8px 24px rgba(124,58,237,.5)}
+
+/* Project card backgrounds */
+.bg-p1{background:linear-gradient(145deg,#0f0c1d,#1c1442,#0d0b1a)}
+.bg-p2{background:linear-gradient(145deg,#071520,#0c2030,#091825)}
+.bg-p3{background:linear-gradient(145deg,#0d0d0d,#160b20,#200d18)}
+.bg-p4{background:linear-gradient(145deg,#081018,#0b1a28,#0d2035)}
+.bg-p5{background:linear-gradient(145deg,#0a100a,#0f1e0f,#0d1a0d)}
+.proj-decor{position:absolute;top:20px;left:28px;opacity:.6}
+
+/* Scroll arrows */
+.scroll-arrows{max-width:1200px;margin:0 auto;padding:0 48px 80px;display:flex;gap:12px;justify-content:flex-end}
+.arr-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:none;transition:all .3s;color:rgba(255,255,255,.6)}
+.arr-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 24px rgba(124,58,237,.4)}
+
+/* ── Tech ── */
+#tech{background:#050507}
+.tech-inner{max-width:1200px;margin:0 auto;text-align:center}
+.tech-inner .s-sub{margin:0 auto 72px}
+.tech-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.t-pill{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 20px;font-size:.82rem;color:rgba(255,255,255,.6);font-weight:500;transition:all .35s;cursor:none}
+.t-pill:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);color:#fff;transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.t-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+/* ── Testimonials ── */
+#testimonials{background:var(--bg)}
+.testi-inner{max-width:1200px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px}
+.tc{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:36px;transition:all .4s;cursor:none;position:relative;overflow:hidden}
+.tc::before{content:'\201C';position:absolute;top:12px;right:24px;font-size:6rem;color:rgba(255,255,255,.02);font-family:Georgia,serif;line-height:1}
+.tc:hover{background:rgba(255,255,255,.04);border-color:rgba(124,58,237,.2);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px rgba(124,58,237,.08);transform:translateY(-6px)}
+.tc-stars{color:#fbbf24;font-size:.75rem;letter-spacing:2px;margin-bottom:20px;display:block}
+.tc-text{font-size:.92rem;line-height:1.8;color:rgba(255,255,255,.75);margin-bottom:28px}
+.tc-author{display:flex;align-items:center;gap:14px}
+.tc-ava{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:800;color:#fff;flex-shrink:0;font-family:sans-serif}
+.tc-name{font-size:.88rem;font-weight:700;margin-bottom:2px}
+.tc-role{font-size:.72rem;color:var(--gray)}
+
+/* ── CTA ── */
+#cta{padding:160px 48px;text-align:center;position:relative;overflow:hidden;background:var(--bg)}
+.cta-glow{position:absolute;width:900px;height:900px;border-radius:50%;filter:blur(160px);background:radial-gradient(circle,rgba(124,58,237,.12),transparent);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.cta-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+.cta-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.cta-title{font-size:clamp(2.8rem,5.5vw,5rem);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin-bottom:24px}
+.cta-sub{font-size:1.05rem;color:var(--gray);margin-bottom:52px;line-height:1.7}
+.cta-form{display:flex;gap:10px;max-width:460px;margin:0 auto}
+.cta-inp{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:15px 22px;color:#fff;font-size:.88rem;font-family:var(--font);outline:none;transition:all .3s}
+.cta-inp::placeholder{color:rgba(255,255,255,.25)}
+.cta-inp:focus{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.08);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.perks{display:flex;justify-content:center;gap:28px;margin-top:44px;flex-wrap:wrap}
+.perk{display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(255,255,255,.35)}
+.perk svg{color:var(--accent4);flex-shrink:0}
+
+/* ── Footer ── */
+footer{padding:44px 48px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;background:var(--bg);flex-wrap:wrap;gap:24px}
+.ft-logo{font-size:.95rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(120deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ft-links{display:flex;gap:28px;list-style:none}
+.ft-links a{font-size:.75rem;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.ft-links a:hover{color:rgba(255,255,255,.7)}
+.ft-copy{font-size:.73rem;color:rgba(255,255,255,.18)}
+
+/* ── Reveal animations ── */
+.reveal{opacity:0;transform:translateY(44px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-30px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal-left.in{opacity:1;transform:translateX(0)}
+.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}.rd4{transition-delay:.4s}.rd5{transition-delay:.5s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Lang fade ── */
+.lfade{animation:lfa .25s ease}
+@keyframes lfa{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Mobile ── */
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-center{display:none}
+  section{padding:80px 20px}
+  .stats-inner{grid-template-columns:1fr 1fr}
+  .stat-item:nth-child(2){border-right:none}
+  .stat-item:nth-child(3){border-top:1px solid rgba(255,255,255,.04)}
+  .stat-item:nth-child(4){border-top:1px solid rgba(255,255,255,.04);border-right:none}
+  .bento{grid-template-columns:1fr 1fr}
+  .bc-web,.bc-mobile,.bc-design{grid-column:span 2}
+  .bc-stat1,.bc-stat2,.bc-cta{grid-column:span 1}
+  .process-inner{grid-template-columns:1fr;gap:60px}
+  .process-right{display:none}
+  .testi-grid{grid-template-columns:1fr}
+  .cta-form{flex-direction:column}
+  footer{flex-direction:column;align-items:flex-start}
+  .hcard{display:none}
+  .work-header{flex-direction:column;align-items:flex-start;gap:20px}
+  .scroll-track{padding:0 20px 60px}
+  .scroll-arrows{padding:0 20px 60px}
+  .services-top{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <div class="nav-logo">Studio</div>
+  <ul class="nav-center">
+    <li><a href="#services" data-i18n="nav_services">Szolgáltatások</a></li>
+    <li><a href="#process" data-i18n="nav_process">Folyamat</a></li>
+    <li><a href="#work" data-i18n="nav_work">Munkáink</a></li>
+    <li><a href="#tech">Tech</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-hu" onclick="setLang('hu')"><span>🇭🇺</span> HU</button>
+      <button class="lang-btn" id="btn-ro" onclick="setLang('ro')"><span>🇷🇴</span> RO</button>
+    </div>
+    <a href="#cta" class="nav-cta" data-i18n="nav_cta">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span data-i18n="nav_cta">Projekt indítása</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="mesh">
+    <div class="mesh-blob mb1"></div>
+    <div class="mesh-blob mb2"></div>
+    <div class="mesh-blob mb3"></div>
+    <div class="mesh-blob mb4"></div>
+  </div>
+
+  <div class="hero-badge">
+    <div class="hero-pulse"></div>
+    <span data-i18n="hero_badge">Digitális élmények 2026</span>
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line line-1"><span data-i18n="hero_t1">Weboldalak</span></span>
+    <span class="line line-2"><span class="gradient-word" data-i18n="hero_t2">& Applikációk</span></span>
+    <span class="line line-3"><span data-i18n="hero_t3">amik eladnak</span></span>
+  </h1>
+
+  <p class="hero-sub" data-i18n="hero_sub">Prémium digitális termékeket alkotunk — weboldalakat és mobilapplikációkat, amelyek nem csupán szépek, hanem konvertálnak és növekednek.</p>
+
+  <div class="hero-btns">
+    <button class="btn-mag btn-primary-mag" id="heroCta1" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span data-i18n="hero_cta1">Kezdjük el együtt</span>
+    </button>
+    <a href="#work" class="btn-mag btn-ghost-mag">
+      <span data-i18n="hero_cta2">Munkáink megtekintése</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+    </a>
+  </div>
+
+  <!-- Floating cards -->
+  <div class="hero-cards">
+    <div class="hcard hcard-1">
+      <div class="hcard-label" data-i18n="hc1_lbl">Bevétel ma</div>
+      <div class="hcard-value hcard-cyan">2.8M Ft</div>
+      <div class="hcard-trend">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+        <span>+18.4%</span>
+      </div>
+    </div>
+    <div class="hcard hcard-2">
+      <div class="hcard-label" data-i18n="hc2_lbl">Konverzió</div>
+      <div class="hcard-value" style="font-size:1.8rem">6.8%</div>
+      <div class="hcard-bar">
+        <div class="hbar"></div><div class="hbar"></div><div class="hbar"></div>
+        <div class="hbar"></div><div class="hbar"></div><div class="hbar"></div>
+      </div>
+    </div>
+    <div class="hcard hcard-3">
+      <div class="hcard-label" data-i18n="hc3_lbl">Elégedett ügyfél</div>
+      <div class="hcard-value hcard-green">98+</div>
+      <div class="avatar-row" style="margin-top:10px">
+        <div class="avc" style="background:linear-gradient(135deg,#7c3aed,#06b6d4)">A</div>
+        <div class="avc" style="background:linear-gradient(135deg,#f43f5e,#f97316)">B</div>
+        <div class="avc" style="background:linear-gradient(135deg,#10b981,#06b6d4)">C</div>
+        <div class="avc" style="background:rgba(255,255,255,.1);font-size:.5rem">+95</div>
+      </div>
+    </div>
+    <div class="hcard hcard-4">
+      <div class="hcard-label">⌀ Rating</div>
+      <div class="hcard-value hcard-purple" style="font-size:1.7rem">4.9 ★</div>
+      <div class="hcard-sub" style="color:var(--gray);margin-top:4px" data-i18n="hc4_sub">127 projekt</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-mouse"><div class="scroll-dot"></div></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats-section">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="127">0</div>
+      <div class="stat-lbl" data-i18n="stat1">Projekt teljesítve</div>
+    </div>
+    <div class="stat-item reveal rd1">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-lbl" data-i18n="stat2">Elégedett ügyfél</div>
+    </div>
+    <div class="stat-item reveal rd2">
+      <div class="stat-num">⌀ 4.9</div>
+      <div class="stat-lbl" data-i18n="stat3">Értékelés</div>
+    </div>
+    <div class="stat-item reveal rd3">
+      <div class="stat-num" data-i18n="stat4_num">6 év</div>
+      <div class="stat-lbl" data-i18n="stat4">Tapasztalat</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MARQUEE ── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="m-item"><span data-i18n="mq1">Weboldal fejlesztés</span><span class="m-dot"></span></span>
+    <span class="m-item">iOS & Android App<span class="m-dot"></span></span>
+    <span class="m-item">UI / UX Design<span class="m-dot"></span></span>
+    <span class="m-item">E-commerce<span class="m-dot"></span></span>
+    <span class="m-item"><span data-i18n="mq5">SaaS platformok</span><span class="m-dot"></span></span>
+    <span class="m-item">Branding<span class="m-dot"></span></span>
+    <span class="m-item"><span data-i18n="mq7">Backend fejlesztés</span><span class="m-dot"></span></span>
+    <span class="m-item">Motion Design<span class="m-dot"></span></span>
+    <!-- dupe for infinite -->
+    <span class="m-item"><span data-i18n="mq1">Weboldal fejlesztés</span><span class="m-dot"></span></span>
+    <span class="m-item">iOS & Android App<span class="m-dot"></span></span>
+    <span class="m-item">UI / UX Design<span class="m-dot"></span></span>
+    <span class="m-item">E-commerce<span class="m-dot"></span></span>
+    <span class="m-item"><span data-i18n="mq5">SaaS platformok</span><span class="m-dot"></span></span>
+    <span class="m-item">Branding<span class="m-dot"></span></span>
+    <span class="m-item"><span data-i18n="mq7">Backend fejlesztés</span><span class="m-dot"></span></span>
+    <span class="m-item">Motion Design<span class="m-dot"></span></span>
+  </div>
+</div>
+
+<!-- ── SERVICES BENTO ── -->
+<section id="services">
+  <div class="services-top">
+    <div class="reveal">
+      <div class="s-tag" data-i18n="s_tag">Szolgáltatások</div>
+      <h2 class="s-title" data-i18n-html="s_title">Minden, amire<br>szükséged van</h2>
+    </div>
+    <p class="s-sub reveal rd2" data-i18n="s_sub">Egyablakos megoldás — a stratégiától az élő termékig, teljeskörű digitális fejlesztés.</p>
+  </div>
+  <div class="bento">
+
+    <!-- Web Dev — large -->
+    <div class="bc bc-web reveal">
+      <div class="bc-icon" style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#gi1)" stroke-width="1.8"><defs><linearGradient id="gi1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="bc-name" data-i18n="s1_name">Weboldal fejlesztés</div>
+      <p class="bc-desc" data-i18n="s1_desc">Gyors, modern és konverzióra optimalizált weboldalak. Minden képernyőn tökéletesen jelenik meg, SEO-barát és hosszú távon skálázható.</p>
+      <div class="bc-chips">
+        <span class="chip">Next.js</span><span class="chip">React</span><span class="chip">Tailwind</span><span class="chip">SEO</span><span class="chip">TypeScript</span>
+      </div>
+      <!-- Browser mockup -->
+      <div class="browser-mock">
+        <div class="bm-bar">
+          <div class="bm-dot" style="background:#f43f5e"></div>
+          <div class="bm-dot" style="background:#fbbf24"></div>
+          <div class="bm-dot" style="background:#10b981"></div>
+        </div>
+        <div class="bm-body">
+          <div class="bm-line" style="width:60%"></div>
+          <div class="bm-line" style="width:40%"></div>
+          <div class="bm-block"></div>
+          <div class="bm-line" style="width:75%"></div>
+          <div class="bm-line" style="width:50%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — medium -->
+    <div class="bc bc-mobile reveal rd1">
+      <div class="bc-icon" style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#gi2)" stroke-width="1.8"><defs><linearGradient id="gi2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1"/></svg>
+      </div>
+      <div class="bc-name" data-i18n="s2_name">Mobil alkalmazás</div>
+      <p class="bc-desc" data-i18n="s2_desc">Natív iOS és Android appok, sima animációkkal és intuitív UX-szel.</p>
+      <div class="bc-chips">
+        <span class="chip">Flutter</span><span class="chip">React Native</span><span class="chip">iOS</span><span class="chip">Android</span>
+      </div>
+      <div class="phone-mock">
+        <div class="pm-body">
+          <div class="pm-notch"></div>
+          <div class="pm-line" style="width:50%"></div>
+          <div class="pm-line" style="width:70%"></div>
+          <div class="pm-pill"></div>
+          <div class="pm-line" style="width:40%"></div>
+          <div class="pm-line" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design -->
+    <div class="bc bc-design reveal rd2" style="padding:32px;display:flex;flex-direction:column;justify-content:center">
+      <div class="bc-icon" style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#gi3)" stroke-width="1.8"><defs><linearGradient id="gi3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f43f5e"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4-4-4 4-4z"/></svg>
+      </div>
+      <div class="bc-name" data-i18n="s3_name">UI/UX Design</div>
+      <p class="bc-desc" style="max-width:100%" data-i18n="s3_desc">Figma-prototípustól a pixel-perfect implementációig gondoskodunk az élményről.</p>
+      <div class="bc-chips" style="margin-top:20px">
+        <span class="chip">Figma</span><span class="chip">Design System</span><span class="chip">Prototyping</span>
+      </div>
+    </div>
+
+    <!-- Mini stat 1 -->
+    <div class="bc bc-stat1 reveal rd3">
+      <div class="bc-mini-num" style="background:linear-gradient(135deg,#fff,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent">127+</div>
+      <div class="bc-mini-lbl" data-i18n="stat1">Projekt teljesítve</div>
+    </div>
+
+    <!-- Mini stat 2 -->
+    <div class="bc bc-stat2 reveal rd4">
+      <div class="bc-mini-num" style="background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent">4.9★</div>
+      <div class="bc-mini-lbl" data-i18n="stat3">Értékelés</div>
+    </div>
+
+    <!-- CTA cell -->
+    <div class="bc bc-cta reveal rd5" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+      <div style="font-size:1.3rem;margin-bottom:10px">→</div>
+      <div style="font-size:.78rem;font-weight:700;letter-spacing:.04em" data-i18n="nav_cta">Projekt indítása</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PROCESS ── -->
+<section id="process">
+  <div class="process-bg-glow"></div>
+  <div class="process-inner">
+    <div>
+      <div class="s-tag reveal" data-i18n="p_tag">Hogyan dolgozunk</div>
+      <h2 class="s-title reveal rd1" data-i18n-html="p_title">Átlátható<br>folyamat</h2>
+      <p class="s-sub reveal rd2" style="margin-bottom:52px" data-i18n="p_sub">Nincsenek meglepetések. Minden lépést közösen járunk végig — az ötlettől az éles indításig.</p>
+      <div class="process-steps">
+        <div class="p-step reveal">
+          <span class="p-num">01</span>
+          <div class="p-content">
+            <div class="p-title" data-i18n="ps1_t">Megismerés & Stratégia</div>
+            <p class="p-desc" data-i18n="ps1_d">Megértjük az üzleti céljaidat, a felhasználóidat és a piacot. Ebből építjük a digitális stratégiát.</p>
+          </div>
+          <div class="p-bar"></div>
+        </div>
+        <div class="p-step reveal rd1">
+          <span class="p-num">02</span>
+          <div class="p-content">
+            <div class="p-title" data-i18n="ps2_t">Design & Prototípus</div>
+            <p class="p-desc" data-i18n="ps2_d">Interaktív Figma prototípusokat készítünk — látod a végeredményt még a fejlesztés előtt.</p>
+          </div>
+          <div class="p-bar"></div>
+        </div>
+        <div class="p-step reveal rd2">
+          <span class="p-num">03</span>
+          <div class="p-content">
+            <div class="p-title" data-i18n="ps3_t">Fejlesztés & Tesztelés</div>
+            <p class="p-desc" data-i18n="ps3_d">Agilis sprinthek, heti demo-k. Folyamatosan tájékoztatunk és bevonunk az iterációkba.</p>
+          </div>
+          <div class="p-bar"></div>
+        </div>
+        <div class="p-step reveal rd3">
+          <span class="p-num">04</span>
+          <div class="p-content">
+            <div class="p-title" data-i18n="ps4_t">Indítás & Támogatás</div>
+            <p class="p-desc" data-i18n="ps4_d">Zökkenőmentes élesbe állítás, majd 3 hónap ingyenes support. A sikeretek a mi sikerünk.</p>
+          </div>
+          <div class="p-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="process-right reveal rd2">
+      <div class="side-badge sb1">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sb-icon">🚀</span>
+          <div class="sb-body">
+            <span class="sb-title" data-i18n="sb1_t">Projekt élőbe ment</span>
+            <span class="sb-sub" data-i18n="sb1_s">2 perc ezelőtt</span>
+          </div>
+        </div>
+      </div>
+      <div class="big-phone">
+        <div class="bp-notch"></div>
+        <div class="bp-screen">
+          <div class="bp-header">
+            <span class="bp-time">9:41</span>
+            <span style="display:flex;gap:3px;align-items:center;font-size:.55rem;color:rgba(255,255,255,.7)">
+              <svg width="10" height="7" viewBox="0 0 24 16" fill="currentColor"><rect x="0" y="3" width="5" height="13" rx="1"/><rect x="7" y="1" width="5" height="15" rx="1"/><rect x="14" y="0" width="5" height="16" rx="1"/><rect x="21" y="2" width="3" height="14" rx="1" opacity=".3"/></svg>
+              <svg width="18" height="7" viewBox="0 0 24 12" fill="none"><rect x="0" y="1" width="20" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="21" y="4" width="3" height="4" rx="1" fill="currentColor" opacity=".5"/><rect x="1.5" y="2.5" width="12" height="7" rx="1" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="bp-title-block">
+            <div class="bp-lbl" data-i18n="phone_lbl">Bevétel ma</div>
+            <div class="bp-val" data-i18n="phone_val">2 847 400 Ft</div>
+          </div>
+          <div class="bp-chart">
+            <div class="bp-bars">
+              <div class="bpb"></div><div class="bpb"></div><div class="bpb"></div>
+              <div class="bpb"></div><div class="bpb"></div><div class="bpb"></div><div class="bpb"></div>
+            </div>
+          </div>
+          <div class="bp-grid">
+            <div class="bp-mini">
+              <div class="bp-mini-l" data-i18n="phone_ord">Rendelések</div>
+              <div class="bp-mini-v" style="color:var(--accent2)">+48</div>
+            </div>
+            <div class="bp-mini">
+              <div class="bp-mini-l" data-i18n="phone_con">Konverzió</div>
+              <div class="bp-mini-v" style="color:#4ade80">3.8%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="side-badge sb2">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sb-icon">📈</span>
+          <div class="sb-body">
+            <span class="sb-title" data-i18n="sb2_t">+340% konverzió</span>
+            <span class="sb-sub" data-i18n="sb2_s">30 napos adat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PORTFOLIO HORIZONTAL ── -->
+<section id="work">
+  <div class="work-header">
+    <div class="reveal">
+      <div class="s-tag" data-i18n="w_tag">Portfólió</div>
+      <h2 class="s-title" data-i18n="w_title">Néhány munkánk</h2>
+    </div>
+    <a href="#cta" class="btn-mag btn-ghost-mag reveal rd2" style="align-self:flex-end" data-i18n="w_all">Összes projekt →</a>
+  </div>
+
+  <div class="scroll-container">
+    <div class="scroll-track" id="scrollTrack">
+
+      <div class="proj-card bg-p1">
+        <div class="proj-img">
+          <div class="proj-decor" style="opacity:.5">
+            <div style="width:180px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px">
+              <div style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Active users</div>
+              <div style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent">24.8K</div>
+              <div style="display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:10px">
+                <div style="flex:1;border-radius:2px 2px 0 0;background:rgba(124,58,237,.4);height:40%"></div>
+                <div style="flex:1;border-radius:2px 2px 0 0;background:rgba(124,58,237,.5);height:65%"></div>
+                <div style="flex:1;border-radius:2px 2px 0 0;background:rgba(124,58,237,.6);height:50%"></div>
+                <div style="flex:1;border-radius:2px 2px 0 0;background:rgba(124,58,237,.7);height:85%"></div>
+                <div style="flex:1;border-radius:2px 2px 0 0;background:rgba(124,58,237,.9);height:70%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="proj-overlay"></div>
+        <div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+        <div class="proj-content">
+          <div class="proj-chips"><span class="proj-chip" data-i18n="pc_saas">SaaS Platform</span><span class="proj-chip">Web</span></div>
+          <div class="proj-name">NexusCloud</div>
+          <div class="proj-desc" data-i18n="pd1">Enterprise analitikai platform 25 ezres felhasználói bázissal</div>
+        </div>
+      </div>
+
+      <div class="proj-card bg-p2">
+        <div class="proj-img" style="display:flex;align-items:center;justify-content:flex-end;padding:24px;opacity:.5">
+          <div style="width:90px;height:180px;background:rgba(255,255,255,.04);border-radius:22px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center">
+            <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.4rem">🛒</div>
+          </div>
+        </div>
+        <div class="proj-overlay"></div>
+        <div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+        <div class="proj-content">
+          <div class="proj-chips"><span class="proj-chip">E-commerce</span><span class="proj-chip">iOS & Android</span></div>
+          <div class="proj-name">ShopArc</div>
+          <div class="proj-desc" data-i18n="pd2">Mobil vásárlási applikáció, +280% konverzió</div>
+        </div>
+      </div>
+
+      <div class="proj-card bg-p3">
+        <div class="proj-img" style="display:flex;align-items:center;justify-content:center;opacity:.2;font-size:5rem">🏥</div>
+        <div class="proj-overlay"></div>
+        <div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+        <div class="proj-content">
+          <div class="proj-chips"><span class="proj-chip">HealthTech</span><span class="proj-chip">App</span></div>
+          <div class="proj-name">MediTrack</div>
+          <div class="proj-desc" data-i18n="pd3">Egészségügyi monitorozó és analitikai applikáció</div>
+        </div>
+      </div>
+
+      <div class="proj-card bg-p4">
+        <div class="proj-img" style="display:flex;align-items:center;justify-content:center;opacity:.1">
+          <svg width="280" height="140" viewBox="0 0 280 140" fill="none"><path d="M10 110 Q70 20 140 70 Q210 120 270 30" stroke="url(#plg)" stroke-width="2" fill="none"/><defs><linearGradient id="plg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs></svg>
+        </div>
+        <div class="proj-overlay"></div>
+        <div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+        <div class="proj-content">
+          <div class="proj-chips"><span class="proj-chip">Fintech</span><span class="proj-chip">Web & Mobile</span></div>
+          <div class="proj-name">Vaultify</div>
+          <div class="proj-desc" data-i18n="pd4">Modern neobank platform — 150K felhasználó, 99.99% uptime</div>
+        </div>
+      </div>
+
+      <div class="proj-card bg-p5">
+        <div class="proj-img" style="display:flex;align-items:center;justify-content:center;opacity:.2;font-size:5rem">🌿</div>
+        <div class="proj-overlay"></div>
+        <div class="proj-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+        <div class="proj-content">
+          <div class="proj-chips"><span class="proj-chip">Sustainability</span><span class="proj-chip">Web</span></div>
+          <div class="proj-name">GreenPath</div>
+          <div class="proj-desc" data-i18n="pd5">ESG reporting és fenntarthatósági platform</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="scroll-arrows">
+    <button class="arr-btn" id="arrLeft" onclick="scrollProj(-1)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="arr-btn" id="arrRight" onclick="scrollProj(1)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ── TECH ── -->
+<section id="tech">
+  <div class="tech-inner">
+    <div class="reveal">
+      <div class="s-tag" data-i18n="t_tag">Technológia</div>
+      <h2 class="s-title" data-i18n-html="t_title">A legjobb eszközök<br>a legjobb eredményért</h2>
+      <p class="s-sub" data-i18n="t_sub">Bevált, modern technológiákat használunk, amelyek gyorsak, megbízhatók és skálázhatók.</p>
+    </div>
+    <div class="tech-grid reveal rd2">
+      <div class="t-pill"><div class="t-icon" style="background:rgba(0,0,0,.4)">⚛️</div>React</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(0,0,0,.4)">▲</div>Next.js</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(6,182,212,.1)">🐦</div>Flutter</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(251,146,60,.1)">🔥</div>Firebase</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(99,102,241,.1)">🐘</div>PostgreSQL</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(0,0,0,.4)">🟢</div>Node.js</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(236,119,52,.1)">☁️</div>AWS</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(6,182,212,.1)">🐳</div>Docker</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(240,80,50,.1)">🎨</div>Figma</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(124,58,237,.1)">⚡</div>TypeScript</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(6,182,212,.1)">📦</div>Supabase</div>
+      <div class="t-pill"><div class="t-icon" style="background:rgba(255,255,255,.04)">🔄</div>GraphQL</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials">
+  <div class="testi-inner">
+    <div class="reveal">
+      <div class="s-tag" data-i18n="ts_tag">Vélemények</div>
+      <h2 class="s-title" data-i18n="ts_title">Amit az ügyfelek mondanak</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="tc reveal">
+        <span class="tc-stars">★★★★★</span>
+        <p class="tc-text" data-i18n="t1_txt">„Elképesztő munkát végeztek. Az appunk 3 hónap alatt 50 ezer letöltést ért el, a felhasználói visszajelzések rendkívül pozitívak. A csapat mindig egy lépéssel előre gondolkodott."</p>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,#7c3aed,#06b6d4)">KP</div>
+          <div>
+            <div class="tc-name" data-i18n="t1_name">Kovács Péter</div>
+            <div class="tc-role" data-i18n="t1_role">CEO, TechStart Budapest</div>
+          </div>
+        </div>
+      </div>
+      <div class="tc reveal rd1">
+        <span class="tc-stars">★★★★★</span>
+        <p class="tc-text" data-i18n="t2_txt">„A weboldalunk elkészítése után a konverziós rátánk 2.1%-ról 6.8%-ra ugrott. Pontosan tudják, hogyan kell ötvözni a szép designt az üzleti eredményekkel."</p>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,#f43f5e,#f97316)">SN</div>
+          <div>
+            <div class="tc-name" data-i18n="t2_name">Szabó Nikolett</div>
+            <div class="tc-role" data-i18n="t2_role">Marketing Director, ShopFlow</div>
+          </div>
+        </div>
+      </div>
+      <div class="tc reveal rd2">
+        <span class="tc-stars">★★★★★</span>
+        <p class="tc-text" data-i18n="t3_txt">„Hat hónap alatt leszállítottak egy komplex SaaS platformot. Átlátható kommunikáció, profi csapat, lenyűgöző minőség. Nem is gondolkozunk más fejlesztőn."</p>
+        <div class="tc-author">
+          <div class="tc-ava" style="background:linear-gradient(135deg,#06b6d4,#10b981)">MG</div>
+          <div>
+            <div class="tc-name" data-i18n="t3_name">Molnár Gábor</div>
+            <div class="tc-role" data-i18n="t3_role">CTO, DataVault Systems</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="cta-grid"></div>
+  <div class="cta-inner">
+    <div class="reveal">
+      <div class="s-tag" data-i18n="c_tag">Kapcsolat</div>
+      <h2 class="cta-title" data-i18n-html="c_title">Készen állsz<br>a következő szintre?</h2>
+      <p class="cta-sub" data-i18n="c_sub">Írj nekünk, és 24 órán belül visszajelzünk egy ingyenes konzultáció ajánlattal.</p>
+    </div>
+    <div class="cta-form reveal rd1">
+      <input type="email" id="ctaEmail" class="cta-inp" data-i18n-ph="c_ph" placeholder="Email cím...">
+      <button class="btn-mag btn-primary-mag" id="ctaBtn" onclick="handleSubmit(this)">
+        <span data-i18n="c_send">Küldés</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="perks reveal rd2">
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="p1">Ingyenes konzultáció</span></div>
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="p2">24 órás válaszidő</span></div>
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="p3">Fix árak, átlátható folyamat</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="ft-logo">Studio</div>
+  <ul class="ft-links">
+    <li><a href="#services" data-i18n="nav_services">Szolgáltatások</a></li>
+    <li><a href="#work" data-i18n="ft_work">Munkák</a></li>
+    <li><a href="#cta" data-i18n="c_tag">Kapcsolat</a></li>
+  </ul>
+  <span class="ft-copy" data-i18n="ft_copy">© 2026 Studio. Minden jog fenntartva.</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   TRANSLATIONS
+═══════════════════════════════════════════════════ */
+const T={
+  hu:{
+    nav_services:'Szolgáltatások',nav_process:'Folyamat',nav_work:'Munkáink',nav_cta:'Projekt indítása',
+    hero_badge:'Digitális élmények 2026',hero_t1:'Weboldalak',hero_t2:'& Applikációk',hero_t3:'amik eladnak',
+    hero_sub:'Prémium digitális termékeket alkotunk — weboldalakat és mobilapplikációkat, amelyek nem csupán szépek, hanem konvertálnak és növekednek.',
+    hero_cta1:'Kezdjük el együtt',hero_cta2:'Munkáink megtekintése',
+    hc1_lbl:'Bevétel ma',hc2_lbl:'Konverzió',hc3_lbl:'Elégedett ügyfél',hc4_sub:'127 projekt',
+    stat1:'Projekt teljesítve',stat2:'Elégedett ügyfél',stat3:'Értékelés',stat4:'Tapasztalat',stat4_num:'6 év',
+    mq1:'Weboldal fejlesztés',mq5:'SaaS platformok',mq7:'Backend fejlesztés',
+    s_tag:'Szolgáltatások',s_title:'Minden, amire<br>szükséged van',s_sub:'Egyablakos megoldás — a stratégiától az élő termékig, teljeskörű digitális fejlesztés.',
+    s1_name:'Weboldal fejlesztés',s1_desc:'Gyors, modern és konverzióra optimalizált weboldalak. Minden képernyőn tökéletesen jelenik meg, SEO-barát és hosszú távon skálázható.',
+    s2_name:'Mobil alkalmazás',s2_desc:'Natív iOS és Android appok, sima animációkkal és intuitív UX-szel.',
+    s3_name:'UI/UX Design',s3_desc:'Figma-prototípustól a pixel-perfect implementációig gondoskodunk az élményről.',
+    p_tag:'Hogyan dolgozunk',p_title:'Átlátható<br>folyamat',p_sub:'Nincsenek meglepetések. Minden lépést közösen járunk végig — az ötlettől az éles indításig.',
+    ps1_t:'Megismerés & Stratégia',ps1_d:'Megértjük az üzleti céljaidat, a felhasználóidat és a piacot. Ebből építjük a digitális stratégiát.',
+    ps2_t:'Design & Prototípus',ps2_d:'Interaktív Figma prototípusokat készítünk — látod a végeredményt még a fejlesztés előtt.',
+    ps3_t:'Fejlesztés & Tesztelés',ps3_d:'Agilis sprinthek, heti demo-k. Folyamatosan tájékoztatunk és bevonunk az iterációkba.',
+    ps4_t:'Indítás & Támogatás',ps4_d:'Zökkenőmentes élesbe állítás, majd 3 hónap ingyenes support. A sikeretek a mi sikerünk.',
+    sb1_t:'Projekt élőbe ment',sb1_s:'2 perc ezelőtt',sb2_t:'+340% konverzió',sb2_s:'30 napos adat',
+    phone_lbl:'Bevétel ma',phone_val:'2 847 400 Ft',phone_ord:'Rendelések',phone_con:'Konverzió',
+    w_tag:'Portfólió',w_title:'Néhány munkánk',w_all:'Összes projekt →',
+    pc_saas:'SaaS Platform',
+    pd1:'Enterprise analitikai platform 25 ezres felhasználói bázissal',
+    pd2:'Mobil vásárlási applikáció, +280% konverzió',
+    pd3:'Egészségügyi monitorozó és analitikai applikáció',
+    pd4:'Modern neobank platform — 150K felhasználó, 99.99% uptime',
+    pd5:'ESG reporting és fenntarthatósági platform',
+    t_tag:'Technológia',t_title:'A legjobb eszközök<br>a legjobb eredményért',t_sub:'Bevált, modern technológiákat használunk, amelyek gyorsak, megbízhatók és skálázhatók.',
+    ts_tag:'Vélemények',ts_title:'Amit az ügyfelek mondanak',
+    t1_txt:'„Elképesztő munkát végeztek. Az appunk 3 hónap alatt 50 ezer letöltést ért el, a felhasználói visszajelzések rendkívül pozitívak. A csapat mindig egy lépéssel előre gondolkodott."',
+    t1_name:'Kovács Péter',t1_role:'CEO, TechStart Budapest',
+    t2_txt:'„A weboldalunk elkészítése után a konverziós rátánk 2.1%-ról 6.8%-ra ugrott. Pontosan tudják, hogyan kell ötvözni a szép designt az üzleti eredményekkel."',
+    t2_name:'Szabó Nikolett',t2_role:'Marketing Director, ShopFlow',
+    t3_txt:'„Hat hónap alatt leszállítottak egy komplex SaaS platformot. Átlátható kommunikáció, profi csapat, lenyűgöző minőség. Nem is gondolkozunk más fejlesztőn."',
+    t3_name:'Molnár Gábor',t3_role:'CTO, DataVault Systems',
+    c_tag:'Kapcsolat',c_title:'Készen állsz<br>a következő szintre?',c_sub:'Írj nekünk, és 24 órán belül visszajelzünk egy ingyenes konzultáció ajánlattal.',
+    c_ph:'Email cím...',c_send:'Küldés',c_sent:'✓ Elküldve',
+    p1:'Ingyenes konzultáció',p2:'24 órás válaszidő',p3:'Fix árak, átlátható folyamat',
+    ft_work:'Munkák',ft_copy:'© 2026 Studio. Minden jog fenntartva.',
+  },
+  ro:{
+    nav_services:'Servicii',nav_process:'Proces',nav_work:'Proiecte',nav_cta:'Începe proiectul',
+    hero_badge:'Experiențe digitale 2026',hero_t1:'Website-uri',hero_t2:'& Aplicații',hero_t3:'care vând',
+    hero_sub:'Creăm produse digitale premium — website-uri și aplicații mobile care nu sunt doar frumoase, ci convertesc și cresc.',
+    hero_cta1:'Să începem împreună',hero_cta2:'Vezi proiectele noastre',
+    hc1_lbl:'Venituri azi',hc2_lbl:'Conversie',hc3_lbl:'Clienți mulțumiți',hc4_sub:'127 proiecte',
+    stat1:'Proiecte finalizate',stat2:'Clienți mulțumiți',stat3:'Evaluare',stat4:'Experiență',stat4_num:'6 ani',
+    mq1:'Dezvoltare web',mq5:'Platforme SaaS',mq7:'Dezvoltare backend',
+    s_tag:'Servicii',s_title:'Tot ce ai<br>nevoie',s_sub:'Soluție completă — de la strategie la produsul live, dezvoltare digitală integrată.',
+    s1_name:'Dezvoltare web',s1_desc:'Website-uri rapide, moderne și optimizate pentru conversii. Perfecte pe orice ecran, prietenoase cu SEO și scalabile pe termen lung.',
+    s2_name:'Aplicație mobilă',s2_desc:'Aplicații native iOS și Android cu animații fluide și UX intuitiv.',
+    s3_name:'Design UI/UX',s3_desc:'De la prototipul Figma până la implementarea pixel-perfect, ne îngrijim de experiență.',
+    p_tag:'Cum lucrăm',p_title:'Proces<br>transparent',p_sub:'Fără surprize. Parcurgem fiecare pas împreună — de la idee la lansarea în producție.',
+    ps1_t:'Descoperire & Strategie',ps1_d:'Înțelegem obiectivele tale de business, utilizatorii și piața. Din asta construim strategia digitală.',
+    ps2_t:'Design & Prototip',ps2_d:'Creăm prototipuri interactive în Figma — vezi rezultatul final înainte de dezvoltare.',
+    ps3_t:'Dezvoltare & Testare',ps3_d:'Sprinturi agile, demo-uri săptămânale. Te informăm și implicăm în fiecare iterație.',
+    ps4_t:'Lansare & Suport',ps4_d:'Lansare fără probleme, apoi 3 luni de suport gratuit. Succesul tău este succesul nostru.',
+    sb1_t:'Proiect lansat live',sb1_s:'acum 2 minute',sb2_t:'+340% conversie',sb2_s:'date pe 30 de zile',
+    phone_lbl:'Venituri azi',phone_val:'14 237 RON',phone_ord:'Comenzi',phone_con:'Conversie',
+    w_tag:'Portofoliu',w_title:'Câteva proiecte',w_all:'Toate proiectele →',
+    pc_saas:'Platformă SaaS',
+    pd1:'Platformă de analiză enterprise cu 25.000 utilizatori',
+    pd2:'Aplicație mobilă de cumpărături, +280% conversie',
+    pd3:'Aplicație de monitorizare și analiză a sănătății',
+    pd4:'Platformă neobank modernă — 150K utilizatori, 99.99% uptime',
+    pd5:'Platformă de raportare ESG și sustenabilitate',
+    t_tag:'Tehnologie',t_title:'Cele mai bune unelte<br>pentru cele mai bune rezultate',t_sub:'Folosim tehnologii moderne, dovedite, rapide și scalabile pe termen lung.',
+    ts_tag:'Testimoniale',ts_title:'Ce spun clienții noștri',
+    t1_txt:'„Au făcut o muncă incredibilă. Aplicația noastră a atins 50.000 de descărcări în 3 luni, iar feedback-ul utilizatorilor este extrem de pozitiv. Echipa a gândit mereu cu un pas înainte."',
+    t1_name:'Kovács Péter',t1_role:'CEO, TechStart Budapest',
+    t2_txt:'„După ce ne-au creat website-ul, rata noastră de conversie a crescut de la 2.1% la 6.8%. Știu exact cum să combine designul frumos cu rezultatele de business."',
+    t2_name:'Szabó Nikolett',t2_role:'Director Marketing, ShopFlow',
+    t3_txt:'„Au livrat o platformă SaaS complexă în șase luni. Comunicare transparentă, echipă profesionistă, calitate impresionantă. Nu ne gândim la alt dezvoltator."',
+    t3_name:'Molnár Gábor',t3_role:'CTO, DataVault Systems',
+    c_tag:'Contact',c_title:'Ești pregătit<br>pentru următorul nivel?',c_sub:'Scrie-ne și îți răspundem în 24 de ore cu o ofertă de consultanță gratuită.',
+    c_ph:'Adresa de email...',c_send:'Trimite',c_sent:'✓ Trimis',
+    p1:'Consultanță gratuită',p2:'Răspuns în 24 de ore',p3:'Prețuri fixe, proces transparent',
+    ft_work:'Proiecte',ft_copy:'© 2026 Studio. Toate drepturile rezervate.',
+  }
+};
+
+let lang='hu';
+function setLang(l){
+  if(l===lang)return;
+  lang=l;
+  document.documentElement.lang=l;
+  const t=T[l];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;
+    if(t[k]!=null){el.textContent=t[k];el.classList.add('lfade');el.addEventListener('animationend',()=>el.classList.remove('lfade'),{once:true})}
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+    const k=el.dataset.i18nHtml;
+    if(t[k]!=null){el.innerHTML=t[k];el.classList.add('lfade');el.addEventListener('animationend',()=>el.classList.remove('lfade'),{once:true})}
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k=el.dataset.i18nPh;
+    if(t[k]!=null)el.placeholder=t[k];
+  });
+  const btn=document.getElementById('ctaBtn');
+  if(btn&&btn.dataset.sent){
+    btn.innerHTML=`<span>${t.c_send}</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    btn.style.cssText='';
+    delete btn.dataset.sent;
+  }
+  document.getElementById('btn-hu').classList.toggle('active',l==='hu');
+  document.getElementById('btn-ro').classList.toggle('active',l==='ro');
+}
+
+/* ═══════════════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════════════ */
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+document.querySelectorAll('a,button,.bc,.proj-card,.tc,.t-pill').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('active');ring.classList.add('active')});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('active');ring.classList.remove('active')});
+});
+(function raf(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(raf)})();
+
+/* ═══════════════════════════════════════════════════
+   MAGNETIC BUTTONS
+═══════════════════════════════════════════════════ */
+document.querySelectorAll('.btn-mag').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2;
+    const y=e.clientY-r.top-r.height/2;
+    btn.style.transform=`translate(${x*.25}px,${y*.25}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+});
+
+/* ═══════════════════════════════════════════════════
+   3D CARD TILT
+═══════════════════════════════════════════════════ */
+document.querySelectorAll('.proj-card,.bc,.tc').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(900px) rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.02)`;
+    card.style.transition='transform .05s';
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='';
+    card.style.transition='transform .5s cubic-bezier(.16,1,.3,1)';
+  });
+});
+
+/* ═══════════════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════════════ */
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')});
+},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.reveal,.reveal-left').forEach(el=>revObs.observe(el));
+
+/* ═══════════════════════════════════════════════════
+   COUNTER
+═══════════════════════════════════════════════════ */
+function animCount(el){
+  const target=parseInt(el.dataset.count);if(!target)return;
+  let s=0;
+  const step=ts=>{
+    if(!s)s=ts;
+    const p=Math.min((ts-s)/2200,1);
+    const e2=1-Math.pow(1-p,4);
+    el.textContent=Math.floor(e2*target)+'+';
+    if(p<1)requestAnimationFrame(step);
+    else el.textContent=target+'+';
+  };
+  requestAnimationFrame(step);
+}
+const cntObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting&&e.target.dataset.count){animCount(e.target);cntObs.unobserve(e.target)}});
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cntObs.observe(el));
+
+/* ═══════════════════════════════════════════════════
+   NAV SCROLL
+═══════════════════════════════════════════════════ */
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>40);
+},{passive:true});
+
+/* ═══════════════════════════════════════════════════
+   HORIZONTAL SCROLL
+═══════════════════════════════════════════════════ */
+const track=document.getElementById('scrollTrack');
+let isDragging=false,startX=0,scrollLeft=0;
+track.addEventListener('mousedown',e=>{isDragging=true;startX=e.pageX-track.offsetLeft;scrollLeft=track.scrollLeft;track.style.cursor='grabbing'});
+track.addEventListener('mousemove',e=>{if(!isDragging)return;e.preventDefault();const x=e.pageX-track.offsetLeft;track.scrollLeft=scrollLeft-(x-startX)*1.2});
+['mouseup','mouseleave'].forEach(ev=>track.addEventListener(ev,()=>{isDragging=false;track.style.cursor='grab'}));
+
+function scrollProj(dir){
+  track.scrollBy({left:dir*460,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════════
+   CTA SUBMIT
+═══════════════════════════════════════════════════ */
+function handleSubmit(btn){
+  const inp=document.getElementById('ctaEmail');
+  if(!inp.value||!inp.value.includes('@')){
+    inp.style.borderColor='rgba(244,63,94,.5)';
+    inp.focus();
+    inp.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(-4px)'},{transform:'translateX(0)'}],{duration:300});
+    setTimeout(()=>inp.style.borderColor='',2000);
+    return;
+  }
+  const t=T[lang];
+  btn.innerHTML=t.c_sent;
+  btn.style.background='linear-gradient(135deg,#10b981,#059669)';
+  btn.style.boxShadow='0 8px 32px rgba(16,185,129,.4)';
+  btn.dataset.sent='1';
+  inp.value='';
+}
+
+/* ═══════════════════════════════════════════════════
+   PARALLAX MESH
+═══════════════════════════════════════════════════ */
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/window.innerWidth-.5)*20;
+  const y=(e.clientY/window.innerHeight-.5)*20;
+  document.querySelectorAll('.mesh-blob').forEach((b,i)=>{
+    const f=(i+1)*.4;
+    b.style.transform=`translate(${x*f}px,${y*f}px)`;
+  });
+},{passive:true});
+</script>
+</body>
+</html>

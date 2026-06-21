@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Web & Mobile Development</title>
+<style>
+  :root {
+    --dark: #04050d;
+    --dark2: #080916;
+    --dark3: #0d0e1f;
+    --cyan: #00e5ff;
+    --cyan-dim: rgba(0,229,255,0.15);
+    --cyan-mid: rgba(0,229,255,0.4);
+    --white: #ffffff;
+    --text: #e8eaf6;
+    --text-muted: #7b82a8;
+    --border: rgba(0,229,255,0.12);
+    --shadow-cyan: 0 0 30px rgba(0,229,255,0.15);
+    --radius: 20px;
+    --transition: 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    width: 10px; height: 10px;
+    background: var(--cyan);
+    border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+    box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0,229,255,0.4);
+  }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(0,229,255,0.5);
+    border-radius: 50%;
+    position: fixed; pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: width 0.3s, height 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 0 5%; height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: transparent;
+    transition: background 0.4s, box-shadow 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(4,5,13,0.92);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 1px 0 rgba(0,229,255,0.08), 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .nav-logo {
+    font-size: 1.5rem; font-weight: 800; color: var(--white);
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 20px rgba(0,229,255,0.5);
+  }
+  .nav-logo span { color: var(--cyan); }
+  .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+  .nav-links a {
+    text-decoration: none; color: var(--text-muted);
+    font-size: 0.9rem; font-weight: 500;
+    transition: color 0.2s, text-shadow 0.2s; cursor: none;
+  }
+  .nav-links a:hover { color: var(--cyan); text-shadow: 0 0 12px rgba(0,229,255,0.5); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .lang-toggle {
+    display: flex; align-items: center;
+    background: rgba(255,255,255,0.05); border-radius: 100px;
+    padding: 4px; gap: 2px;
+    border: 1px solid rgba(0,229,255,0.15);
+  }
+  .lang-btn {
+    padding: 5px 14px; border-radius: 100px; border: none;
+    background: transparent; color: var(--text-muted);
+    font-size: 0.8rem; font-weight: 600; cursor: none;
+    transition: all 0.25s;
+  }
+  .lang-btn.active { background: var(--cyan); color: var(--dark); }
+  .nav-cta {
+    background: transparent; color: var(--cyan);
+    border: 1.5px solid var(--cyan); border-radius: 100px;
+    padding: 9px 22px; font-size: 0.88rem; font-weight: 600;
+    cursor: none; transition: var(--transition);
+    box-shadow: 0 0 16px rgba(0,229,255,0.15);
+  }
+  .nav-cta:hover {
+    background: var(--cyan); color: var(--dark);
+    box-shadow: 0 0 32px rgba(0,229,255,0.4);
+    transform: translateY(-2px);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative; width: 100%; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  #particleCanvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 0;
+  }
+  .hero-overlay {
+    position: relative; z-index: 2;
+    text-align: center; padding: 0 5%;
+    max-width: 800px;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(0,229,255,0.3);
+    border-radius: 100px; padding: 7px 18px;
+    font-size: 0.8rem; font-weight: 600; color: var(--cyan);
+    margin-bottom: 2rem;
+    background: rgba(0,229,255,0.05);
+    animation: fadeIn 1s ease both;
+  }
+  .hero-tag-dot {
+    width: 6px; height: 6px; background: var(--cyan); border-radius: 50%;
+    animation: cyPulse 2s ease infinite;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  @keyframes cyPulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  .hero-title {
+    font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+    font-weight: 900; line-height: 1.12; letter-spacing: -2px;
+    color: white; margin-bottom: 1.5rem;
+  }
+  .hero-title .word {
+    display: inline-block; overflow: hidden; vertical-align: bottom;
+    margin-right: 0.25em;
+  }
+  .hero-title .word-inner {
+    display: inline-block;
+    animation: wordSlideUp 0.7s cubic-bezier(0.23,1,0.32,1) both;
+  }
+  .hero-title .cyan { color: var(--cyan); text-shadow: 0 0 30px rgba(0,229,255,0.6); }
+  @keyframes wordSlideUp {
+    from { transform: translateY(110%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .hero-sub {
+    font-size: 1.05rem; color: var(--text-muted); line-height: 1.75;
+    max-width: 520px; margin: 0 auto 2.5rem;
+    animation: fadeIn 1s 0.9s ease both;
+  }
+  .hero-actions {
+    display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+    animation: fadeIn 1s 1.1s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .btn-cyan {
+    background: var(--cyan); color: var(--dark);
+    border: none; border-radius: 100px;
+    padding: 14px 32px; font-size: 1rem; font-weight: 700;
+    cursor: none; transition: var(--transition);
+    box-shadow: 0 0 24px rgba(0,229,255,0.4);
+  }
+  .btn-cyan:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,229,255,0.6); }
+  .btn-outline {
+    background: transparent; color: white;
+    border: 1.5px solid rgba(255,255,255,0.25); border-radius: 100px;
+    padding: 14px 32px; font-size: 1rem; font-weight: 700;
+    cursor: none; transition: var(--transition);
+  }
+  .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-3px); }
+  .hero-scroll {
+    position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+    z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--text-muted); font-size: 0.75rem; font-weight: 500;
+    animation: fadeIn 1s 1.5s ease both;
+  }
+  .hero-scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(180deg, var(--cyan), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.4}50%{opacity:1} }
+
+  /* LIGHT SECTION */
+  .light-section { background: #ffffff; color: #1a1a2e; }
+  .light-section .section-sub { color: #5a5a7a; }
+  .light-section .section-label { color: #0a0a1a; border-color: rgba(0,100,200,0.15); background: rgba(0,100,200,0.06); }
+
+  /* SECTION COMMON */
+  section { padding: 100px 5%; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px;
+    font-size: 0.78rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1rem;
+    background: var(--cyan-dim);
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem;
+  }
+  .section-title .cyan { color: var(--cyan); }
+  .section-sub { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 520px; }
+
+  /* SERVICES */
+  #services { background: #ffffff; }
+  #services .section-label { color: #3a3aff; background: rgba(58,58,255,0.06); border-color: rgba(58,58,255,0.15); }
+  #services .section-title { color: #0a0a1a; }
+  #services .section-sub { color: #5a5a7a; }
+  .services-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .service-card {
+    background: var(--dark3); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 32px;
+    transition: var(--transition); position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .service-card:hover { border-color: rgba(0,229,255,0.35); box-shadow: var(--shadow-cyan); transform: translateY(-5px); }
+  .service-card:hover::before { opacity: 1; }
+  .service-icon {
+    width: 50px; height: 50px; border-radius: 14px;
+    background: var(--cyan-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 1.2rem;
+  }
+  .service-name { font-size: 1.15rem; font-weight: 700; color: white; margin-bottom: 0.7rem; }
+  .service-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.2rem; }
+  .service-link { color: var(--cyan); font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: none; transition: letter-spacing 0.2s; }
+  .service-link:hover { letter-spacing: 0.5px; }
+  /* Override for white services section */
+  #services .service-card { background: #f8f9ff; border-color: rgba(58,58,255,0.1); }
+  #services .service-card:hover { border-color: rgba(0,229,255,0.4); box-shadow: 0 10px 40px rgba(0,100,200,0.12); }
+  #services .service-name { color: #0a0a1a; }
+  #services .service-desc { color: #5a5a7a; }
+  #services .service-link { color: #3a3aff; }
+  #services .service-icon { background: rgba(58,58,255,0.08); border-color: rgba(58,58,255,0.12); }
+
+  /* STATS */
+  #stats { background: var(--dark2); padding: 80px 5%; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; text-align: center; }
+  .stat-item { padding: 40px 20px; border: 1px solid var(--border); border-radius: var(--radius); transition: var(--transition); }
+  .stat-item:hover { border-color: var(--cyan-mid); box-shadow: var(--shadow-cyan); }
+  .stat-num { font-size: 3.2rem; font-weight: 900; color: var(--cyan); line-height: 1; margin-bottom: 0.5rem; text-shadow: 0 0 20px rgba(0,229,255,0.4); }
+  .stat-label { font-size: 0.88rem; color: var(--text-muted); font-weight: 500; }
+
+  /* PORTFOLIO */
+  #portfolio { background: var(--dark); }
+  .portfolio-scroll-wrap {
+    overflow-x: auto; padding: 1rem 0 1.5rem; margin-top: 3rem;
+    display: flex; gap: 1.5rem;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .portfolio-scroll-wrap::-webkit-scrollbar { display: none; }
+  .portfolio-card {
+    flex: 0 0 320px; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--border); transition: var(--transition);
+    background: var(--dark3); cursor: none;
+  }
+  .portfolio-card:hover { border-color: var(--cyan-mid); box-shadow: var(--shadow-cyan); transform: translateY(-6px); }
+  .portfolio-img {
+    height: 200px; display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; position: relative;
+  }
+  .portfolio-card:nth-child(1) .portfolio-img { background: linear-gradient(135deg,#00e5ff22,#00e5ff08); border-bottom: 1px solid var(--border); }
+  .portfolio-card:nth-child(2) .portfolio-img { background: linear-gradient(135deg,#7b2fff22,#7b2fff08); border-bottom: 1px solid rgba(123,47,255,0.2); }
+  .portfolio-card:nth-child(3) .portfolio-img { background: linear-gradient(135deg,#00ff9522,#00ff9508); border-bottom: 1px solid rgba(0,255,149,0.2); }
+  .portfolio-card:nth-child(4) .portfolio-img { background: linear-gradient(135deg,#ff6b2b22,#ff6b2b08); border-bottom: 1px solid rgba(255,107,43,0.2); }
+  .portfolio-card:nth-child(5) .portfolio-img { background: linear-gradient(135deg,#ff2d9222,#ff2d9208); border-bottom: 1px solid rgba(255,45,146,0.2); }
+  .portfolio-img-icon { font-size: 3rem; }
+  .portfolio-img-tag {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 4px 12px; font-size: 0.72rem; font-weight: 600; color: var(--cyan);
+  }
+  .portfolio-info { padding: 20px; }
+  .portfolio-name { font-size: 1rem; font-weight: 700; color: white; margin-bottom: 6px; }
+  .portfolio-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 14px; }
+  .portfolio-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .portfolio-tag {
+    background: var(--cyan-dim); color: var(--cyan); border-radius: 100px;
+    padding: 3px 10px; font-size: 0.7rem; font-weight: 600;
+  }
+  .portfolio-scroll-hint {
+    text-align: center; color: var(--text-muted); font-size: 0.82rem; margin-top: 1rem;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* PROCESS */
+  #process { background: var(--dark2); }
+  .process-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .process-card {
+    background: var(--dark3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px;
+    transition: var(--transition); cursor: none;
+  }
+  .process-card:hover {
+    background: #0f1025; border-color: var(--cyan-mid);
+    box-shadow: var(--shadow-cyan);
+  }
+  .process-num {
+    font-size: 2.8rem; font-weight: 900; color: var(--border);
+    line-height: 1; margin-bottom: 1rem; transition: color 0.4s, text-shadow 0.4s;
+    font-variant-numeric: tabular-nums;
+  }
+  .process-card:hover .process-num { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.4); }
+  .process-title { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.7rem; }
+  .process-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--dark); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .testimonial-card {
+    background: var(--dark3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+    transition: var(--transition);
+  }
+  .testimonial-card:hover { border-color: var(--cyan-mid); box-shadow: var(--shadow-cyan); transform: translateY(-4px); }
+  .testimonial-stars { color: #ffc107; font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .testimonial-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 1.4rem; font-style: italic; }
+  .testimonial-author { display: flex; align-items: center; gap: 12px; }
+  .testimonial-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--cyan-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; background: var(--cyan-dim);
+  }
+  .testimonial-name { font-size: 0.88rem; font-weight: 700; color: white; }
+  .testimonial-role { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* CTA */
+  #cta { background: var(--dark2); }
+  .cta-inner {
+    max-width: 660px; margin: 0 auto;
+    border: 1px solid var(--border); border-radius: 28px;
+    padding: 56px; background: var(--dark3);
+    text-align: center;
+    box-shadow: 0 0 60px rgba(0,229,255,0.06);
+  }
+  .cta-label { color: var(--cyan); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+  .cta-title { font-size: clamp(1.8rem,3.5vw,2.6rem); font-weight: 800; color: white; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 1rem; }
+  .cta-title .cyan { color: var(--cyan); }
+  .cta-sub { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin-bottom: 2.5rem; }
+  .cta-form { display: flex; flex-direction: column; gap: 1rem; }
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cta-input {
+    background: rgba(255,255,255,0.04); border: 1.5px solid rgba(0,229,255,0.12);
+    border-radius: 12px; padding: 14px 18px;
+    color: white; font-size: 0.92rem; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    font-family: inherit;
+  }
+  .cta-input::placeholder { color: var(--text-muted); }
+  .cta-input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1), 0 0 16px rgba(0,229,255,0.15);
+    background: rgba(0,229,255,0.04);
+  }
+  .cta-textarea { resize: vertical; min-height: 110px; }
+  .cta-submit {
+    background: var(--cyan); color: var(--dark); border: none;
+    border-radius: 100px; padding: 15px 40px;
+    font-size: 1rem; font-weight: 700; cursor: none;
+    transition: var(--transition); align-self: center;
+    box-shadow: 0 0 24px rgba(0,229,255,0.3);
+  }
+  .cta-submit:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,229,255,0.5); }
+
+  /* FOOTER */
+  footer {
+    background: #02030a; padding: 60px 5% 30px;
+    border-top: 1px solid rgba(0,229,255,0.08);
+  }
+  .footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-logo { font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 1rem; }
+  .footer-logo span { color: var(--cyan); }
+  .footer-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; max-width: 240px; }
+  .footer-col-title { font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: white; margin-bottom: 1rem; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+  .footer-links a { text-decoration: none; color: var(--text-muted); font-size: 0.88rem; transition: color 0.2s; cursor: none; }
+  .footer-links a:hover { color: var(--cyan); }
+  .footer-bottom { border-top: 1px solid rgba(0,229,255,0.06); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-copy { font-size: 0.82rem; color: var(--text-muted); }
+  .footer-socials { display: flex; gap: 12px; }
+  .footer-social { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: none; transition: var(--transition); color: var(--text-muted); }
+  .footer-social:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 12px rgba(0,229,255,0.25); transform: translateY(-2px); }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 1024px) {
+    .services-grid, .stats-grid, .process-grid, .testimonials-grid { grid-template-columns: repeat(2,1fr); }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    .cta-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .services-grid, .stats-grid, .process-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    .cta-inner { padding: 32px 24px; }
+    .hero-actions { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Stu<span>dio</span></div>
+  <div class="nav-links">
+    <a href="#services" data-i18n="nav_services">Szolgáltatások</a>
+    <a href="#portfolio" data-i18n="nav_portfolio">Portfólió</a>
+    <a href="#process" data-i18n="nav_process">Folyamat</a>
+    <a href="#testimonials" data-i18n="nav_testimonials">Vélemények</a>
+    <a href="#cta" data-i18n="nav_contact">Kapcsolat</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="hu">HU</button>
+      <button class="lang-btn" data-lang="ro">RO</button>
+    </div>
+    <button class="nav-cta" data-i18n="nav_cta">Ajánlatkérés</button>
+  </div>
+</nav>
+
+<!-- HERO WITH PARTICLE CANVAS -->
+<section class="hero" id="home">
+  <canvas id="particleCanvas"></canvas>
+  <div class="hero-overlay">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      <span data-i18n="hero_tag">Prémium digitális ügynökség · 2026</span>
+    </div>
+    <h1 class="hero-title" id="heroTitle">
+      <!-- Words injected by JS -->
+    </h1>
+    <p class="hero-sub" data-i18n="hero_sub">Web és mobilalkalmazásokat fejlesztünk, amelyek valódi eredményeket hoznak. Technológia, ami előre visz.</p>
+    <div class="hero-actions">
+      <button class="btn-cyan" onclick="document.querySelector('#cta').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta1">Projekt indítása</button>
+      <button class="btn-outline" onclick="document.querySelector('#portfolio').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta2">Munkáink megtekintése</button>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span data-i18n="hero_scroll">Görgess</span>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label" data-i18n="services_label">Szolgáltatásaink</div>
+  <h2 class="section-title" style="color:#0a0a1a" data-i18n="services_title">Amit kínálunk <span class="cyan" style="color:#3a3aff">a sikerért</span></h2>
+  <p class="section-sub" data-i18n="services_sub">Teljes körű digitális megoldásokat nyújtunk a koncepcióalkotástól a piaci megjelenésig.</p>
+  <div class="services-grid" style="margin-top:3.5rem">
+    <div class="service-card reveal">
+      <div class="service-icon">🌐</div>
+      <div class="service-name" data-i18n="s1_name">Webfejlesztés</div>
+      <div class="service-desc" data-i18n="s1_desc">Modern, villámgyors weboldalak és alkalmazások React, Next.js és TypeScript technológiákkal. Performance-first megközelítés.</div>
+      <a class="service-link" href="#cta" data-i18n="s_learn">Részletek →</a>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.1s">
+      <div class="service-icon">📱</div>
+      <div class="service-name" data-i18n="s2_name">Mobilfejlesztés</div>
+      <div class="service-desc" data-i18n="s2_desc">Natív élményű cross-platform alkalmazások Flutter és React Native segítségével, egyidejűleg iOS-re és Androidra.</div>
+      <a class="service-link" href="#cta" data-i18n="s_learn">Részletek →</a>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.2s">
+      <div class="service-icon">🎨</div>
+      <div class="service-name" data-i18n="s3_name">UI/UX Design</div>
+      <div class="service-desc" data-i18n="s3_desc">Felhasználóközpontú design, Figma prototípusok, design rendszerek. A szép és a funkcionális tökéletes ötvözete.</div>
+      <a class="service-link" href="#cta" data-i18n="s_learn">Részletek →</a>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.3s">
+      <div class="service-icon">☁️</div>
+      <div class="service-name" data-i18n="s4_name">Cloud & Backend</div>
+      <div class="service-desc" data-i18n="s4_desc">Skálázható backend megoldások Node.js, Python és AWS/GCP infrastruktúrán. Mikroszolgáltatások és API fejlesztés.</div>
+      <a class="service-link" href="#cta" data-i18n="s_learn">Részletek →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="127">0</div>
+      <div class="stat-label" data-i18n="stat1">Befejezett projekt</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.1s">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-label" data-i18n="stat2">Elégedett ügyfél (%)</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.2s">
+      <div class="stat-num" data-count="6">0</div>
+      <div class="stat-label" data-i18n="stat3">Év tapasztalat</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.3s">
+      <div class="stat-num" data-count="50000">0</div>
+      <div class="stat-label" data-i18n="stat4">Mobilos felhasználó</div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-label" data-i18n="portfolio_label">Portfólió</div>
+  <h2 class="section-title" data-i18n="portfolio_title">Legújabb <span class="cyan">munkáink</span></h2>
+  <p class="section-sub" data-i18n="portfolio_sub">Görgesd vízszintesen az összes projektünk megtekintéséhez.</p>
+  <div class="portfolio-scroll-wrap">
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-icon">🛒</div>
+        <div class="portfolio-img-tag" data-i18n="pt1_tag">E-Commerce</div>
+      </div>
+      <div class="portfolio-info">
+        <div class="portfolio-name" data-i18n="pt1_name">LuxShop Platform</div>
+        <div class="portfolio-desc" data-i18n="pt1_desc">Teljes e-kereskedelmi rendszer Next.js-sel, 340% konverzió növekedéssel.</div>
+        <div class="portfolio-tags"><span class="portfolio-tag">Next.js</span><span class="portfolio-tag">Stripe</span><span class="portfolio-tag">AWS</span></div>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-icon">🏦</div>
+        <div class="portfolio-img-tag" data-i18n="pt2_tag">FinTech</div>
+      </div>
+      <div class="portfolio-info">
+        <div class="portfolio-name" data-i18n="pt2_name">FinanceAI App</div>
+        <div class="portfolio-desc" data-i18n="pt2_desc">AI pénzügyi alkalmazás, 50k+ letöltés az első hónapban.</div>
+        <div class="portfolio-tags"><span class="portfolio-tag">Flutter</span><span class="portfolio-tag">Firebase</span><span class="portfolio-tag">AI</span></div>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-icon">🏥</div>
+        <div class="portfolio-img-tag" data-i18n="pt3_tag">HealthTech</div>
+      </div>
+      <div class="portfolio-info">
+        <div class="portfolio-name" data-i18n="pt3_name">MedConnect SaaS</div>
+        <div class="portfolio-desc" data-i18n="pt3_desc">Orvosi platform 200+ klinikának, HIPAA megfelelőséggel.</div>
+        <div class="portfolio-tags"><span class="portfolio-tag">React</span><span class="portfolio-tag">PostgreSQL</span><span class="portfolio-tag">HIPAA</span></div>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-icon">🎓</div>
+        <div class="portfolio-img-tag" data-i18n="pt4_tag">EdTech</div>
+      </div>
+      <div class="portfolio-info">
+        <div class="portfolio-name" data-i18n="pt4_name">LearnPro Platform</div>
+        <div class="portfolio-desc" data-i18n="pt4_desc">Online tanulási platform AI személyre szabással és gamificationnel.</div>
+        <div class="portfolio-tags"><span class="portfolio-tag">Vue.js</span><span class="portfolio-tag">Python</span><span class="portfolio-tag">ML</span></div>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-icon">🚀</div>
+        <div class="portfolio-img-tag" data-i18n="pt5_tag">SaaS</div>
+      </div>
+      <div class="portfolio-info">
+        <div class="portfolio-name" data-i18n="pt5_name">LaunchPad SaaS</div>
+        <div class="portfolio-desc" data-i18n="pt5_desc">Startup menedzsment platform valós idejű analitikával és csapat-kezeléssel.</div>
+        <div class="portfolio-tags"><span class="portfolio-tag">React</span><span class="portfolio-tag">Node.js</span><span class="portfolio-tag">Redis</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="portfolio-scroll-hint">← <span data-i18n="port_scroll_hint">Görgess vízszintesen</span> →</div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-label" data-i18n="process_label">Munkamódszerünk</div>
+  <h2 class="section-title" data-i18n="process_title">Hogyan dolgozunk <span class="cyan">együtt</span></h2>
+  <p class="section-sub" data-i18n="process_sub">Átlátható, agilis folyamat — mindig tudod, hol tartunk.</p>
+  <div class="process-grid">
+    <div class="process-card reveal">
+      <div class="process-num">01</div>
+      <div class="process-title" data-i18n="proc1_title">Felfedezés & Tervezés</div>
+      <div class="process-desc" data-i18n="proc1_desc">Megismerjük vállalkozásodat, céljaidat és célközönségedet. Részletes projekt tervet és technológiai javaslatot készítünk.</div>
+    </div>
+    <div class="process-card reveal" style="transition-delay:0.1s">
+      <div class="process-num">02</div>
+      <div class="process-title" data-i18n="proc2_title">UI/UX Tervezés</div>
+      <div class="process-desc" data-i18n="proc2_desc">Wireframe-ektől a végleges designig. Figma prototípusokat készítünk, amelyeket közösen finomítunk jóváhagyásig.</div>
+    </div>
+    <div class="process-card reveal" style="transition-delay:0.2s">
+      <div class="process-num">03</div>
+      <div class="process-title" data-i18n="proc3_title">Agilis Fejlesztés</div>
+      <div class="process-desc" data-i18n="proc3_desc">Sprint-alapú fejlesztés kéthetes iterációkkal. Folyamatos visszajelzés, tesztelés és minőségbiztosítás minden lépésnél.</div>
+    </div>
+    <div class="process-card reveal" style="transition-delay:0.3s">
+      <div class="process-num">04</div>
+      <div class="process-title" data-i18n="proc4_title">Indítás & Növekedés</div>
+      <div class="process-desc" data-i18n="proc4_desc">Zökkenőmentes élesítés, teljes dokumentáció, és hosszú távú technikai támogatás a sikeres növekedéshez.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-label" data-i18n="test_label">Ügyfeleink mondják</div>
+  <h2 class="section-title" data-i18n="test_title">Amit <span class="cyan">partnereink</span> mondanak</h2>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test1_text">"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója megháromszorozódott. Szakmai hozzáállásuk és kreativitásuk lenyűgöző volt."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👔</div>
+        <div><div class="testimonial-name">Kovács András</div><div class="testimonial-role" data-i18n="test1_role">CEO, TechStart Hungary</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.1s">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test2_text">"Az alkalmazásunk az első héten felkerült az App Store Top 10 listájára. Hihetetlen sebességgel és minőséggel dolgoznak."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👩‍💼</div>
+        <div><div class="testimonial-name">Maria Popescu</div><div class="testimonial-role" data-i18n="test2_role">Founder, FinTech Cluj</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.2s">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text" data-i18n="test3_text">"Professzionális csapat, határidőre szállítanak. Negyedik projektünket bízzuk rájuk — ez mindent elmond."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👨‍💻</div>
+        <div><div class="testimonial-name">Stefan Ionescu</div><div class="testimonial-role" data-i18n="test3_role">CTO, RomaTech Solutions</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-label" data-i18n="cta_label">Kezdjük el</div>
+    <div class="cta-title" data-i18n="cta_title">Készen állsz a<br><span class="cyan">következő szintre?</span></div>
+    <div class="cta-sub" data-i18n="cta_sub">48 órán belül visszajelzünk egy részletes ajánlattal. Ingyenes konzultáció minden új projekthez.</div>
+    <form class="cta-form" onsubmit="handleSubmit(event)">
+      <div class="cta-row">
+        <input class="cta-input" type="text" data-i18n-placeholder="form_name">
+        <input class="cta-input" type="email" data-i18n-placeholder="form_email">
+      </div>
+      <input class="cta-input" type="text" data-i18n-placeholder="form_company">
+      <textarea class="cta-input cta-textarea" data-i18n-placeholder="form_message"></textarea>
+      <button type="submit" class="cta-submit" data-i18n="form_submit">Üzenet küldése →</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">Stu<span>dio</span></div>
+      <div class="footer-desc" data-i18n="footer_desc">Prémium web és mobilfejlesztési ügynökség. Digitális sikerek innovatív technológiákkal.</div>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_services">Szolgáltatások</div>
+      <ul class="footer-links">
+        <li><a href="#" data-i18n="footer_s1">Webfejlesztés</a></li>
+        <li><a href="#" data-i18n="footer_s2">Mobilfejlesztés</a></li>
+        <li><a href="#" data-i18n="footer_s3">UI/UX Design</a></li>
+        <li><a href="#" data-i18n="footer_s4">Cloud & Backend</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_company">Cégünk</div>
+      <ul class="footer-links">
+        <li><a href="#" data-i18n="footer_c1">Rólunk</a></li>
+        <li><a href="#" data-i18n="footer_c2">Csapat</a></li>
+        <li><a href="#" data-i18n="footer_c3">Karrier</a></li>
+        <li><a href="#" data-i18n="footer_c4">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title" data-i18n="footer_contact">Kapcsolat</div>
+      <ul class="footer-links">
+        <li><a href="mailto:hello@studio.dev">hello@studio.dev</a></li>
+        <li><a href="#">+36 30 123 4567</a></li>
+        <li><a href="#" data-i18n="footer_address">Budapest, Magyarország</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy" data-i18n="footer_copy">© 2026 Studio. Minden jog fenntartva.</div>
+    <div class="footer-socials">
+      <div class="footer-social">in</div>
+      <div class="footer-social">𝕏</div>
+      <div class="footer-social">▶</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+const i18n = {
+  hu: {
+    nav_services:'Szolgáltatások', nav_portfolio:'Portfólió', nav_process:'Folyamat',
+    nav_testimonials:'Vélemények', nav_contact:'Kapcsolat', nav_cta:'Ajánlatkérés',
+    hero_tag:'Prémium digitális ügynökség · 2026',
+    hero_title_words: ['Digitális', 'megoldások,', 'amelyek', '<span class="cyan">valóban</span>', 'működnek'],
+    hero_sub:'Web és mobilalkalmazásokat fejlesztünk, amelyek valódi eredményeket hoznak. Technológia, ami előre visz.',
+    hero_cta1:'Projekt indítása', hero_cta2:'Munkáink megtekintése', hero_scroll:'Görgess',
+    services_label:'Szolgáltatásaink',
+    services_title:'Amit kínálunk <span class="cyan" style="color:#3a3aff">a sikerért</span>',
+    services_sub:'Teljes körű digitális megoldásokat nyújtunk a koncepcióalkotástól a piaci megjelenésig.',
+    s1_name:'Webfejlesztés', s1_desc:'Modern, villámgyors weboldalak és alkalmazások React, Next.js és TypeScript technológiákkal. Performance-first megközelítés.',
+    s2_name:'Mobilfejlesztés', s2_desc:'Natív élményű cross-platform alkalmazások Flutter és React Native segítségével, egyidejűleg iOS-re és Androidra.',
+    s3_name:'UI/UX Design', s3_desc:'Felhasználóközpontú design, Figma prototípusok, design rendszerek. A szép és a funkcionális tökéletes ötvözete.',
+    s4_name:'Cloud & Backend', s4_desc:'Skálázható backend megoldások Node.js, Python és AWS/GCP infrastruktúrán. Mikroszolgáltatások és API fejlesztés.',
+    s_learn:'Részletek →',
+    stat1:'Befejezett projekt', stat2:'Elégedett ügyfél (%)', stat3:'Év tapasztalat', stat4:'Mobilos felhasználó',
+    portfolio_label:'Portfólió', portfolio_title:'Legújabb <span class="cyan">munkáink</span>',
+    portfolio_sub:'Görgesd vízszintesen az összes projektünk megtekintéséhez.',
+    pt1_tag:'E-Commerce', pt1_name:'LuxShop Platform', pt1_desc:'Teljes e-kereskedelmi rendszer Next.js-sel, 340% konverzió növekedéssel.',
+    pt2_tag:'FinTech', pt2_name:'FinanceAI App', pt2_desc:'AI pénzügyi alkalmazás, 50k+ letöltés az első hónapban.',
+    pt3_tag:'HealthTech', pt3_name:'MedConnect SaaS', pt3_desc:'Orvosi platform 200+ klinikának, HIPAA megfelelőséggel.',
+    pt4_tag:'EdTech', pt4_name:'LearnPro Platform', pt4_desc:'Online tanulási platform AI személyre szabással és gamificationnel.',
+    pt5_tag:'SaaS', pt5_name:'LaunchPad SaaS', pt5_desc:'Startup menedzsment platform valós idejű analitikával és csapat-kezeléssel.',
+    port_scroll_hint:'Görgess vízszintesen',
+    process_label:'Munkamódszerünk', process_title:'Hogyan dolgozunk <span class="cyan">együtt</span>',
+    process_sub:'Átlátható, agilis folyamat — mindig tudod, hol tartunk.',
+    proc1_title:'Felfedezés & Tervezés', proc1_desc:'Megismerjük vállalkozásodat, céljaidat és célközönségedet. Részletes projekt tervet és technológiai javaslatot készítünk.',
+    proc2_title:'UI/UX Tervezés', proc2_desc:'Wireframe-ektől a végleges designig. Figma prototípusokat készítünk, amelyeket közösen finomítunk jóváhagyásig.',
+    proc3_title:'Agilis Fejlesztés', proc3_desc:'Sprint-alapú fejlesztés kéthetes iterációkkal. Folyamatos visszajelzés, tesztelés és minőségbiztosítás minden lépésnél.',
+    proc4_title:'Indítás & Növekedés', proc4_desc:'Zökkenőmentes élesítés, teljes dokumentáció, és hosszú távú technikai támogatás a sikeres növekedéshez.',
+    test_label:'Ügyfeleink mondják', test_title:'Amit <span class="cyan">partnereink</span> mondanak',
+    test1_text:'"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója megháromszorozódott. Szakmai hozzáállásuk és kreativitásuk lenyűgöző volt."',
+    test1_role:'CEO, TechStart Hungary',
+    test2_text:'"Az alkalmazásunk az első héten felkerült az App Store Top 10 listájára. Hihetetlen sebességgel és minőséggel dolgoznak."',
+    test2_role:'Founder, FinTech Cluj',
+    test3_text:'"Professzionális csapat, határidőre szállítanak. Negyedik projektünket bízzuk rájuk — ez mindent elmond."',
+    test3_role:'CTO, RomaTech Solutions',
+    cta_label:'Kezdjük el', cta_title:'Készen állsz a<br><span class="cyan">következő szintre?</span>',
+    cta_sub:'48 órán belül visszajelzünk egy részletes ajánlattal. Ingyenes konzultáció minden új projekthez.',
+    form_name:'Neved', form_email:'Email címed', form_company:'Cégnév (opcionális)', form_message:'Projekt leírása...', form_submit:'Üzenet küldése →',
+    footer_desc:'Prémium web és mobilfejlesztési ügynökség. Digitális sikerek innovatív technológiákkal.',
+    footer_services:'Szolgáltatások', footer_s1:'Webfejlesztés', footer_s2:'Mobilfejlesztés', footer_s3:'UI/UX Design', footer_s4:'Cloud & Backend',
+    footer_company:'Cégünk', footer_c1:'Rólunk', footer_c2:'Csapat', footer_c3:'Karrier', footer_c4:'Blog',
+    footer_contact:'Kapcsolat', footer_address:'Budapest, Magyarország',
+    footer_copy:'© 2026 Studio. Minden jog fenntartva.'
+  },
+  ro: {
+    nav_services:'Servicii', nav_portfolio:'Portofoliu', nav_process:'Proces',
+    nav_testimonials:'Recenzii', nav_contact:'Contact', nav_cta:'Solicită ofertă',
+    hero_tag:'Agenție digitală premium · 2026',
+    hero_title_words: ['Soluții', 'digitale', 'care', '<span class="cyan">chiar</span>', 'funcționează'],
+    hero_sub:'Dezvoltăm aplicații web și mobile care aduc rezultate reale. Tehnologie care te propulsează înainte.',
+    hero_cta1:'Lansează proiectul', hero_cta2:'Vezi lucrările noastre', hero_scroll:'Derulează',
+    services_label:'Serviciile noastre',
+    services_title:'Ce oferim <span class="cyan" style="color:#3a3aff">pentru succes</span>',
+    services_sub:'Soluții digitale complete de la concept până la lansare pe piață.',
+    s1_name:'Dezvoltare Web', s1_desc:'Site-uri și aplicații web moderne și rapide cu React, Next.js și TypeScript. Abordare orientată spre performanță.',
+    s2_name:'Dezvoltare Mobilă', s2_desc:'Aplicații cross-platform cu experiență nativă folosind Flutter și React Native, simultan pentru iOS și Android.',
+    s3_name:'UI/UX Design', s3_desc:'Design centrat pe utilizator, prototipuri Figma, sisteme de design. Îmbinarea perfectă a esteticii cu funcționalitatea.',
+    s4_name:'Cloud & Backend', s4_desc:'Soluții backend scalabile pe Node.js, Python și infrastructură AWS/GCP. Microservicii și dezvoltare API.',
+    s_learn:'Detalii →',
+    stat1:'Proiecte finalizate', stat2:'Clienți mulțumiți (%)', stat3:'Ani experiență', stat4:'Utilizatori mobili',
+    portfolio_label:'Portofoliu', portfolio_title:'Lucrările noastre <span class="cyan">recente</span>',
+    portfolio_sub:'Derulează orizontal pentru a vedea toate proiectele noastre.',
+    pt1_tag:'E-Commerce', pt1_name:'LuxShop Platform', pt1_desc:'Sistem complet de e-commerce cu Next.js, cu o creștere a conversiei de 340%.',
+    pt2_tag:'FinTech', pt2_name:'FinanceAI App', pt2_desc:'Aplicație financiară AI, 50k+ descărcări în prima lună.',
+    pt3_tag:'HealthTech', pt3_name:'MedConnect SaaS', pt3_desc:'Platformă medicală pentru 200+ clinici, cu conformitate HIPAA.',
+    pt4_tag:'EdTech', pt4_name:'LearnPro Platform', pt4_desc:'Platformă de învățare online cu personalizare AI și gamification.',
+    pt5_tag:'SaaS', pt5_name:'LaunchPad SaaS', pt5_desc:'Platformă de management startup cu analiză în timp real și gestionarea echipei.',
+    port_scroll_hint:'Derulează orizontal',
+    process_label:'Cum lucrăm', process_title:'Cum colaborăm <span class="cyan">împreună</span>',
+    process_sub:'Proces transparent și agil — știi mereu unde ne aflăm.',
+    proc1_title:'Descoperire & Planificare', proc1_desc:'Îți înțelegem afacerea, obiectivele și publicul țintă. Elaborăm un plan detaliat de proiect și propuneri tehnologice.',
+    proc2_title:'UI/UX Design', proc2_desc:'De la wireframe-uri la design final. Creăm prototipuri Figma pe care le rafinăm împreună până la aprobare.',
+    proc3_title:'Dezvoltare Agilă', proc3_desc:'Dezvoltare bazată pe sprint-uri cu iterații de două săptămâni. Feedback continuu, testare și asigurarea calității la fiecare pas.',
+    proc4_title:'Lansare & Creștere', proc4_desc:'Lansare fără probleme, documentație completă și suport tehnic pe termen lung pentru o creștere de succes.',
+    test_label:'Ce spun clienții', test_title:'Ce spun <span class="cyan">partenerii</span> despre noi',
+    test1_text:'"Echipa Studio a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat. Profesionalismul și creativitatea lor sunt impresionante."',
+    test1_role:'CEO, TechStart Hungary',
+    test2_text:'"Aplicația a ajuns în Top 10 App Store în prima săptămână. Lucrează cu o viteză și calitate incredibilă."',
+    test2_role:'Fondator, FinTech Cluj',
+    test3_text:'"Echipă profesionistă, livrează la timp. Le încredințăm deja al patrulea proiect — asta spune totul."',
+    test3_role:'CTO, RomaTech Solutions',
+    cta_label:'Să începem', cta_title:'Ești pregătit pentru<br><span class="cyan">următorul nivel?</span>',
+    cta_sub:'Răspundem în 48 de ore cu o ofertă detaliată. Consultație gratuită pentru fiecare proiect nou.',
+    form_name:'Numele tău', form_email:'Adresa ta de email', form_company:'Companie (opțional)', form_message:'Descrierea proiectului...', form_submit:'Trimite mesaj →',
+    footer_desc:'Agenție premium de dezvoltare web și mobilă. Succese digitale cu tehnologii inovatoare.',
+    footer_services:'Servicii', footer_s1:'Dezvoltare Web', footer_s2:'Dezvoltare Mobilă', footer_s3:'UI/UX Design', footer_s4:'Cloud & Backend',
+    footer_company:'Compania', footer_c1:'Despre noi', footer_c2:'Echipă', footer_c3:'Cariere', footer_c4:'Blog',
+    footer_contact:'Contact', footer_address:'Cluj-Napoca, România',
+    footer_copy:'© 2026 Studio. Toate drepturile rezervate.'
+  }
+};
+
+let currentLang = 'hu';
+
+function buildHeroTitle(lang) {
+  const words = i18n[lang].hero_title_words;
+  const container = document.getElementById('heroTitle');
+  container.innerHTML = '';
+  words.forEach((word, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    const inner = document.createElement('span');
+    inner.className = 'word-inner';
+    inner.innerHTML = word;
+    inner.style.animationDelay = (0.3 + i * 0.12) + 's';
+    span.appendChild(inner);
+    container.appendChild(span);
+    if (i < words.length - 1) container.appendChild(document.createTextNode(' '));
+  });
+}
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  buildHeroTitle(lang);
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.getAttribute('data-lang')));
+});
+
+// ─── PARTICLE CANVAS ─────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let mouse = { x: -9999, y: -9999 };
+  const PARTICLE_COUNT = 160;
+  const MAX_DIST = 120;
+  const MOUSE_REPEL_DIST = 140;
+  const MOUSE_REPEL_FORCE = 1.8;
+
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(init) {
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : (Math.random() > 0.5 ? -5 : H + 5);
+      this.vx = (Math.random() - 0.5) * 0.6;
+      this.vy = (Math.random() - 0.5) * 0.6;
+      this.r = Math.random() * 1.8 + 0.6;
+      this.alpha = Math.random() * 0.5 + 0.3;
+      this.color = Math.random() > 0.7 ? '0,229,255' : '180,200,255';
+    }
+    update() {
+      // Mouse repel
+      const dx = this.x - mouse.x;
+      const dy = this.y - mouse.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < MOUSE_REPEL_DIST && d > 0) {
+        const force = (MOUSE_REPEL_DIST - d) / MOUSE_REPEL_DIST * MOUSE_REPEL_FORCE;
+        this.vx += (dx / d) * force * 0.04;
+        this.vy += (dy / d) * force * 0.04;
+      }
+      // Speed limit
+      const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      const maxSpeed = 2.5;
+      if (speed > maxSpeed) { this.vx = (this.vx / speed) * maxSpeed; this.vy = (this.vy / speed) * maxSpeed; }
+      // Dampen
+      this.vx *= 0.988; this.vy *= 0.988;
+      // Natural drift
+      this.vx += (Math.random() - 0.5) * 0.02;
+      this.vy += (Math.random() - 0.5) * 0.02;
+      this.x += this.vx; this.y += this.vy;
+      // Boundary wrap
+      if (this.x < -10) this.x = W + 10;
+      if (this.x > W + 10) this.x = -10;
+      if (this.y < -10) this.y = H + 10;
+      if (this.y > H + 10) this.y = -10;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  let particles = [];
+  function init() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+  }
+
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < MAX_DIST) {
+          const alpha = (1 - d / MAX_DIST) * 0.35;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,229,255,${alpha})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    // Very subtle background gradient
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.7);
+    grad.addColorStop(0, 'rgba(10,12,35,1)');
+    grad.addColorStop(1, 'rgba(4,5,13,1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    drawConnections();
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    mouse.x = e.clientX; mouse.y = e.clientY;
+  });
+  document.addEventListener('mousemove', e => {
+    // Only repel on hero section
+    const hero = document.getElementById('home');
+    const rect = hero.getBoundingClientRect();
+    if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+    } else {
+      mouse.x = -9999; mouse.y = -9999;
+    }
+  });
+
+  // Touch support
+  canvas.addEventListener('touchmove', e => {
+    mouse.x = e.touches[0].clientX;
+    mouse.y = e.touches[0].clientY;
+  }, { passive: true });
+
+  init();
+  animate();
+})();
+
+// ─── CUSTOM CURSOR ───────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mX = 0, mY = 0, rX = 0, rY = 0;
+
+document.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; cursor.style.left = mX + 'px'; cursor.style.top = mY + 'px'; });
+(function trackRing() {
+  rX += (mX - rX) * 0.1; rY += (mY - rY) * 0.1;
+  cursorRing.style.left = rX + 'px'; cursorRing.style.top = rY + 'px';
+  requestAnimationFrame(trackRing);
+})();
+
+document.querySelectorAll('a, button, .portfolio-card, .service-card, .process-card, .testimonial-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '16px'; cursor.style.height = '16px';
+    cursorRing.style.width = '52px'; cursorRing.style.height = '52px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '10px'; cursor.style.height = '10px';
+    cursorRing.style.width = '36px'; cursorRing.style.height = '36px';
+  });
+});
+
+// ─── NAV SCROLL ──────────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ─── SCROLL REVEAL ───────────────────────────────────────────────────────────
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ─── COUNT UP ────────────────────────────────────────────────────────────────
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('[data-count]').forEach(el => {
+      const target = parseInt(el.getAttribute('data-count'));
+      let cur = 0;
+      const inc = target / 70;
+      const t = setInterval(() => {
+        cur += inc;
+        if (cur >= target) { cur = target; clearInterval(t); }
+        let val = Math.round(cur);
+        if (target >= 1000) val = val.toLocaleString();
+        el.textContent = val + (target === 98 ? '%' : '+');
+      }, 20);
+    });
+    countObs.unobserve(entry.target);
+  });
+}, { threshold: 0.5 });
+const statsEl = document.getElementById('stats');
+if (statsEl) countObs.observe(statsEl);
+
+// ─── FORM SUBMIT ─────────────────────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.cta-submit');
+  const original = btn.textContent;
+  btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : 'Trimis! ✓';
+  btn.style.background = '#00c896';
+  btn.style.boxShadow = '0 0 24px rgba(0,200,150,0.4)';
+  setTimeout(() => {
+    btn.textContent = i18n[currentLang]['form_submit'];
+    btn.style.background = 'var(--cyan)';
+    btn.style.boxShadow = '0 0 24px rgba(0,229,255,0.3)';
+  }, 3000);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+applyLang('hu');
+</script>
+</body>
+</html>

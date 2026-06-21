@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Aurora Glassmorphism</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --accent: #00ffcc;
+    --accent2: #7c3aed;
+    --accent3: #06b6d4;
+    --accent4: #ec4899;
+    --bg: #050510;
+    --glass-bg: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.1);
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.6);
+    --glow: 0 0 40px rgba(0,255,204,0.3);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* AURORA BLOBS */
+  .aurora-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+    animation: blobFloat 20s ease-in-out infinite;
+  }
+  .blob-1 { width: 600px; height: 600px; background: #7c3aed; top: -200px; left: -150px; animation-duration: 18s; animation-delay: 0s; }
+  .blob-2 { width: 500px; height: 500px; background: #06b6d4; top: 20%; right: -100px; animation-duration: 22s; animation-delay: -5s; }
+  .blob-3 { width: 700px; height: 500px; background: #ec4899; bottom: -100px; left: 20%; animation-duration: 25s; animation-delay: -10s; }
+  .blob-4 { width: 400px; height: 400px; background: #7c3aed; top: 50%; left: 50%; animation-duration: 20s; animation-delay: -7s; }
+  .blob-5 { width: 350px; height: 350px; background: #00ffcc; bottom: 20%; right: 10%; animation-duration: 15s; animation-delay: -3s; opacity: 0.3; }
+
+  @keyframes blobFloat {
+    0%,100% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(60px,-40px) scale(1.05); }
+    50% { transform: translate(-30px,60px) scale(0.95); }
+    75% { transform: translate(40px,30px) scale(1.03); }
+  }
+
+  /* CONTENT LAYER */
+  .content { position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    background: rgba(5,5,16,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 12px 28px;
+    max-width: 900px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-size: clamp(18px,2vw,22px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #00ffcc, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .lang-toggle {
+    background: rgba(0,255,204,0.1);
+    border: 1px solid rgba(0,255,204,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .lang-toggle:hover { background: rgba(0,255,204,0.2); }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(5,5,16,0.97);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .mobile-menu.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .mobile-menu-close {
+    position: absolute;
+    top: 24px; right: 24px;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 32px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-menu a {
+    font-size: clamp(28px,6vw,40px);
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.3s;
+    letter-spacing: -1px;
+  }
+  .mobile-menu a:hover { color: var(--accent); }
+  .mobile-lang-btn {
+    background: rgba(0,255,204,0.1);
+    border: 1px solid rgba(0,255,204,0.3);
+    border-radius: 20px;
+    padding: 10px 24px;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+
+  /* GLASS CARD */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
+  .glass:hover {
+    border-color: rgba(0,255,204,0.3);
+    box-shadow: 0 0 40px rgba(0,255,204,0.15);
+  }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: clamp(100px,15vw,140px) clamp(20px,5vw,60px) clamp(60px,8vw,100px);
+  }
+  .hero-label {
+    display: inline-block;
+    background: rgba(0,255,204,0.1);
+    border: 1px solid rgba(0,255,204,0.3);
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: clamp(11px,1.5vw,13px);
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeSlideUp 0.8s ease forwards 0.3s;
+  }
+  .hero-title {
+    font-size: clamp(40px,8vw,100px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+  }
+  .hero-title .word {
+    display: inline-block;
+    overflow: hidden;
+    margin-right: 0.2em;
+  }
+  .hero-title .word span {
+    display: inline-block;
+    transform: translateY(110%);
+    opacity: 0;
+    animation: wordReveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .word-1 span { animation-delay: 0.5s; }
+  .word-2 span { animation-delay: 0.75s; }
+  .word-3 span { animation-delay: 1s; }
+  .hero-title .accent-text {
+    background: linear-gradient(135deg, #00ffcc 0%, #06b6d4 50%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  @keyframes wordReveal {
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fadeSlideUp {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px); }
+  }
+  .hero-desc {
+    font-size: clamp(15px,2vw,20px);
+    color: var(--text-muted);
+    max-width: 580px;
+    line-height: 1.7;
+    margin: 0 auto 48px;
+    opacity: 0;
+    animation: fadeSlideUp 0.8s ease forwards 1.3s;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 64px;
+    opacity: 0;
+    animation: fadeSlideUp 0.8s ease forwards 1.5s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    color: #050510;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 36px;
+    font-size: clamp(14px,1.5vw,16px);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,255,204,0.4); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 16px 36px;
+    font-size: clamp(14px,1.5vw,16px);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    min-height: 44px;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* HERO STAT CARDS */
+  .hero-stats {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeSlideUp 0.8s ease forwards 1.7s;
+  }
+  .stat-card {
+    padding: clamp(20px,3vw,28px) clamp(24px,3vw,36px);
+    text-align: center;
+    animation: cardBob 4s ease-in-out infinite;
+    transition: box-shadow 0.3s;
+  }
+  .stat-card:nth-child(2) { animation-delay: -1.3s; }
+  .stat-card:nth-child(3) { animation-delay: -2.6s; }
+  @keyframes cardBob {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .stat-num {
+    font-size: clamp(28px,4vw,42px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: clamp(11px,1.2vw,13px);
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* SECTION COMMON */
+  .section-pad {
+    padding: clamp(60px,10vw,120px) clamp(20px,5vw,80px);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: clamp(10px,1.2vw,12px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(28px,5vw,56px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: clamp(14px,1.5vw,18px);
+    color: var(--text-muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* SERVICES */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .service-card {
+    padding: clamp(24px,3vw,36px);
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,255,204,0.1), 0 0 40px rgba(0,255,204,0.15);
+    border-color: rgba(0,255,204,0.4);
+  }
+  .service-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+  .icon-1 { background: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(6,182,212,0.4)); }
+  .icon-2 { background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(0,255,204,0.4)); }
+  .icon-3 { background: linear-gradient(135deg, rgba(236,72,153,0.4), rgba(124,58,237,0.4)); }
+  .service-name {
+    font-size: clamp(16px,1.8vw,20px);
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .service-desc {
+    font-size: clamp(13px,1.3vw,15px);
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .tech-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: rgba(0,255,204,0.08);
+    border: 1px solid rgba(0,255,204,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* STATS SECTION */
+  #stats {
+    padding: clamp(50px,8vw,100px) clamp(20px,5vw,80px);
+    background: rgba(0,255,204,0.03);
+  }
+  .stats-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .stat-block {
+    padding: clamp(24px,3vw,40px);
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .stat-block:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+  .stat-big {
+    font-size: clamp(36px,5vw,60px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: clamp(12px,1.3vw,15px);
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  /* PORTFOLIO */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .portfolio-card {
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+  }
+  .portfolio-bg {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.5s;
+  }
+  .portfolio-card:hover .portfolio-bg { transform: scale(1.05); }
+  .p-bg-1 { background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); }
+  .p-bg-2 { background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); }
+  .p-bg-3 { background: linear-gradient(135deg, #06b6d4 0%, #00ffcc 100%); }
+  .p-bg-4 { background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #06b6d4 100%); }
+  .p-bg-art {
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 1px, transparent 1px, transparent 20px);
+  }
+  .portfolio-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(5,5,16,0.95) 0%, transparent 100%);
+    padding: clamp(16px,3vw,28px);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s;
+  }
+  .portfolio-card:hover .portfolio-overlay { transform: translateY(0); opacity: 1; }
+  .portfolio-tag {
+    display: inline-block;
+    background: rgba(0,255,204,0.2);
+    border: 1px solid rgba(0,255,204,0.4);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .portfolio-title {
+    font-size: clamp(16px,2vw,22px);
+    font-weight: 800;
+  }
+  .portfolio-desc {
+    font-size: clamp(12px,1.3vw,14px);
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .portfolio-label-static {
+    position: absolute;
+    top: clamp(12px,2vw,20px);
+    left: clamp(12px,2vw,20px);
+    background: rgba(5,5,16,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* PROCESS */
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .process-card {
+    padding: clamp(20px,2.5vw,32px);
+    position: relative;
+    transition: all 0.3s;
+  }
+  .process-card:hover { transform: translateY(-4px); border-color: rgba(0,255,204,0.3); box-shadow: var(--glow); }
+  .process-num {
+    font-size: clamp(36px,5vw,56px);
+    font-weight: 900;
+    background: linear-gradient(135deg, rgba(0,255,204,0.3), rgba(6,182,212,0.3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .process-title {
+    font-size: clamp(15px,1.6vw,18px);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .process-desc {
+    font-size: clamp(12px,1.2vw,14px);
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* TESTIMONIALS */
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testi-card {
+    padding: clamp(20px,3vw,32px);
+    transition: all 0.3s;
+  }
+  .testi-card:hover { transform: translateY(-4px); box-shadow: var(--glow); border-color: rgba(0,255,204,0.3); }
+  .testi-quote {
+    font-size: clamp(14px,1.5vw,16px);
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .testi-quote::before { content: '"'; color: var(--accent); font-size: 1.5em; font-style: normal; }
+  .testi-quote::after { content: '"'; color: var(--accent); font-size: 1.5em; font-style: normal; }
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .testi-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #050510;
+  }
+  .av-1 { background: linear-gradient(135deg, var(--accent), #06b6d4); }
+  .av-2 { background: linear-gradient(135deg, #7c3aed, #ec4899); }
+  .av-3 { background: linear-gradient(135deg, #ec4899, #06b6d4); }
+  .testi-name { font-weight: 700; font-size: clamp(13px,1.3vw,15px); }
+  .testi-role { font-size: clamp(11px,1.1vw,13px); color: var(--text-muted); }
+  .stars { color: var(--accent); font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; }
+
+  /* CTA */
+  #cta {
+    padding: clamp(60px,10vw,120px) clamp(20px,5vw,80px);
+  }
+  .cta-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: clamp(40px,5vw,64px);
+    text-align: center;
+    position: relative;
+  }
+  .cta-title {
+    font-size: clamp(28px,5vw,52px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .cta-desc {
+    color: var(--text-muted);
+    font-size: clamp(14px,1.5vw,17px);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+  .cta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .form-row { display: flex; gap: 14px; }
+  .form-row input { flex: 1; }
+  .form-input {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+    font-family: inherit;
+    width: 100%;
+    min-height: 44px;
+  }
+  .form-input:focus { border-color: var(--accent); background: rgba(0,255,204,0.05); box-shadow: 0 0 0 3px rgba(0,255,204,0.1); }
+  .form-input::placeholder { color: rgba(255,255,255,0.3); }
+  .form-select {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 44px;
+    -webkit-appearance: none;
+  }
+  .form-select:focus { border-color: var(--accent); }
+  .form-select option { background: #0d0d20; }
+  .form-btn {
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    color: #050510;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 52px;
+  }
+  .form-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,255,204,0.4); }
+
+  /* FOOTER */
+  footer {
+    padding: clamp(40px,5vw,60px) clamp(20px,5vw,80px);
+    border-top: 1px solid var(--glass-border);
+    background: rgba(5,5,16,0.8);
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 1;
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .footer-logo {
+    font-size: clamp(20px,2.5vw,26px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: clamp(12px,1.3vw,14px);
+    transition: color 0.3s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-copy {
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .mobile-menu { display: flex; }
+    .nav-pill { padding: 10px 16px; }
+    nav { padding: 12px 16px; }
+
+    .hero-stats { flex-direction: column; align-items: center; }
+    .stat-card { width: 100%; max-width: 280px; }
+
+    .services-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: 1fr; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .form-row { flex-direction: column; }
+
+    .footer-inner { flex-direction: column; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+  @media (max-width: 480px) {
+    .hero-btns { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; max-width: 280px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AURORA BLOBS -->
+<div class="aurora-container">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="blob blob-5"></div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-menu-close" id="mobileClose" aria-label="Bezárás">✕</button>
+  <a href="#services" class="mobile-nav-link" data-hu="Szolgáltatások" data-ro="Servicii">Szolgáltatások</a>
+  <a href="#portfolio" class="mobile-nav-link" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a>
+  <a href="#process" class="mobile-nav-link" data-hu="Folyamat" data-ro="Proces">Folyamat</a>
+  <a href="#testimonials" class="mobile-nav-link" data-hu="Vélemények" data-ro="Recenzii">Vélemények</a>
+  <a href="#cta" class="mobile-nav-link" data-hu="Kapcsolat" data-ro="Contact">Kapcsolat</a>
+  <button class="mobile-lang-btn" id="mobileLangBtn">RO</button>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-pill">
+    <div class="nav-logo">Studio</div>
+    <ul class="nav-links">
+      <li><a href="#services" data-hu="Szolgáltatások" data-ro="Servicii">Szolgáltatások</a></li>
+      <li><a href="#portfolio" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a></li>
+      <li><a href="#process" data-hu="Folyamat" data-ro="Proces">Folyamat</a></li>
+      <li><a href="#testimonials" data-hu="Vélemények" data-ro="Recenzii">Vélemények</a></li>
+      <li><a href="#cta" data-hu="Kapcsolat" data-ro="Contact">Kapcsolat</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="lang-toggle" id="langBtn">RO</button>
+      <button class="hamburger" id="hamburger" aria-label="Menü">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-label" data-hu="Web & Mobil Ügynökség" data-ro="Agenție Web & Mobile">Web &amp; Mobil Ügynökség</div>
+  <h1 class="hero-title">
+    <div class="word word-1"><span data-hu="DIGITÁLIS" data-ro="EXPERIENȚE">DIGITÁLIS</span></div>
+    <div class="word word-2"><span data-hu="ÉLMÉNYEK" data-ro="DIGITALE">ÉLMÉNYEK</span></div>
+    <div class="word word-3"><span class="accent-text" data-hu="AMIK ELADNAK" data-ro="CARE VÂD">AMIK ELADNAK</span></div>
+  </h1>
+  <p class="hero-desc" data-hu="Weboldalak és mobilalkalmazások, amelyek nem csupán szépek — hanem valódi eredményeket hoznak. Prémium design, sebességre optimalizált." data-ro="Site-uri web și aplicații mobile care nu sunt doar frumoase — ci aduc rezultate reale. Design premium, optimizat pentru viteză.">Weboldalak és mobilalkalmazások, amelyek nem csupán szépek — hanem valódi eredményeket hoznak. Prémium design, sebességre optimalizált.</p>
+  <div class="hero-btns">
+    <a href="#cta" class="btn-primary" data-hu="Projektet indítok" data-ro="Pornesc un proiect">Projektet indítok</a>
+    <a href="#portfolio" class="btn-secondary" data-hu="Munkáink" data-ro="Lucrările noastre">Munkáink</a>
+  </div>
+  <div class="hero-stats">
+    <div class="glass stat-card">
+      <div class="stat-num" data-counter="120">0</div>
+      <div class="stat-label" data-hu="Projekt teljesítve" data-ro="Proiecte finalizate">Projekt teljesítve</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-num" data-counter="98">0</div>
+      <div class="stat-label" data-hu="% Ügyfél-elégedettség" data-ro="% Satisfacție clienți">% Ügyfél-elégedettség</div>
+    </div>
+    <div class="glass stat-card">
+      <div class="stat-num" data-counter="5">0</div>
+      <div class="stat-label" data-hu="Év tapasztalat" data-ro="Ani experiență">Év tapasztalat</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="MIT CSINÁLUNK" data-ro="CE FACEM">MIT CSINÁLUNK</p>
+    <h2 class="section-title reveal" data-hu="Prémium digitális<br>szolgáltatások" data-ro="Servicii digitale<br>premium">Prémium digitális<br>szolgáltatások</h2>
+    <p class="section-desc reveal" data-hu="Minden projektet egyedi megközelítéssel kezelünk — a stratégiától a kivitelezésig." data-ro="Tratăm fiecare proiect cu o abordare unică — de la strategie la execuție.">Minden projektet egyedi megközelítéssel kezelünk — a stratégiától a kivitelezésig.</p>
+    <div class="services-grid">
+      <div class="glass service-card reveal">
+        <div class="service-icon icon-1">🌐</div>
+        <h3 class="service-name" data-hu="Webfejlesztés" data-ro="Dezvoltare Web">Webfejlesztés</h3>
+        <p class="service-desc" data-hu="Gyors, SEO-optimalizált weboldalak és webappok, modern tech stackkel. Reszponzív, akadálymentes." data-ro="Site-uri web rapide, optimizate SEO și aplicații web cu stack modern. Responsive, accesibile.">Gyors, SEO-optimalizált weboldalak és webappok, modern tech stackkel. Reszponzív, akadálymentes.</p>
+        <div class="tech-chips">
+          <span class="chip">React</span><span class="chip">Next.js</span><span class="chip">TypeScript</span>
+        </div>
+      </div>
+      <div class="glass service-card reveal">
+        <div class="service-icon icon-2">📱</div>
+        <h3 class="service-name" data-hu="Mobilalkalmazás" data-ro="Aplicație Mobilă">Mobilalkalmazás</h3>
+        <p class="service-desc" data-hu="iOS és Android appok, natív élménnyel. Cross-platform vagy natív fejlesztés, igény szerint." data-ro="Aplicații iOS și Android cu experiență nativă. Dezvoltare cross-platform sau nativă, după nevoie.">iOS és Android appok, natív élménnyel. Cross-platform vagy natív fejlesztés, igény szerint.</p>
+        <div class="tech-chips">
+          <span class="chip">Flutter</span><span class="chip">React Native</span><span class="chip">Swift</span>
+        </div>
+      </div>
+      <div class="glass service-card reveal">
+        <div class="service-icon icon-3">🎨</div>
+        <h3 class="service-name" data-hu="UI/UX Design" data-ro="UI/UX Design">UI/UX Design</h3>
+        <p class="service-desc" data-hu="Felhasználói élményt középpontba helyező designok, amelyek konvertálnak és elkápráztatnak." data-ro="Design-uri centrate pe experiența utilizatorului, care convertesc și impresionează.">Felhasználói élményt középpontba helyező designok, amelyek konvertálnak és elkápráztatnak.</p>
+        <div class="tech-chips">
+          <span class="chip">Figma</span><span class="chip">Framer</span><span class="chip">Design System</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-grid">
+    <div class="glass stat-block reveal">
+      <div class="stat-big" data-counter="120">0</div>
+      <div class="stat-sub" data-hu="Elkészült projekt" data-ro="Proiecte finalizate">Elkészült projekt</div>
+    </div>
+    <div class="glass stat-block reveal">
+      <div class="stat-big" data-counter="47">0</div>
+      <div class="stat-sub" data-hu="Elégedett ügyfél" data-ro="Clienți mulțumiți">Elégedett ügyfél</div>
+    </div>
+    <div class="glass stat-block reveal">
+      <div class="stat-big" data-counter="5">0</div>
+      <div class="stat-sub" data-hu="Év tapasztalat" data-ro="Ani experiență">Év tapasztalat</div>
+    </div>
+    <div class="glass stat-block reveal">
+      <div class="stat-big" data-counter="98">0</div>
+      <div class="stat-sub" data-hu="% Ügyfél-visszatérési arány" data-ro="% Rata de retenție clienți">% Ügyfél-visszatérési arány</div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="MUNKÁINK" data-ro="LUCRĂRILE NOASTRE">MUNKÁINK</p>
+    <h2 class="section-title reveal" data-hu="Néhány büszkeségünk" data-ro="Câteva mândrii ale noastre">Néhány büszkeségünk</h2>
+    <p class="section-desc reveal" data-hu="Minden projekt egy-egy történet — amelyek megoldást hoztak és növekedést generáltak." data-ro="Fiecare proiect este o poveste — care a adus soluții și a generat creștere.">Minden projekt egy-egy történet — amelyek megoldást hoztak és növekedést generáltak.</p>
+    <div class="portfolio-grid">
+      <div class="portfolio-card reveal">
+        <div class="portfolio-bg p-bg-1"></div>
+        <div class="p-bg-art"></div>
+        <div class="portfolio-label-static" data-hu="E-commerce" data-ro="E-commerce">E-commerce</div>
+        <div class="portfolio-overlay">
+          <span class="portfolio-tag">Web App</span>
+          <div class="portfolio-title" data-hu="LuxShop Platform" data-ro="Platformă LuxShop">LuxShop Platform</div>
+          <div class="portfolio-desc" data-hu="+240% konverzió növekedés" data-ro="+240% creștere conversie">+240% konverzió növekedés</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal">
+        <div class="portfolio-bg p-bg-2"></div>
+        <div class="p-bg-art"></div>
+        <div class="portfolio-label-static" data-hu="Fitnesz App" data-ro="Aplicație Fitness">Fitnesz App</div>
+        <div class="portfolio-overlay">
+          <span class="portfolio-tag">iOS & Android</span>
+          <div class="portfolio-title" data-hu="FitPulse Mobile" data-ro="FitPulse Mobile">FitPulse Mobile</div>
+          <div class="portfolio-desc" data-hu="50 000+ letöltés az első hónapban" data-ro="50 000+ descărcări în prima lună">50 000+ letöltés az első hónapban</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal">
+        <div class="portfolio-bg p-bg-3"></div>
+        <div class="p-bg-art"></div>
+        <div class="portfolio-label-static" data-hu="SaaS Dashboard" data-ro="SaaS Dashboard">SaaS Dashboard</div>
+        <div class="portfolio-overlay">
+          <span class="portfolio-tag">Web App</span>
+          <div class="portfolio-title" data-hu="DataVault Analytics" data-ro="DataVault Analytics">DataVault Analytics</div>
+          <div class="portfolio-desc" data-hu="Real-time adatvizualizáció" data-ro="Vizualizare date în timp real">Real-time adatvizualizáció</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal">
+        <div class="portfolio-bg p-bg-4"></div>
+        <div class="p-bg-art"></div>
+        <div class="portfolio-label-static" data-hu="Étterem App" data-ro="Aplicație Restaurant">Étterem App</div>
+        <div class="portfolio-overlay">
+          <span class="portfolio-tag">iOS & Android</span>
+          <div class="portfolio-title" data-hu="TableMate Booking" data-ro="TableMate Booking">TableMate Booking</div>
+          <div class="portfolio-desc" data-hu="Azonnali asztalfoglalás, POS integráció" data-ro="Rezervare instantă, integrare POS">Azonnali asztalfoglalás, POS integráció</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="HOGYAN DOLGOZUNK" data-ro="CUM LUCRĂM">HOGYAN DOLGOZUNK</p>
+    <h2 class="section-title reveal" data-hu="Átlátható folyamat,<br>megbízható eredmény" data-ro="Proces transparent,<br>rezultat sigur">Átlátható folyamat,<br>megbízható eredmény</h2>
+    <p class="section-desc reveal" data-hu="4 lépés, ami minden projektnél bevált — és amit te is végig követhetsz." data-ro="4 pași care au funcționat la fiecare proiect — pe care îi poți urmări și tu.">4 lépés, ami minden projektnél bevált — és amit te is végig követhetsz.</p>
+    <div class="process-grid">
+      <div class="glass process-card reveal">
+        <div class="process-num">01</div>
+        <div class="process-title" data-hu="Felfedezés" data-ro="Descoperire">Felfedezés</div>
+        <div class="process-desc" data-hu="Megismerjük céljaidat, piacodat és felhasználóidat. Workshop, versenytárselemzés, briefing." data-ro="Îți cunoaștem obiectivele, piața și utilizatorii. Workshop, analiză concurențială, briefing.">Megismerjük céljaidat, piacodat és felhasználóidat. Workshop, versenytárselemzés, briefing.</div>
+      </div>
+      <div class="glass process-card reveal">
+        <div class="process-num">02</div>
+        <div class="process-title" data-hu="Tervezés" data-ro="Design">Tervezés</div>
+        <div class="process-desc" data-hu="Wireframe-ek, prototípusok, design rendszer. Minden pixelt átgondolunk, mielőtt kódolunk." data-ro="Wireframe-uri, prototipuri, sistem de design. Gândim fiecare pixel înainte să codăm.">Wireframe-ek, prototípusok, design rendszer. Minden pixelt átgondolunk, mielőtt kódolunk.</div>
+      </div>
+      <div class="glass process-card reveal">
+        <div class="process-num">03</div>
+        <div class="process-title" data-hu="Fejlesztés" data-ro="Dezvoltare">Fejlesztés</div>
+        <div class="process-desc" data-hu="Agile sprintekben dolgozunk, heti demo-kkal. Átlátható kommunikáció, nulla meglepetés." data-ro="Lucrăm în sprint-uri Agile, cu demo-uri săptămânale. Comunicare transparentă, zero surprize.">Agile sprintekben dolgozunk, heti demo-kkal. Átlátható kommunikáció, nulla meglepetés.</div>
+      </div>
+      <div class="glass process-card reveal">
+        <div class="process-num">04</div>
+        <div class="process-title" data-hu="Indítás & Növekedés" data-ro="Lansare & Creștere">Indítás &amp; Növekedés</div>
+        <div class="process-desc" data-hu="Éles indítás, monitoring, A/B tesztelés. Nem hagyjuk magára a terméket a lanchnál." data-ro="Lansare live, monitorizare, testare A/B. Nu abandonăm produsul la lansare.">Éles indítás, monitoring, A/B tesztelés. Nem hagyjuk magára a terméket a lanchnál.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-pad">
+    <p class="section-label reveal" data-hu="VÉLEMÉNYEK" data-ro="RECENZII">VÉLEMÉNYEK</p>
+    <h2 class="section-title reveal" data-hu="Mit mondanak<br>ügyfeleink?" data-ro="Ce spun<br>clienții noștri?">Mit mondanak<br>ügyfeleink?</h2>
+    <div class="testi-grid">
+      <div class="glass testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote" data-hu="A Studio csapata lenyűgözött. Hónapok alatt olyan webshopot kaptam, amit évekig próbáltam megcsináltatni. A konverzióm megnégyszereződött." data-ro="Echipa Studio m-a impresionat. În câteva luni am primit un webshop pe care încercasem să-l fac de ani de zile. Conversia mea s-a cvadruplicat.">A Studio csapata lenyűgözött. Hónapok alatt olyan webshopot kaptam, amit évekig próbáltam megcsináltatni. A konverzióm megnégyszereződött.</p>
+        <div class="testi-author">
+          <div class="testi-avatar av-1">KP</div>
+          <div>
+            <div class="testi-name">Kovács Péter</div>
+            <div class="testi-role" data-hu="CEO, LuxShop Kft." data-ro="CEO, LuxShop SRL">CEO, LuxShop Kft.</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote" data-hu="Profizmus, gyorsaság, kreativitás — mindhármat megkaptam. A mobilappunk az App Store Top 10-ben landolt az első héten." data-ro="Profesionalism, viteză, creativitate — le-am primit pe toate trei. Aplicația noastră mobilă a ajuns în Top 10 App Store în prima săptămână.">Profizmus, gyorsaság, kreativitás — mindhármat megkaptam. A mobilappunk az App Store Top 10-ben landolt az első héten.</p>
+        <div class="testi-author">
+          <div class="testi-avatar av-2">SN</div>
+          <div>
+            <div class="testi-name">Szabó Nikolett</div>
+            <div class="testi-role" data-hu="Alapító, FitPulse" data-ro="Fondator, FitPulse">Alapító, FitPulse</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote" data-hu="Más ügynökségek hónapokat csúsztak. A Studio az ígért határidőn belül, ígért áron szállított. Egyedülálló élmény." data-ro="Alte agenții au întârziat luni de zile. Studio a livrat în termenul promis, la prețul promis. Experiență unică.">Más ügynökségek hónapokat csúsztak. A Studio az ígért határidőn belül, ígért áron szállított. Egyedülálló élmény.</p>
+        <div class="testi-author">
+          <div class="testi-avatar av-3">NB</div>
+          <div>
+            <div class="testi-name">Nagy Balázs</div>
+            <div class="testi-role" data-hu="CTO, DataVault" data-ro="CTO, DataVault">CTO, DataVault</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner glass reveal">
+    <div class="hero-label" style="margin-bottom:20px;" data-hu="Indítsuk el együtt" data-ro="Să începem împreună">Indítsuk el együtt</div>
+    <h2 class="cta-title" data-hu="Készen állsz a<br>következő szintre?" data-ro="Ești gata pentru<br>nivelul următor?">Készen állsz a<br>következő szintre?</h2>
+    <p class="cta-desc" data-hu="Ingyenes konzultáció, kötelezettség nélkül. Elmondjuk mit látunk a projektedben, és hogyan csinálnánk meg." data-ro="Consultanță gratuită, fără obligații. Îți spunem ce vedem în proiectul tău și cum l-am face.">Ingyenes konzultáció, kötelezettség nélkül. Elmondjuk mit látunk a projektedben, és hogyan csinálnánk meg.</p>
+    <form class="cta-form" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <input type="text" class="form-input" id="nameInput" placeholder="Neved" data-hu-placeholder="Neved" data-ro-placeholder="Numele tău" required>
+        <input type="email" class="form-input" id="emailInput" placeholder="Email" required>
+      </div>
+      <select class="form-select" id="projectType">
+        <option value="" data-hu="Projekt típusa" data-ro="Tipul proiectului">Projekt típusa</option>
+        <option value="web" data-hu="Weboldal / Webshop" data-ro="Site web / Webshop">Weboldal / Webshop</option>
+        <option value="app" data-hu="Mobilalkalmazás" data-ro="Aplicație mobilă">Mobilalkalmazás</option>
+        <option value="design" data-hu="UI/UX Design" data-ro="UI/UX Design">UI/UX Design</option>
+        <option value="other" data-hu="Egyéb" data-ro="Altele">Egyéb</option>
+      </select>
+      <input type="text" class="form-input" id="msgInput" placeholder="Pár szó a projektről..." data-hu-placeholder="Pár szó a projektről..." data-ro-placeholder="Câteva cuvinte despre proiect...">
+      <button type="submit" class="form-btn" data-hu="Küldöm az üzenetet →" data-ro="Trimit mesajul →">Küldöm az üzenetet →</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Studio</div>
+    <ul class="footer-links">
+      <li><a href="#services" data-hu="Szolgáltatások" data-ro="Servicii">Szolgáltatások</a></li>
+      <li><a href="#portfolio" data-hu="Portfólió" data-ro="Portofoliu">Portfólió</a></li>
+      <li><a href="#process" data-hu="Folyamat" data-ro="Proces">Folyamat</a></li>
+      <li><a href="#cta" data-hu="Kapcsolat" data-ro="Contact">Kapcsolat</a></li>
+    </ul>
+    <div class="footer-copy" data-hu="© 2025 Studio. Minden jog fenntartva." data-ro="© 2025 Studio. Toate drepturile rezervate.">© 2025 Studio. Minden jog fenntartva.</div>
+  </div>
+</footer>
+
+</div><!-- .content -->
+
+<script>
+  // LANGUAGE TOGGLE
+  let lang = 'hu';
+  function setLang(l) {
+    lang = l;
+    document.querySelectorAll('[data-'+l+']').forEach(el => {
+      const text = el.getAttribute('data-'+l);
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        // handled by placeholder attrs
+      } else {
+        el.innerHTML = text;
+      }
+    });
+    document.querySelectorAll('[data-hu-placeholder]').forEach(el => {
+      el.placeholder = el.getAttribute('data-'+(l === 'hu' ? 'hu' : 'ro')+'-placeholder') || el.placeholder;
+    });
+    document.querySelectorAll('.form-select option[data-hu]').forEach(opt => {
+      opt.textContent = opt.getAttribute('data-'+l) || opt.textContent;
+    });
+    const otherLang = l === 'hu' ? 'RO' : 'HU';
+    document.getElementById('langBtn').textContent = otherLang;
+    document.getElementById('mobileLangBtn').textContent = otherLang;
+    // hero title words with accent-text need special care
+    document.querySelectorAll('.word span').forEach(span => {
+      const t = span.getAttribute('data-'+l);
+      if (t) span.textContent = t;
+    });
+    document.documentElement.lang = l;
+  }
+  document.getElementById('langBtn').addEventListener('click', () => setLang(lang === 'hu' ? 'ro' : 'hu'));
+  document.getElementById('mobileLangBtn').addEventListener('click', () => {
+    setLang(lang === 'hu' ? 'ro' : 'hu');
+    closeMobileMenu();
+  });
+
+  // MOBILE MENU
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.getElementById('mobileClose');
+  function openMobileMenu() {
+    mobileMenu.classList.add('open');
+    mobileMenu.style.display = 'flex';
+    hamburger.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (!mobileMenu.classList.contains('open')) mobileMenu.style.display = 'none'; }, 400);
+  }
+  hamburger.addEventListener('click', () => {
+    if (mobileMenu.classList.contains('open')) closeMobileMenu();
+    else openMobileMenu();
+  });
+  mobileClose.addEventListener('click', closeMobileMenu);
+  mobileMenu.addEventListener('click', e => { if (e.target === mobileMenu) closeMobileMenu(); });
+  document.querySelectorAll('.mobile-nav-link').forEach(a => {
+    a.addEventListener('click', () => { closeMobileMenu(); });
+  });
+
+  // SCROLL REVEAL
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // COUNTER
+  function animateCounter(el, target, suffix) {
+    let start = 0;
+    const duration = 2000;
+    const step = (target / duration) * 16;
+    function update() {
+      start += step;
+      if (start >= target) { el.textContent = target + (suffix||''); return; }
+      el.textContent = Math.floor(start) + (suffix||'');
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.getAttribute('data-counter'));
+        animateCounter(el, target, el.textContent.includes('+') ? '+' : '');
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-counter]').forEach(el => counterObserver.observe(el));
+
+  // FORM SUBMIT
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-btn');
+    btn.textContent = lang === 'hu' ? '✓ Elküldve! Hamarosan keresünk.' : '✓ Trimis! Te contactăm în curând.';
+    btn.style.background = 'linear-gradient(135deg, #00ffcc, #06b6d4)';
+    btn.disabled = true;
+  }
+
+  // SMOOTH SCROLL for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>

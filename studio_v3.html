@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Web & Mobile Development</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #050510;
+    --teal: #00ffcc;
+    --teal-dim: rgba(0,255,204,0.15);
+    --teal-glow: rgba(0,255,204,0.4);
+    --purple: #7c3aed;
+    --pink: #ec4899;
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.7);
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.12);
+    --glass-hover: rgba(255,255,255,0.1);
+    --radius: 20px;
+    --radius-sm: 12px;
+    --transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ===== CUSTOM CURSOR ===== */
+  #cursor-dot {
+    position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+    background: var(--teal); border-radius: 50%; pointer-events: none;
+    z-index: 9999; transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    box-shadow: 0 0 10px var(--teal);
+  }
+  #cursor-ring {
+    position: fixed; top: 0; left: 0; width: 36px; height: 36px;
+    border: 1.5px solid rgba(0,255,204,0.6); border-radius: 50%;
+    pointer-events: none; z-index: 9998; transform: translate(-50%, -50%);
+    transition: transform 0.18s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+  body:has(a:hover) #cursor-dot, body:has(button:hover) #cursor-dot { width: 12px; height: 12px; }
+  body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 56px; height: 56px; border-color: var(--teal); }
+
+  /* ===== AURORA BACKGROUND ===== */
+  .aurora-container {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .aurora-blob {
+    position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.55;
+    animation: aurora-float linear infinite;
+  }
+  .blob1 {
+    width: 700px; height: 700px; background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+    top: -200px; left: -150px; animation-duration: 18s;
+  }
+  .blob2 {
+    width: 600px; height: 600px; background: radial-gradient(circle, #00ffcc 0%, transparent 70%);
+    top: 30%; right: -100px; animation-duration: 22s; animation-delay: -6s;
+  }
+  .blob3 {
+    width: 800px; height: 800px; background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+    bottom: -200px; left: 20%; animation-duration: 26s; animation-delay: -12s;
+  }
+  .blob4 {
+    width: 500px; height: 500px; background: radial-gradient(circle, #1d4ed8 0%, transparent 70%);
+    top: 60%; left: 10%; animation-duration: 20s; animation-delay: -4s;
+  }
+  .blob5 {
+    width: 400px; height: 400px; background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+    top: 10%; right: 30%; animation-duration: 24s; animation-delay: -9s;
+  }
+  @keyframes aurora-float {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+    25%  { transform: translate(60px, 40px) scale(1.1) rotate(90deg); }
+    50%  { transform: translate(-40px, 80px) scale(0.95) rotate(180deg); }
+    75%  { transform: translate(80px, -30px) scale(1.05) rotate(270deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 3px; }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px; padding: 10px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transition: var(--transition);
+  }
+  .nav-logo {
+    font-size: 1.1rem; font-weight: 800; color: var(--teal);
+    letter-spacing: -0.5px; margin-right: 16px; white-space: nowrap;
+    text-shadow: 0 0 20px var(--teal-glow);
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-links a {
+    color: var(--white-dim); text-decoration: none; font-size: 0.85rem;
+    font-weight: 500; padding: 6px 14px; border-radius: 100px;
+    transition: var(--transition); cursor: none;
+  }
+  .nav-links a:hover { background: var(--glass-hover); color: var(--white); }
+  .lang-toggle {
+    display: flex; align-items: center; gap: 0; margin-left: 12px;
+    background: rgba(255,255,255,0.08); border-radius: 100px;
+    border: 1px solid var(--glass-border); overflow: hidden;
+  }
+  .lang-btn {
+    background: none; border: none; color: var(--white-dim);
+    font-size: 0.78rem; font-weight: 700; padding: 5px 12px;
+    cursor: none; transition: var(--transition); letter-spacing: 0.05em;
+  }
+  .lang-btn.active { background: var(--teal); color: #000; }
+  .lang-btn:hover:not(.active) { color: var(--white); }
+
+  /* ===== HERO ===== */
+  #hero {
+    position: relative; z-index: 1; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 120px 24px 80px;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--teal-dim); border: 1px solid rgba(0,255,204,0.3);
+    color: var(--teal); font-size: 0.8rem; font-weight: 600;
+    padding: 6px 16px; border-radius: 100px; margin-bottom: 32px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    animation: fadeUp 0.6s 0.1s both;
+  }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; animation: pulse-dot 1.5s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 7rem); font-weight: 900;
+    line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .hero-word {
+    display: inline-block; margin-right: 0.25em;
+    animation: wordSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-word:nth-child(1) { animation-delay: 0.2s; }
+  .hero-word:nth-child(2) { animation-delay: 0.35s; }
+  .hero-word:nth-child(3) { animation-delay: 0.5s; }
+  .hero-word:nth-child(4) { animation-delay: 0.65s; }
+  .hero-word.accent { color: var(--teal); text-shadow: 0 0 40px var(--teal-glow); }
+  @keyframes wordSlideUp {
+    from { opacity: 0; transform: translateY(60px) rotateX(-20deg); }
+    to   { opacity: 1; transform: translateY(0) rotateX(0); }
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem); color: var(--white-dim);
+    max-width: 580px; line-height: 1.7; margin-bottom: 48px;
+    animation: fadeUp 0.7s 0.8s both;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.7s 1s both;
+  }
+  .btn-primary {
+    background: var(--teal); color: #000; font-weight: 700; font-size: 0.95rem;
+    padding: 14px 32px; border-radius: 100px; border: none; cursor: none;
+    transition: var(--transition); letter-spacing: 0.02em;
+    box-shadow: 0 0 30px var(--teal-glow);
+  }
+  .btn-primary:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 0 50px var(--teal-glow); }
+  .btn-ghost {
+    background: var(--glass); color: var(--white); font-weight: 600; font-size: 0.95rem;
+    padding: 14px 32px; border-radius: 100px; border: 1px solid var(--glass-border); cursor: none;
+    transition: var(--transition); backdrop-filter: blur(12px);
+  }
+  .btn-ghost:hover { background: var(--glass-hover); border-color: var(--teal); transform: translateY(-2px); }
+
+  /* ===== STAT CARDS ===== */
+  .hero-stats {
+    display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    margin-top: 72px; animation: fadeUp 0.7s 1.2s both;
+  }
+  .stat-card {
+    background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 24px 32px; text-align: center; min-width: 140px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: bob ease-in-out infinite;
+  }
+  .stat-card:nth-child(1) { animation-duration: 4s; animation-delay: 0s; }
+  .stat-card:nth-child(2) { animation-duration: 4.5s; animation-delay: -1.5s; }
+  .stat-card:nth-child(3) { animation-duration: 3.8s; animation-delay: -0.8s; }
+  @keyframes bob {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  .stat-num {
+    font-size: 2.2rem; font-weight: 900; color: var(--teal);
+    text-shadow: 0 0 20px var(--teal-glow); display: block;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--white-dim); margin-top: 4px; font-weight: 500; }
+
+  /* ===== SECTIONS ===== */
+  section { position: relative; z-index: 1; padding: 100px 24px; }
+  .section-label {
+    display: inline-block; color: var(--teal); font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;
+    line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1.05rem; color: var(--white-dim); max-width: 500px; line-height: 1.7;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section-header { text-align: center; margin-bottom: 64px; }
+  .section-header .section-sub { margin: 0 auto; }
+
+  /* ===== SERVICES ===== */
+  .services-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+  }
+  .service-card {
+    background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 40px 32px; transition: var(--transition); position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--teal-dim) 0%, transparent 60%);
+    opacity: 0; transition: var(--transition);
+  }
+  .service-card:hover { transform: translateY(-8px); border-color: rgba(0,255,204,0.4); box-shadow: 0 20px 60px rgba(0,255,204,0.1); }
+  .service-card:hover::before { opacity: 1; }
+  .service-icon {
+    width: 56px; height: 56px; background: var(--teal-dim);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px; font-size: 1.6rem;
+    border: 1px solid rgba(0,255,204,0.3);
+  }
+  .service-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 12px; }
+  .service-desc { color: var(--white-dim); line-height: 1.7; font-size: 0.95rem; }
+  .service-link {
+    display: inline-flex; align-items: center; gap: 6px; color: var(--teal);
+    font-size: 0.85rem; font-weight: 600; margin-top: 20px; text-decoration: none;
+    cursor: none; transition: gap var(--transition);
+  }
+  .service-link:hover { gap: 12px; }
+
+  /* ===== PROCESS ===== */
+  #process { background: rgba(255,255,255,0.01); }
+  .process-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative;
+  }
+  .process-steps::before {
+    content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 2px;
+    background: linear-gradient(to right, transparent, var(--teal), transparent);
+    animation: line-grow 1.5s 0.5s both;
+  }
+  @keyframes line-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .process-step { padding: 0 20px; text-align: center; position: relative; }
+  .step-num {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 2px solid var(--teal); display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 24px; font-size: 1.4rem; font-weight: 900;
+    color: var(--teal); position: relative; z-index: 1;
+    box-shadow: 0 0 20px var(--teal-glow);
+  }
+  .step-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .step-desc { font-size: 0.875rem; color: var(--white-dim); line-height: 1.65; }
+
+  /* ===== PORTFOLIO ===== */
+  .portfolio-grid {
+    columns: 2; column-gap: 24px;
+  }
+  .portfolio-card {
+    break-inside: avoid; margin-bottom: 24px; border-radius: var(--radius);
+    overflow: hidden; position: relative; cursor: none;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border); transition: var(--transition);
+  }
+  .portfolio-card:hover { transform: scale(1.02); border-color: rgba(0,255,204,0.4); box-shadow: 0 20px 50px rgba(0,255,204,0.08); }
+  .portfolio-img {
+    width: 100%; aspect-ratio: 4/3; display: block;
+  }
+  .portfolio-card:nth-child(2) .portfolio-img { aspect-ratio: 4/5; }
+  .portfolio-card:nth-child(4) .portfolio-img { aspect-ratio: 16/9; }
+  .portfolio-card:nth-child(5) .portfolio-img { aspect-ratio: 1/1; }
+  .grad1 { background: linear-gradient(135deg, #7c3aed 0%, #00ffcc 100%); }
+  .grad2 { background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); }
+  .grad3 { background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%); }
+  .grad4 { background: linear-gradient(135deg, #00ffcc 0%, #1d4ed8 100%); }
+  .grad5 { background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); }
+  .grad6 { background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%); }
+  .portfolio-info {
+    position: absolute; inset: 0; background: rgba(5,5,16,0.85);
+    backdrop-filter: blur(8px); display: flex; flex-direction: column;
+    justify-content: flex-end; padding: 28px;
+    opacity: 0; transition: var(--transition);
+  }
+  .portfolio-card:hover .portfolio-info { opacity: 1; }
+  .portfolio-cat { color: var(--teal); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .portfolio-name { font-size: 1.2rem; font-weight: 800; }
+  .portfolio-year { color: var(--white-dim); font-size: 0.8rem; margin-top: 4px; }
+
+  /* ===== TESTIMONIALS ===== */
+  #testimonials { overflow: hidden; }
+  .testimonials-wrap { position: relative; }
+  .testimonials-track {
+    display: flex; gap: 24px; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .testimonial-card {
+    flex: 0 0 calc(33.333% - 16px); background: var(--glass);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 36px 32px; transition: var(--transition);
+  }
+  .testimonial-card:hover { border-color: rgba(0,255,204,0.3); }
+  .quote-icon { font-size: 2.5rem; color: var(--teal); opacity: 0.5; line-height: 1; margin-bottom: 20px; }
+  .testimonial-text { font-size: 0.975rem; color: var(--white-dim); line-height: 1.75; margin-bottom: 28px; font-style: italic; }
+  .testimonial-author { display: flex; align-items: center; gap: 14px; }
+  .author-avatar {
+    width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem; color: var(--teal);
+    background: var(--teal-dim);
+  }
+  .author-name { font-weight: 700; font-size: 0.9rem; }
+  .author-role { font-size: 0.78rem; color: var(--white-dim); }
+  .testimonials-nav {
+    display: flex; justify-content: center; gap: 12px; margin-top: 40px;
+  }
+  .testi-btn {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--glass);
+    border: 1px solid var(--glass-border); color: var(--white); font-size: 1.1rem;
+    cursor: none; transition: var(--transition); display: flex; align-items: center; justify-content: center;
+  }
+  .testi-btn:hover { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
+
+  /* ===== CTA ===== */
+  #cta {
+    text-align: center; padding: 120px 24px;
+  }
+  .cta-box {
+    background: var(--glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border); border-radius: 32px;
+    padding: 80px 48px; max-width: 760px; margin: 0 auto;
+    box-shadow: 0 0 80px rgba(0,255,204,0.05);
+    position: relative; overflow: hidden;
+  }
+  .cta-box::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,255,204,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cta-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; margin-bottom: 20px; line-height: 1.1; }
+  .cta-title span { color: var(--teal); }
+  .cta-sub { color: var(--white-dim); font-size: 1.05rem; margin-bottom: 40px; }
+  .cta-form { display: flex; gap: 12px; max-width: 440px; margin: 0 auto; flex-wrap: wrap; }
+  .cta-input {
+    flex: 1; min-width: 200px; background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border); border-radius: 100px;
+    padding: 14px 22px; color: var(--white); font-size: 0.95rem; outline: none;
+    transition: var(--transition);
+  }
+  .cta-input::placeholder { color: rgba(255,255,255,0.35); }
+  .cta-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-dim); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative; z-index: 1; padding: 48px 24px;
+    border-top: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo { font-size: 1.2rem; font-weight: 900; color: var(--teal); text-shadow: 0 0 20px var(--teal-glow); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: var(--white-dim); text-decoration: none; font-size: 0.85rem; cursor: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--white); }
+  .footer-copy { color: rgba(255,255,255,0.3); font-size: 0.8rem; }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ===== UTILS ===== */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .process-steps { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+    .process-steps::before { display: none; }
+    .portfolio-grid { columns: 1; }
+    .testimonial-card { flex: 0 0 calc(100% - 0px); }
+    nav { padding: 8px 12px; gap: 4px; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .process-steps { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .hero-stats { flex-direction: column; align-items: center; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Aurora Background -->
+<div class="aurora-container">
+  <div class="aurora-blob blob1"></div>
+  <div class="aurora-blob blob2"></div>
+  <div class="aurora-blob blob3"></div>
+  <div class="aurora-blob blob4"></div>
+  <div class="aurora-blob blob5"></div>
+</div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">Studio.</div>
+  <div class="nav-links">
+    <a href="#services" data-i18n="nav_services">Szolgáltatások</a>
+    <a href="#process" data-i18n="nav_process">Folyamat</a>
+    <a href="#portfolio" data-i18n="nav_portfolio">Portfólió</a>
+    <a href="#testimonials" data-i18n="nav_testimonials">Vélemények</a>
+    <a href="#cta" data-i18n="nav_contact">Kapcsolat</a>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" data-lang="hu">HU</button>
+    <button class="lang-btn" data-lang="ro">RO</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-tag" data-i18n="hero_tag">Web & Mobil Fejlesztés</div>
+  <h1 class="hero-title">
+    <span class="hero-word" data-i18n="hero_w1">Digitális</span>
+    <span class="hero-word" data-i18n="hero_w2">élményeket</span>
+    <span class="hero-word accent" data-i18n="hero_w3">alkotunk</span>
+    <span class="hero-word" data-i18n="hero_w4">veled.</span>
+  </h1>
+  <p class="hero-sub" data-i18n="hero_sub">Modern weboldalak és mobilalkalmazások, amelyek nem csupán jól néznek ki — hanem eredményeket hoznak.</p>
+  <div class="hero-ctas">
+    <button class="btn-primary" data-i18n="hero_cta1">Projekt indítása</button>
+    <button class="btn-ghost" data-i18n="hero_cta2">Munkáink megtekintése</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <span class="stat-num" data-counter="120">0</span>
+      <span class="stat-label" data-i18n="stat1">Projekt elkészítve</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" data-counter="98">0</span>
+      <span class="stat-label" data-i18n="stat2">Elégedett ügyfél</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" data-counter="7">0</span>
+      <span class="stat-label" data-i18n="stat3">Év tapasztalat</span>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label reveal" data-i18n="services_label">Szolgáltatások</span>
+      <h2 class="section-title reveal" data-i18n="services_title">Amit mi<br>elkészítünk</h2>
+      <p class="section-sub reveal" data-i18n="services_sub">Teljes körű digitális megoldások, a koncepcióvázlattól az élesítésig.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">🌐</div>
+        <h3 class="service-title" data-i18n="srv1_title">Web fejlesztés</h3>
+        <p class="service-desc" data-i18n="srv1_desc">React, Next.js és modern webtechnológiák segítségével rendkívül gyors, SEO-barát weboldalakat és webalkalmazásokat készítünk.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">📱</div>
+        <h3 class="service-title" data-i18n="srv2_title">Mobilalkalmazások</h3>
+        <p class="service-desc" data-i18n="srv2_desc">Natív iOS és Android, illetve React Native cross-platform alkalmazások fejlesztése — intuitív UX-szel és csiszolt dizájnnal.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon">🎨</div>
+        <h3 class="service-title" data-i18n="srv3_title">UI/UX Tervezés</h3>
+        <p class="service-desc" data-i18n="srv3_desc">Kutatásvezérelt tervezési folyamat, amelynek eredménye letisztult, konverzióra optimalizált felhasználói élmény minden eszközön.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">⚡</div>
+        <h3 class="service-title" data-i18n="srv4_title">E-kereskedelem</h3>
+        <p class="service-desc" data-i18n="srv4_desc">Shopify, WooCommerce és egyedi webshop megoldások, amelyek az eladásra optimalizáltak és könnyedén kezelhetők.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">🔗</div>
+        <h3 class="service-title" data-i18n="srv5_title">Backend & API</h3>
+        <p class="service-desc" data-i18n="srv5_desc">Skálázható szerver oldali megoldások Node.js, Python és cloud-native technológiákkal — REST és GraphQL API-kkal.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon">🚀</div>
+        <h3 class="service-title" data-i18n="srv6_title">Karbantartás</h3>
+        <p class="service-desc" data-i18n="srv6_desc">Folyamatos support, frissítések, teljesítmény-monitorozás és biztonságmentés — hogy digitális jelenlétéd mindig tökéletesen működjön.</p>
+        <a class="service-link" href="#cta" data-i18n="srv_link">Részletek →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section id="process">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label reveal" data-i18n="process_label">Folyamat</span>
+      <h2 class="section-title reveal" data-i18n="process_title">Hogyan<br>dolgozunk?</h2>
+      <p class="section-sub reveal" data-i18n="process_sub">Átlátható, iteratív munkamódszer — nulla meglepetéssel.</p>
+    </div>
+    <div class="process-steps">
+      <div class="process-step reveal reveal-delay-1">
+        <div class="step-num">01</div>
+        <h3 class="step-title" data-i18n="step1_title">Felfedezés</h3>
+        <p class="step-desc" data-i18n="step1_desc">Megismerjük célkitűzéseidet, célközönségedet és üzleti igényeidet. Mélyinterjúk és versenytárselemzés.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <h3 class="step-title" data-i18n="step2_title">Tervezés</h3>
+        <p class="step-desc" data-i18n="step2_desc">Wireframe-ek, prototípusok és vizuális tervek készítése. Minden döntés az adatokon alapul.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <h3 class="step-title" data-i18n="step3_title">Fejlesztés</h3>
+        <p class="step-desc" data-i18n="step3_desc">Agilis sprintekben halad a kód, kéthetente demóval. Folyamatos kommunikáció és transzparencia.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-4">
+        <div class="step-num">04</div>
+        <h3 class="step-title" data-i18n="step4_title">Élesítés</h3>
+        <p class="step-desc" data-i18n="step4_desc">Tesztelés, optimalizálás és élesítés — majd folyamatos monitorozás az indulás után is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Portfolio -->
+<section id="portfolio">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label reveal" data-i18n="portfolio_label">Portfólió</span>
+      <h2 class="section-title reveal" data-i18n="portfolio_title">Kiválasztott<br>munkáink</h2>
+      <p class="section-sub reveal" data-i18n="portfolio_sub">Büszkék vagyunk minden projektre — íme néhány kedvencünk.</p>
+    </div>
+    <div class="portfolio-grid">
+      <div class="portfolio-card reveal">
+        <div class="portfolio-img grad1"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat1">E-kereskedelem</div>
+          <div class="portfolio-name">LuxeShop</div>
+          <div class="portfolio-year">2025</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal reveal-delay-1">
+        <div class="portfolio-img grad2"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat2">Mobilalkalmazás</div>
+          <div class="portfolio-name">FitTrack Pro</div>
+          <div class="portfolio-year">2025</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal reveal-delay-2">
+        <div class="portfolio-img grad3"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat3">SaaS platform</div>
+          <div class="portfolio-name">DataVault</div>
+          <div class="portfolio-year">2024</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal">
+        <div class="portfolio-img grad4"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat4">Webalkalmazás</div>
+          <div class="portfolio-name">ScheduleAI</div>
+          <div class="portfolio-year">2024</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal reveal-delay-1">
+        <div class="portfolio-img grad5"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat5">Márkaépítés</div>
+          <div class="portfolio-name">Bloom Agency</div>
+          <div class="portfolio-year">2026</div>
+        </div>
+      </div>
+      <div class="portfolio-card reveal reveal-delay-2">
+        <div class="portfolio-img grad6"></div>
+        <div class="portfolio-info">
+          <div class="portfolio-cat" data-i18n="port_cat6">Fintech</div>
+          <div class="portfolio-name">PayFlux</div>
+          <div class="portfolio-year">2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label reveal" data-i18n="testi_label">Vélemények</span>
+      <h2 class="section-title reveal" data-i18n="testi_title">Mit mondanak<br>ügyfeleink?</h2>
+    </div>
+    <div class="testimonials-wrap">
+      <div class="testimonials-track" id="testiTrack">
+        <div class="testimonial-card">
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text" data-i18n="t1_text">A Studio csapata felülmúlta az elvárásaimat. Az oldal betöltési ideje 70%-kal csökkent, a konverziónk pedig megduplázódott az első hónapban.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">MK</div>
+            <div>
+              <div class="author-name">Molnár Katalin</div>
+              <div class="author-role" data-i18n="t1_role">CEO, FreshMart</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text" data-i18n="t2_text">Professzionalizmus és kreativitás tökéletes kombinációja. A mobilappunkra 4.8 csillagos értékelést kaptunk az első héten.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">TP</div>
+            <div>
+              <div class="author-name">Tóth Péter</div>
+              <div class="author-role" data-i18n="t2_role">Alapító, WellnessHub</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text" data-i18n="t3_text">Határidőre szállítottak, a kommunikáció végig átlátható volt. A dizájn egyszerűen lélegzetelállító — pontosan azt kaptuk, amit elképzeltünk.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">SB</div>
+            <div>
+              <div class="author-name">Szabó Brigitta</div>
+              <div class="author-role" data-i18n="t3_role">Marketing igazgató, TechFlow</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonials-nav">
+      <button class="testi-btn" id="testiBtnPrev">←</button>
+      <button class="testi-btn" id="testiBtnNext">→</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-box reveal">
+      <span class="section-label" data-i18n="cta_label">Kezdjük el</span>
+      <h2 class="cta-title" data-i18n="cta_title">Legyen a <span>következő</span><br>projekt a tiéd.</h2>
+      <p class="cta-sub" data-i18n="cta_sub">Írj nekünk és 24 órán belül visszajelzünk egy ingyenes konzultáció egyeztetéséhez.</p>
+      <div class="cta-form">
+        <input class="cta-input" type="email" data-i18n-placeholder="cta_placeholder" placeholder="email@cimed.hu">
+        <button class="btn-primary" data-i18n="cta_btn">Küldés</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">Studio.</div>
+  <div class="footer-links">
+    <a href="#" data-i18n="footer_privacy">Adatvédelem</a>
+    <a href="#" data-i18n="footer_terms">Feltételek</a>
+    <a href="#cta" data-i18n="footer_contact">Kapcsolat</a>
+  </div>
+  <div class="footer-copy" data-i18n="footer_copy">© 2026 Studio. Minden jog fenntartva.</div>
+</footer>
+
+<script>
+/* ===== TRANSLATIONS ===== */
+const translations = {
+  hu: {
+    nav_services: "Szolgáltatások",
+    nav_process: "Folyamat",
+    nav_portfolio: "Portfólió",
+    nav_testimonials: "Vélemények",
+    nav_contact: "Kapcsolat",
+    hero_tag: "Web & Mobil Fejlesztés",
+    hero_w1: "Digitális",
+    hero_w2: "élményeket",
+    hero_w3: "alkotunk",
+    hero_w4: "veled.",
+    hero_sub: "Modern weboldalak és mobilalkalmazások, amelyek nem csupán jól néznek ki — hanem eredményeket hoznak.",
+    hero_cta1: "Projekt indítása",
+    hero_cta2: "Munkáink megtekintése",
+    stat1: "Projekt elkészítve",
+    stat2: "Elégedett ügyfél",
+    stat3: "Év tapasztalat",
+    services_label: "Szolgáltatások",
+    services_title: "Amit mi\nkészítünk",
+    services_sub: "Teljes körű digitális megoldások, a koncepcióvázlattól az élesítésig.",
+    srv1_title: "Web fejlesztés",
+    srv1_desc: "React, Next.js és modern webtechnológiák segítségével rendkívül gyors, SEO-barát weboldalakat és webalkalmazásokat készítünk.",
+    srv2_title: "Mobilalkalmazások",
+    srv2_desc: "Natív iOS és Android, illetve React Native cross-platform alkalmazások fejlesztése — intuitív UX-szel és csiszolt dizájnnal.",
+    srv3_title: "UI/UX Tervezés",
+    srv3_desc: "Kutatásvezérelt tervezési folyamat, amelynek eredménye letisztult, konverzióra optimalizált felhasználói élmény minden eszközön.",
+    srv4_title: "E-kereskedelem",
+    srv4_desc: "Shopify, WooCommerce és egyedi webshop megoldások, amelyek az eladásra optimalizáltak és könnyedén kezelhetők.",
+    srv5_title: "Backend & API",
+    srv5_desc: "Skálázható szerver oldali megoldások Node.js, Python és cloud-native technológiákkal — REST és GraphQL API-kkal.",
+    srv6_title: "Karbantartás",
+    srv6_desc: "Folyamatos support, frissítések, teljesítmény-monitorozás és biztonságmentés — hogy digitális jelenlétéd mindig tökéletesen működjön.",
+    srv_link: "Részletek →",
+    process_label: "Folyamat",
+    process_title: "Hogyan\ndolgozunk?",
+    process_sub: "Átlátható, iteratív munkamódszer — nulla meglepetéssel.",
+    step1_title: "Felfedezés",
+    step1_desc: "Megismerjük célkitűzéseidet, célközönségedet és üzleti igényeidet. Mélyinterjúk és versenytárselemzés.",
+    step2_title: "Tervezés",
+    step2_desc: "Wireframe-ek, prototípusok és vizuális tervek készítése. Minden döntés az adatokon alapul.",
+    step3_title: "Fejlesztés",
+    step3_desc: "Agilis sprintekben halad a kód, kéthetente demóval. Folyamatos kommunikáció és transzparencia.",
+    step4_title: "Élesítés",
+    step4_desc: "Tesztelés, optimalizálás és élesítés — majd folyamatos monitorozás az indulás után is.",
+    portfolio_label: "Portfólió",
+    portfolio_title: "Kiválasztott\nmunkáink",
+    portfolio_sub: "Büszkék vagyunk minden projektre — íme néhány kedvencünk.",
+    port_cat1: "E-kereskedelem",
+    port_cat2: "Mobilalkalmazás",
+    port_cat3: "SaaS platform",
+    port_cat4: "Webalkalmazás",
+    port_cat5: "Márkaépítés",
+    port_cat6: "Fintech",
+    testi_label: "Vélemények",
+    testi_title: "Mit mondanak\nügyfeleink?",
+    t1_text: "A Studio csapata felülmúlta az elvárásaimat. Az oldal betöltési ideje 70%-kal csökkent, a konverziónk pedig megduplázódott az első hónapban.",
+    t1_role: "CEO, FreshMart",
+    t2_text: "Professzionalizmus és kreativitás tökéletes kombinációja. A mobilappunkra 4.8 csillagos értékelést kaptunk az első héten.",
+    t2_role: "Alapító, WellnessHub",
+    t3_text: "Határidőre szállítottak, a kommunikáció végig átlátható volt. A dizájn egyszerűen lélegzetelállító — pontosan azt kaptuk, amit elképzeltünk.",
+    t3_role: "Marketing igazgató, TechFlow",
+    cta_label: "Kezdjük el",
+    cta_title: "Legyen a következő\nprojekt a tiéd.",
+    cta_sub: "Írj nekünk és 24 órán belül visszajelzünk egy ingyenes konzultáció egyeztetéséhez.",
+    cta_placeholder: "email@cimed.hu",
+    cta_btn: "Küldés",
+    footer_privacy: "Adatvédelem",
+    footer_terms: "Feltételek",
+    footer_contact: "Kapcsolat",
+    footer_copy: "© 2026 Studio. Minden jog fenntartva."
+  },
+  ro: {
+    nav_services: "Servicii",
+    nav_process: "Proces",
+    nav_portfolio: "Portofoliu",
+    nav_testimonials: "Testimoniale",
+    nav_contact: "Contact",
+    hero_tag: "Dezvoltare Web & Mobil",
+    hero_w1: "Construim",
+    hero_w2: "experiențe",
+    hero_w3: "digitale",
+    hero_w4: "cu tine.",
+    hero_sub: "Website-uri și aplicații mobile moderne care nu arată doar bine — ci aduc și rezultate reale.",
+    hero_cta1: "Lansează un proiect",
+    hero_cta2: "Vezi lucrările noastre",
+    stat1: "Proiecte finalizate",
+    stat2: "Clienți mulțumiți",
+    stat3: "Ani de experiență",
+    services_label: "Servicii",
+    services_title: "Ce\nfacem",
+    services_sub: "Soluții digitale complete, de la concept până la lansare.",
+    srv1_title: "Dezvoltare Web",
+    srv1_desc: "Creăm website-uri și aplicații web ultra-rapide, prietenoase SEO, folosind React, Next.js și tehnologii web moderne.",
+    srv2_title: "Aplicații Mobile",
+    srv2_desc: "Dezvoltare de aplicații native iOS și Android, precum și cross-platform cu React Native — cu UX intuitiv și design rafinat.",
+    srv3_title: "Design UI/UX",
+    srv3_desc: "Proces de design bazat pe cercetare, care rezultă într-o experiență de utilizator curată, optimizată pentru conversii pe orice dispozitiv.",
+    srv4_title: "E-commerce",
+    srv4_desc: "Soluții Shopify, WooCommerce și magazine online personalizate, optimizate pentru vânzări și ușor de administrat.",
+    srv5_title: "Backend & API",
+    srv5_desc: "Soluții server-side scalabile cu Node.js, Python și tehnologii cloud-native — cu API-uri REST și GraphQL.",
+    srv6_title: "Mentenanță",
+    srv6_desc: "Suport continuu, actualizări, monitorizare performanță și backup de securitate — pentru ca prezența ta digitală să funcționeze perfect.",
+    srv_link: "Detalii →",
+    process_label: "Proces",
+    process_title: "Cum\nlucram?",
+    process_sub: "Metodologie de lucru transparentă, iterativă — fără surprize.",
+    step1_title: "Descoperire",
+    step1_desc: "Înțelegem obiectivele, publicul țintă și nevoile tale de afaceri. Interviuri aprofundate și analiză competitivă.",
+    step2_title: "Design",
+    step2_desc: "Creăm wireframe-uri, prototipuri și planuri vizuale. Fiecare decizie se bazează pe date.",
+    step3_title: "Dezvoltare",
+    step3_desc: "Codul avansează în sprinturi agile, cu demo-uri la două săptămâni. Comunicare și transparență continue.",
+    step4_title: "Lansare",
+    step4_desc: "Testare, optimizare și lansare — urmată de monitorizare continuă după start.",
+    portfolio_label: "Portofoliu",
+    portfolio_title: "Lucrări\nselecționate",
+    portfolio_sub: "Suntem mândri de fiecare proiect — iată câteva favorite.",
+    port_cat1: "E-commerce",
+    port_cat2: "Aplicație mobilă",
+    port_cat3: "Platformă SaaS",
+    port_cat4: "Aplicație web",
+    port_cat5: "Branding",
+    port_cat6: "Fintech",
+    testi_label: "Testimoniale",
+    testi_title: "Ce spun\nclienjii noștri?",
+    t1_text: "Echipa Studio mi-a depășit așteptările. Timpul de încărcare al site-ului a scăzut cu 70%, iar rata de conversie s-a dublat în prima lună.",
+    t1_role: "CEO, FreshMart",
+    t2_text: "Combinație perfectă de profesionalism și creativitate. Aplicația noastră mobilă a primit o evaluare de 4.8 stele în prima săptămână.",
+    t2_role: "Fondator, WellnessHub",
+    t3_text: "Au livrat la timp, comunicarea a fost transparentă pe tot parcursul. Design-ul este pur și simplu spectaculos — am primit exact ceea ce am imaginat.",
+    t3_role: "Director Marketing, TechFlow",
+    cta_label: "Să începem",
+    cta_title: "Lasă următorul\nproiect să fie al tău.",
+    cta_sub: "Scrie-ne și îți răspundem în 24 de ore pentru a stabili o consultație gratuită.",
+    cta_placeholder: "email@compania.ro",
+    cta_btn: "Trimite",
+    footer_privacy: "Confidențialitate",
+    footer_terms: "Termeni",
+    footer_contact: "Contact",
+    footer_copy: "© 2026 Studio. Toate drepturile rezervate."
+  }
+};
+
+let currentLang = 'hu';
+
+function applyLang(lang) {
+  currentLang = lang;
+  const t = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (t[key] !== undefined) el.placeholder = t[key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.documentElement.lang = lang;
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.getAttribute('data-lang')));
+});
+
+/* ===== CURSOR ===== */
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+function animateCursor() {
+  dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px';
+  ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12;
+  ring.style.left = ringX + 'px'; ring.style.top = ringY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+/* ===== SCROLL REVEAL ===== */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ===== COUNTER ANIMATION ===== */
+const counters = document.querySelectorAll('[data-counter]');
+const counterSuffixes = { 0: '+', 1: '%', 2: '+' };
+let countersDone = false;
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !countersDone) {
+      countersDone = true;
+      counters.forEach((el, i) => {
+        const target = parseInt(el.getAttribute('data-counter'));
+        const suffix = i === 1 ? '%' : '+';
+        let current = 0;
+        const step = target / 60;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(timer); }
+          el.textContent = Math.floor(current) + suffix;
+        }, 25);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+if (counters.length) counterObs.observe(counters[0]);
+
+/* ===== TESTIMONIALS CAROUSEL ===== */
+const track = document.getElementById('testiTrack');
+let testiIndex = 0;
+const totalCards = track ? track.children.length : 0;
+
+function updateCarousel() {
+  const w = window.innerWidth;
+  let visible = w > 900 ? 3 : w > 600 ? 2 : 1;
+  const cardW = track.parentElement.offsetWidth;
+  const cardWidthPct = 100 / visible;
+  Array.from(track.children).forEach(c => {
+    c.style.flex = `0 0 calc(${cardWidthPct}% - ${(visible - 1) * 24 / visible}px)`;
+  });
+  const offset = testiIndex * (cardW / visible + (visible > 1 ? 24 : 0));
+  track.style.transform = `translateX(-${offset}px)`;
+}
+
+document.getElementById('testiBtnNext').addEventListener('click', () => {
+  const w = window.innerWidth;
+  let visible = w > 900 ? 3 : w > 600 ? 2 : 1;
+  const max = Math.max(0, totalCards - visible);
+  testiIndex = Math.min(testiIndex + 1, max);
+  updateCarousel();
+});
+document.getElementById('testiBtnPrev').addEventListener('click', () => {
+  testiIndex = Math.max(0, testiIndex - 1);
+  updateCarousel();
+});
+window.addEventListener('resize', updateCarousel);
+updateCarousel();
+
+/* ===== NAV SCROLL EFFECT ===== */
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 50) {
+    nav.style.background = 'rgba(5,5,16,0.85)';
+    nav.style.backdropFilter = 'blur(32px)';
+  } else {
+    nav.style.background = 'rgba(255,255,255,0.05)';
+    nav.style.backdropFilter = 'blur(24px)';
+  }
+});
+
+/* ===== CTA FORM ===== */
+const ctaForm = document.querySelector('.cta-form');
+if (ctaForm) {
+  ctaForm.querySelector('button').addEventListener('click', () => {
+    const input = ctaForm.querySelector('input');
+    if (input.value && input.value.includes('@')) {
+      input.value = '';
+      ctaForm.querySelector('button').textContent = currentLang === 'hu' ? 'Elküldve ✓' : 'Trimis ✓';
+      setTimeout(() => {
+        ctaForm.querySelector('button').textContent = translations[currentLang].cta_btn;
+      }, 2500);
+    } else {
+      input.style.borderColor = '#ec4899';
+      setTimeout(() => { input.style.borderColor = ''; }, 1500);
+    }
+  });
+}
+</script>
+</body>
+</html>
