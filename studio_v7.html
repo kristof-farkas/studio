@@ -3,31 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Studio — Web & Mobile Development</title>
+<title>XTL Studio — Web & Mobile Development</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
 <style>
   :root {
-    --bg: #f0eeff;
-    --bg2: #faf9ff;
+    --bg: #13111f;
+    --bg2: #0f0e1c;
     --violet: #5c35d4;
     --violet-light: #7c5ce4;
     --violet-dark: #3d1fa8;
-    --pink: #ff6b9d;
-    --pink-light: #ffb3cc;
+    --pink: #e0457a;
+    --pink-light: #f9a8c9;
     --white: #ffffff;
-    --text: #1a1235;
-    --text-muted: #6b5e8a;
-    --shadow: 0 8px 32px rgba(92,53,212,0.10);
-    --shadow-lg: 0 20px 60px rgba(92,53,212,0.15);
-    --radius: 24px;
-    --radius-sm: 14px;
+    --text: rgba(255,255,255,0.90);
+    --text-muted: rgba(255,255,255,0.48);
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+    --radius: 20px;
+    --radius-sm: 12px;
     --transition: 0.4s cubic-bezier(0.23,1,0.32,1);
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.09);
   }
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(70px) saturate(1.2);
+    transform: scale(1.1);
+  }
+  #bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgba(4, 3, 12, 0.62);
+  }
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 2px; z-index: 99997; pointer-events: none;
+    background: rgba(255,255,255,0.20);
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  html, body { max-width: 100%; overflow-x: hidden; }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    background: #080612;
+    color: rgba(255,255,255,0.90);
     overflow-x: hidden;
     cursor: none;
   }
@@ -39,10 +68,10 @@
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 99999;
     transform: translate(-50%,-50%);
     transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
   }
   #cursor-ring {
     width: 40px; height: 40px;
@@ -50,7 +79,7 @@
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 9998;
+    z-index: 99998;
     transform: translate(-50%,-50%);
     transition: transform 0.15s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
   }
@@ -58,67 +87,129 @@
 
   /* NAV */
   nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 2px 20px rgba(92,53,212,0.08);
-    padding: 0 5%;
-    height: 72px;
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.07) inset;
+    padding: 0 10px 0 22px;
+    height: 52px;
+    border-radius: 100px;
     display: flex; align-items: center; justify-content: space-between;
-    transition: var(--transition);
+    width: calc(100% - 60px);
+    max-width: 1000px;
+    white-space: nowrap;
+    transition: background 0.4s, box-shadow 0.4s, border-color 0.4s;
+    animation: navSlideIn 0.6s 0.1s cubic-bezier(0.34,1.45,0.64,1) both;
+    overflow: hidden;
+  }
+  @keyframes navSlideIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.97); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  }
+  nav::before { display: none; }
+  nav::after  { display: none; }
+  nav.scrolled {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.08) inset;
   }
   .nav-logo {
-    font-size: 1.5rem; font-weight: 800;
-    background: linear-gradient(135deg, var(--violet), var(--pink));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    letter-spacing: -0.5px;
+    font-size: 1.05rem; font-weight: 700;
+    color: rgba(255,255,255,0.90);
+    letter-spacing: 0px;
+    position: relative; z-index: 1;
+    flex-shrink: 0;
   }
-  .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+  .logo-xtl {
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: white;
+  }
+  .nav-links { display: flex; align-items: center; gap: 2rem; position: relative; z-index: 1; }
   .nav-links a {
-    text-decoration: none; color: var(--text-muted);
-    font-size: 0.9rem; font-weight: 500;
+    text-decoration: none; color: rgba(255,255,255,0.55);
+    font-size: 0.88rem; font-weight: 500;
     transition: color 0.2s;
     cursor: none;
+    position: relative; z-index: 1;
   }
-  .nav-links a:hover { color: var(--violet); }
-  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-links a:hover { color: rgba(255,255,255,0.95); }
+  .nav-links a.active {
+    color: rgba(255,255,255,0.98);
+  }
+  #nav-pill {
+    position: absolute;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 100px;
+    pointer-events: none;
+    top: 50%; transform: translateY(-50%);
+    opacity: 0;
+    transition:
+      left   0.5s cubic-bezier(0.34, 1.6, 0.64, 1),
+      width  0.5s cubic-bezier(0.34, 1.6, 0.64, 1),
+      height 0.3s ease,
+      opacity 0.3s ease;
+  }
+  .nav-right { display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1; }
   .lang-toggle {
     display: flex; align-items: center;
-    background: var(--bg); border-radius: 100px;
-    padding: 4px; gap: 2px;
-    border: 1.5px solid rgba(92,53,212,0.15);
+    background: rgba(255,255,255,0.07); border-radius: 100px;
+    padding: 3px; gap: 2px;
+    border: 1px solid rgba(255,255,255,0.12);
   }
   .lang-btn {
-    padding: 5px 14px; border-radius: 100px; border: none;
-    background: transparent; color: var(--text-muted);
-    font-size: 0.8rem; font-weight: 600; cursor: none;
+    padding: 5px 13px; border-radius: 100px; border: none;
+    background: transparent; color: rgba(255,255,255,0.50);
+    font-size: 0.78rem; font-weight: 600; cursor: none;
     transition: all 0.25s;
   }
   .lang-btn.active {
-    background: var(--violet); color: white;
+    background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.92);
+    box-shadow: 0 2px 8px rgba(92,53,212,0.4);
   }
   .nav-cta {
     background: linear-gradient(135deg, var(--violet), var(--pink));
     color: white; border: none; border-radius: 100px;
-    padding: 10px 24px; font-size: 0.88rem; font-weight: 600;
+    padding: 9px 22px; font-size: 0.85rem; font-weight: 600;
     cursor: none; transition: var(--transition);
-    box-shadow: 0 4px 16px rgba(92,53,212,0.3);
+    box-shadow: 0 4px 16px rgba(92,53,212,0.4);
+    position: relative; overflow: hidden;
   }
-  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(92,53,212,0.4); }
+  .nav-cta::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
+    border-radius: inherit;
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,53,212,0.55); }
 
   /* HERO */
+  .hero-scroll-container {
+    position: relative;
+    z-index: 1;
+  }
   .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 100px 5% 80px;
-    position: relative; overflow: hidden;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 3rem;
+    padding: 130px 6% 80px;
+    text-align: left;
+    background: transparent;
+    z-index: 1;
   }
   .hero-orbs {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     pointer-events: none; z-index: 0;
+    opacity: 0;
   }
+  /* Hero dark-mode overrides */
+  .hero .hero-title { color: rgba(255,255,255,0.95); }
+  .hero .hero-sub { color: rgba(255,255,255,0.55); }
   .orb {
     position: absolute; border-radius: 50%;
     filter: blur(60px); opacity: 0.5;
@@ -133,80 +224,187 @@
     33% { transform: translate(30px,-20px) scale(1.05); }
     66% { transform: translate(-20px,15px) scale(0.95); }
   }
-  .hero-content { position: relative; z-index: 2; max-width: 760px; }
+  .hero-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
   .hero-tag {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(92,53,212,0.08); border: 1.5px solid rgba(92,53,212,0.15);
-    border-radius: 100px; padding: 8px 20px;
-    font-size: 0.82rem; font-weight: 600; color: var(--violet);
-    margin-bottom: 1.8rem;
-    animation: fadeUp 0.8s ease both;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.20);
+    border-radius: 100px; padding: 7px 18px;
+    font-size: 0.80rem; font-weight: 600; color: rgba(255,255,255,0.80);
+    margin-bottom: 1.6rem;
+    animation: fadeUp 0.7s ease forwards;
+    backdrop-filter: blur(12px);
+    opacity: 0;
   }
   .hero-tag-dot { width: 8px; height: 8px; background: var(--pink); border-radius: 50%; animation: pulse 2s ease infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)} }
   .hero-title {
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    font-weight: 800; line-height: 1.15;
-    letter-spacing: -1.5px; margin-bottom: 1.4rem;
-    animation: fadeUp 0.8s 0.15s ease both;
+    font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -2px;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.7s 0.12s ease forwards;
+    opacity: 0;
   }
   .hero-title span {
     background: linear-gradient(135deg, var(--violet), var(--pink));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .hero-sub {
-    font-size: 1.1rem; color: var(--text-muted); line-height: 1.7;
-    max-width: 560px; margin: 0 auto 2.4rem;
-    animation: fadeUp 0.8s 0.25s ease both;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.75;
+    margin: 0 0 2rem;
+    animation: fadeUp 0.7s 0.22s ease forwards;
+    opacity: 0;
   }
   .hero-badges {
-    display: flex; align-items: center; justify-content: center; gap: 1rem;
-    flex-wrap: wrap; margin-bottom: 3rem;
-    animation: fadeUp 0.8s 0.35s ease both;
+    display: flex; align-items: center; justify-content: flex-start; gap: 0.8rem;
+    flex-wrap: wrap; margin-bottom: 2rem;
+    animation: fadeUp 0.7s 0.32s ease forwards;
+    opacity: 0;
   }
   .hero-badge {
-    display: flex; align-items: center; gap: 8px;
-    background: white; border-radius: 100px; padding: 10px 18px;
-    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
-    font-size: 0.85rem; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 100px; padding: 8px 16px;
+    font-size: 0.82rem; font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
   }
-  .hero-badge-icon { font-size: 1rem; }
+  .hero-badge-icon { font-size: 0.95rem; }
   .hero-actions {
     display: flex; align-items: center; justify-content: center; gap: 1rem;
-    flex-wrap: wrap; margin-bottom: 4rem;
-    animation: fadeUp 0.8s 0.45s ease both;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.42s ease forwards;
+    opacity: 0;
+    margin-top: 1rem;
+  }
+  @keyframes btn-shimmer {
+    0%   { transform: translateX(-120%) skewX(-20deg); }
+    100% { transform: translateX(300%) skewX(-20deg); }
+  }
+  @keyframes btn-pulse-ring {
+    0%   { transform: scale(1);    opacity: 0.6; }
+    100% { transform: scale(1.7);  opacity: 0; }
+  }
+  @keyframes btn-bg-shift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--violet), var(--pink));
+    background: linear-gradient(120deg, #6d28d9, #8b5cf6, #d946ef, #ec4899);
+    background-size: 300% 100%;
+    animation: btn-bg-shift 3.5s ease infinite;
     color: white; border: none; border-radius: 100px;
-    padding: 14px 32px; font-size: 1rem; font-weight: 700;
-    cursor: none; transition: var(--transition);
-    box-shadow: 0 8px 24px rgba(92,53,212,0.35);
+    padding: 17px 38px; font-size: 1rem; font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: none;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+    box-shadow: 0 8px 32px rgba(139,92,246,0.55), 0 0 0 1px rgba(255,255,255,0.12) inset;
+    position: relative; overflow: hidden;
   }
-  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(92,53,212,0.45); }
+  /* shimmer sweep */
+  .btn-primary::before {
+    content: '';
+    position: absolute; top: -10%; left: 0;
+    width: 40%; height: 120%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    animation: btn-shimmer 2.4s ease infinite;
+  }
+  /* inner top highlight */
+  .btn-primary::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.20), transparent);
+    border-radius: 100px 100px 0 0;
+    pointer-events: none;
+  }
+  /* neon streak — rotating bright dot around perimeter */
+  @property --streak-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes neon-orbit { to { --streak-angle: 360deg; } }
+  .btn-primary-wrap {
+    position: relative;
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 100px;
+    background: conic-gradient(
+      from var(--streak-angle),
+      transparent 0deg,
+      transparent 60deg,
+      rgba(139,92,246,0.35) 100deg,
+      rgba(167,139,250,0.9) 130deg,
+      rgba(255,255,255,1)   145deg,
+      rgba(236,72,153,0.9)  160deg,
+      rgba(139,92,246,0.35) 190deg,
+      transparent 230deg,
+      transparent 360deg
+    );
+    animation: neon-orbit 2.2s linear infinite;
+  }
+  /* inner mask to cut out center so only border shows */
+  .btn-primary-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 100px;
+    background: #080612;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .btn-primary { position: relative; z-index: 1; }
+  .btn-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 60px rgba(139,92,246,0.75), 0 0 0 1px rgba(255,255,255,0.15) inset;
+  }
+  .btn-primary:active { transform: scale(0.96); }
+  .btn-primary-hero {
+    padding: 22px 58px;
+    font-size: 1.18rem;
+    letter-spacing: 0.6px;
+  }
   .btn-secondary {
-    background: white; color: var(--violet);
-    border: 2px solid rgba(92,53,212,0.2); border-radius: 100px;
-    padding: 14px 32px; font-size: 1rem; font-weight: 700;
+    background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.90);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 100px;
+    padding: 14px 32px; font-size: 0.95rem; font-weight: 700;
     cursor: none; transition: var(--transition);
+    backdrop-filter: blur(8px);
   }
-  .btn-secondary:hover { background: var(--bg); border-color: var(--violet); transform: translateY(-3px); }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.35);
+    transform: translateY(-3px);
+  }
 
   /* DASHBOARD CARD MOCKUP */
   .hero-mockup {
     position: relative; z-index: 2;
-    background: white; border-radius: 28px;
-    box-shadow: var(--shadow-lg);
-    padding: 24px; max-width: 600px; width: 100%;
-    margin: 0 auto;
-    animation: fadeUp 0.9s 0.55s ease both;
-    border: 1.5px solid rgba(92,53,212,0.08);
+    background: rgba(255,255,255,0.97);
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(92,53,212,0.12), 0 32px 80px rgba(0,0,0,0.4), 0 0 60px rgba(92,53,212,0.15);
+    padding: 24px; width: 100%;
+    animation: fadeUp 0.7s 0.50s ease forwards;
+    opacity: 0;
+    will-change: transform;
+    transform-origin: center center;
   }
   .mockup-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 20px;
   }
-  .mockup-title { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .mockup-title { font-size: 0.85rem; font-weight: 700; color: #0f0c1e; }
   .mockup-dots { display: flex; gap: 6px; }
   .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
   .mockup-dot:nth-child(1) { background: #ff5f57; }
@@ -214,11 +412,11 @@
   .mockup-dot:nth-child(3) { background: #28c840; }
   .mockup-stats { display: flex; gap: 12px; margin-bottom: 20px; }
   .mockup-stat {
-    flex: 1; background: var(--bg); border-radius: 14px; padding: 14px;
+    flex: 1; background: #f4f2ff; border-radius: 14px; padding: 14px;
     text-align: center;
   }
   .mockup-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--violet); }
-  .mockup-stat-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .mockup-stat-label { font-size: 0.72rem; color: #6b5e8a; margin-top: 2px; }
   .mockup-chart { display: flex; align-items: flex-end; gap: 8px; height: 70px; margin-bottom: 16px; }
   .chart-bar {
     flex: 1; border-radius: 6px 6px 0 0;
@@ -240,177 +438,421 @@
     flex-shrink: 0;
   }
   .mockup-info { flex: 1; }
-  .mockup-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
-  .mockup-desc { font-size: 0.7rem; color: var(--text-muted); }
+  .mockup-name { font-size: 0.78rem; font-weight: 600; color: #0f0c1e; }
+  .mockup-desc { font-size: 0.7rem; color: #6b5e8a; }
   .mockup-badge-pill {
     background: rgba(92,53,212,0.1); color: var(--violet);
     border-radius: 100px; padding: 4px 10px; font-size: 0.7rem; font-weight: 600;
   }
 
   /* SECTION COMMON */
-  section { padding: 100px 5%; }
+  section { padding: 130px 7%; }
   .section-label {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(92,53,212,0.08); border: 1.5px solid rgba(92,53,212,0.15);
-    border-radius: 100px; padding: 6px 16px;
-    font-size: 0.78rem; font-weight: 700; color: var(--violet);
-    letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(92,53,212,0.15);
+    border: 1px solid rgba(92,53,212,0.25);
+    border-radius: 100px; padding: 5px 14px;
+    font-size: 0.72rem; font-weight: 700;
+    color: rgba(180,160,255,0.95);
+    letter-spacing: 1.5px; text-transform: uppercase;
     margin-bottom: 1rem;
   }
   .section-title {
-    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-    font-weight: 800; line-height: 1.2; letter-spacing: -0.5px;
-    margin-bottom: 1rem;
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+    font-weight: 900; line-height: 1.12;
+    letter-spacing: -1px; margin-bottom: 1rem;
+    color: rgba(255,255,255,0.92);
   }
   .section-title span {
     background: linear-gradient(135deg, var(--violet), var(--pink));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .section-sub {
-    color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 520px;
+    color: rgba(255,255,255,0.45); font-size: 1rem; line-height: 1.75; max-width: 500px;
   }
 
   /* SERVICES */
-  #services { background: var(--bg2); }
+  #services {
+    position: relative; z-index: 1;
+    background: transparent;
+    padding: 130px 7%;
+  }
   .services-grid {
-    display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
-    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 1.2rem;
+    margin-top: 3rem;
   }
   .service-card {
-    border-radius: var(--radius); padding: 32px;
-    transition: var(--transition); position: relative; overflow: hidden;
-    border: 1.5px solid rgba(92,53,212,0.08);
+    border-radius: 20px;
+    padding: 36px 32px;
+    transition: var(--transition);
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
-  .service-card:nth-child(1) { background: linear-gradient(135deg,#f5f0ff,#ede5ff); }
-  .service-card:nth-child(2) { background: linear-gradient(135deg,#fff0f6,#ffe5ef); }
-  .service-card:nth-child(3) { background: linear-gradient(135deg,#f0f5ff,#e5eeff); }
+  .service-card:nth-child(1) { background: rgba(92,53,212,0.10); border-color: rgba(92,53,212,0.20); }
+  .service-card:nth-child(2) { background: rgba(224,69,122,0.08); border-color: rgba(224,69,122,0.18); }
+  .service-card:nth-child(3) { background: rgba(56,189,248,0.07); border-color: rgba(56,189,248,0.16); }
   .service-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 20px 48px rgba(80,60,160,0.12);
   }
   .service-icon {
-    width: 54px; height: 54px; border-radius: 16px;
+    width: 52px; height: 52px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.6rem; margin-bottom: 1.2rem;
+    font-size: 1.5rem; margin-bottom: 1.4rem;
+    box-shadow: 0 4px 16px rgba(92,53,212,0.15);
   }
   .service-card:nth-child(1) .service-icon { background: rgba(92,53,212,0.12); }
   .service-card:nth-child(2) .service-icon { background: rgba(255,107,157,0.12); }
   .service-card:nth-child(3) .service-icon { background: rgba(92,53,212,0.09); }
-  .service-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; }
-  .service-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.2rem; }
-  .service-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .service-name {
+    font-size: 1.15rem; font-weight: 800; margin-bottom: 0.7rem;
+    color: rgba(255,255,255,0.92);
+  }
+  .service-desc {
+    font-size: 0.88rem; color: rgba(255,255,255,0.48); line-height: 1.7;
+  }
+  .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1.2rem; }
   .service-tag {
-    background: rgba(255,255,255,0.7); border-radius: 100px;
-    padding: 4px 12px; font-size: 0.74rem; font-weight: 600; color: var(--text-muted);
+    background: rgba(255,255,255,0.08);
+    color: rgba(200,180,255,0.85);
+    border-radius: 100px;
+    padding: 3px 11px;
+    font-size: 0.72rem; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.10);
   }
 
   /* STATS */
-  #stats {
-    background: linear-gradient(135deg, var(--violet), var(--violet-dark));
-    padding: 70px 5%;
-  }
-  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; text-align: center; }
-  .stat-item {}
-  .stat-num {
-    font-size: 3rem; font-weight: 800; color: white;
-    line-height: 1; margin-bottom: 0.4rem;
-  }
-  .stat-label { font-size: 0.9rem; color: rgba(255,255,255,0.65); font-weight: 500; }
 
   /* PORTFOLIO */
-  #portfolio { background: var(--bg); }
+  #portfolio {
+    background: transparent;
+    position: relative; z-index: 1;
+  }
+  #portfolio .section-label { background: rgba(92,53,212,0.15); border-color: rgba(92,53,212,0.25); color: rgba(180,160,255,0.95); }
+  #portfolio .section-title { color: rgba(255,255,255,0.92); }
+  #portfolio .section-sub { color: rgba(255,255,255,0.45); }
+
+  /* background orbs for glass to refract */
+  .portfolio-bg-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
+  }
+  .portfolio-bg-orb-1 { width: 500px; height: 500px; background: radial-gradient(circle,#7c5ce4,transparent 70%); top: -100px; left: -100px; opacity: 0.6; }
+  .portfolio-bg-orb-2 { width: 400px; height: 400px; background: radial-gradient(circle,#ff6b9d,transparent 70%); top: 50px; right: -80px; opacity: 0.5; }
+  .portfolio-bg-orb-3 { width: 350px; height: 350px; background: radial-gradient(circle,#0099ff,transparent 70%); bottom: -50px; left: 30%; opacity: 0.4; }
+
   .portfolio-grid {
-    display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem;
-    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 360px));
+    gap: 1.2rem;
+    margin: 3.5rem auto 0;
+    justify-content: center;
+    position: relative; z-index: 1;
+    perspective: 1200px;
+    perspective-origin: 50% 40%;
   }
+
   .portfolio-card {
-    border-radius: var(--radius); overflow: hidden;
+    border-radius: 28px;
     position: relative; cursor: none;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-  }
-  .portfolio-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-  .portfolio-img {
-    height: 240px; position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .portfolio-card:nth-child(1) .portfolio-img { background: linear-gradient(135deg,#a084e8,#5c35d4); }
-  .portfolio-card:nth-child(2) .portfolio-img { background: linear-gradient(135deg,#ff6b9d,#c44569); }
-  .portfolio-card:nth-child(3) .portfolio-img { background: linear-gradient(135deg,#6c5ce7,#a29bfe); }
-  .portfolio-card:nth-child(4) .portfolio-img { background: linear-gradient(135deg,#fd79a8,#e84393); }
-  .portfolio-img-inner {
-    width: 80%; height: 70%; background: rgba(255,255,255,0.12);
-    border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.25);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem;
-  }
-  .portfolio-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg,transparent 30%,rgba(20,10,50,0.85));
-    opacity: 0; transition: var(--transition);
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1), box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
     display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 24px;
+    overflow: visible; /* allow children to float in 3D space */
+    background: none;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.14),
+      0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  /* card glass background lives here so overflow:visible doesn't lose shape */
+  .portfolio-card .card-bg {
+    position: absolute; inset: 0; border-radius: 28px;
+    background: rgba(28,26,48,0.85);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow:
+      0 2px 0 rgba(255,255,255,0.08) inset,
+      0 -1px 0 rgba(255,255,255,0.04) inset;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: 28px;
+  }
+
+  /* top specular highlight — the "liquid" edge */
+  .portfolio-card::before {
+    content: '';
+    position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), rgba(255,255,255,0.9), rgba(255,255,255,0.6), transparent);
+    border-radius: 100px;
+    pointer-events: none; z-index: 2;
+  }
+
+  /* inner colour tint per card */
+  .portfolio-card::after {
+    content: ''; position: absolute; inset: 0; border-radius: 28px;
+    pointer-events: none; z-index: 0;
+    opacity: 0; transition: opacity 0.4s ease;
+  }
+  .portfolio-card:nth-child(1)::after { background: radial-gradient(ellipse at 50% 0%,rgba(140,100,255,0.25),transparent 70%); }
+  .portfolio-card:nth-child(2)::after { background: radial-gradient(ellipse at 50% 0%,rgba(255,107,157,0.25),transparent 70%); }
+  .portfolio-card:nth-child(3)::after { background: radial-gradient(ellipse at 50% 0%,rgba(108,92,231,0.25),transparent 70%); }
+  .portfolio-card:nth-child(4)::after { background: radial-gradient(ellipse at 50% 0%,rgba(26,140,255,0.25),transparent 70%); }
+  .portfolio-card:nth-child(5)::after { background: radial-gradient(ellipse at 50% 0%,rgba(16,185,129,0.25),transparent 70%); }
+  .portfolio-card:hover::after { opacity: 1; }
+
+  .portfolio-card:hover {
+    box-shadow:
+      0 2px 0 rgba(255,255,255,0.3) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset,
+      0 40px 80px rgba(0,0,0,0.22),
+      0 8px 32px rgba(92,53,212,0.18);
+  }
+  /* cursor-following light spot */
+  .portfolio-card .tilt-shine {
+    position: absolute; inset: 0; border-radius: 28px;
+    pointer-events: none; z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(circle 180px at 50% 50%, rgba(255,255,255,0.22), transparent 70%);
+  }
+  .portfolio-card:hover .tilt-shine { opacity: 1; }
+  /* click scale */
+  .portfolio-card:active { transform: scale(0.97) !important; transition: transform 0.1s ease; }
+
+  .portfolio-icon-wrap {
+    padding: 36px 0 22px;
+    display: flex; justify-content: center; position: relative; z-index: 1;
+    transform-style: preserve-3d;
+  }
+  .portfolio-icon-wrap img {
+    width: 96px; height: 96px;
+    object-fit: contain; border-radius: 22px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.30), 0 2px 8px rgba(0,0,0,0.18);
+    transition: transform 0.12s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+  }
+  .portfolio-card:hover .portfolio-icon-wrap img { box-shadow: 0 24px 48px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.22); }
+
+  .portfolio-body {
+    padding: 0 22px 26px; position: relative; z-index: 1;
+    flex: 1; display: flex; flex-direction: column;
+    transform-style: preserve-3d;
+  }
+  .portfolio-tag {
+    display: inline-block; margin-bottom: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.55);
+    border-radius: 100px; padding: 4px 12px;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .portfolio-name {
+    font-size: 1.2rem; font-weight: 800; color: rgba(255,255,255,0.92);
+    margin-bottom: 8px; letter-spacing: -0.3px;
+  }
+  .portfolio-desc {
+    font-size: 0.82rem; color: rgba(255,255,255,0.45);
+    line-height: 1.65; margin-bottom: 20px; flex: 1;
+  }
+  .portfolio-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;
+  }
+  .portfolio-techs { display: flex; gap: 5px; flex-wrap: wrap; }
+  .portfolio-tech-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(200,180,255,0.80);
+    border-radius: 100px; padding: 3px 10px;
+    font-size: 0.68rem; font-weight: 600;
+    backdrop-filter: blur(4px);
+  }
+  .portfolio-btn {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.65); font-size: 0.95rem;
+    transition: var(--transition);
+    backdrop-filter: blur(8px);
+  }
+  .portfolio-card:hover .portfolio-btn {
+    background: rgba(255,255,255,0.92);
+    color: var(--violet);
+    box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+  }
+
+  /* shimmer sweep */
+  .card-shimmer {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    border-radius: 28px; overflow: hidden;
+  }
+  .card-shimmer::after {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+    animation: shimmerSweep 4s ease-in-out infinite;
+  }
+  .portfolio-card:nth-child(2) .card-shimmer::after { animation-delay: 1s; }
+  .portfolio-card:nth-child(3) .card-shimmer::after { animation-delay: 2s; }
+  .portfolio-card:nth-child(4) .card-shimmer::after { animation-delay: 3s; }
+  .portfolio-card:nth-child(5) .card-shimmer::after { animation-delay: 4s; }
+  @keyframes shimmerSweep {
+    0%        { left: -100%; opacity: 0; }
+    8%        { opacity: 1; }
+    55%       { left: 160%; opacity: 1; }
+    56%, 100% { left: 160%; opacity: 0; }
+  }
+
+  /* CTA gomb */
+  .portfolio-cta { margin-top: 18px; }
+  .portfolio-cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.88);
+    border-radius: 100px; padding: 9px 20px;
+    font-size: 0.8rem; font-weight: 700;
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+    position: relative;
+  }
+  /* pulzáló gyűrű */
+  .portfolio-cta-btn::before {
+    content: '';
+    position: absolute; inset: -1px; border-radius: 100px;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    animation: ringPulse 2s ease-out infinite;
+  }
+  @keyframes ringPulse {
+    0%   { transform: scale(1);    opacity: 0.7; }
+    70%  { transform: scale(1.14); opacity: 0; }
+    100% { transform: scale(1.14); opacity: 0; }
+  }
+  .portfolio-cta-arrow {
+    display: inline-block;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateX(0); }
+    50%       { transform: translateX(5px); }
+  }
+  .portfolio-card:hover .portfolio-cta-btn {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.45);
     color: white;
   }
-  .portfolio-card:hover .portfolio-overlay { opacity: 1; }
-  .portfolio-overlay-tag {
-    font-size: 0.75rem; font-weight: 600; color: var(--pink-light);
-    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+  .portfolio-card:hover .portfolio-cta-btn::before { animation: none; opacity: 0; }
+
+  /* shimmer sweep */
+  .portfolio-card .card-shimmer {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    border-radius: 28px; overflow: hidden;
   }
-  .portfolio-overlay-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-  .portfolio-overlay-desc { font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.5; }
-  .portfolio-info {
-    background: white; padding: 20px 24px;
-    display: flex; align-items: center; justify-content: space-between;
+  .portfolio-card .card-shimmer::after {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+    animation: shimmerSweep 4s ease-in-out infinite;
   }
-  .portfolio-name { font-size: 1rem; font-weight: 700; }
-  .portfolio-category { font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; }
-  .portfolio-arrow {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--bg); display: flex; align-items: center; justify-content: center;
-    color: var(--violet); font-size: 1rem; transition: var(--transition);
+  .portfolio-card:nth-child(2) .card-shimmer::after { animation-delay: 1s; }
+  .portfolio-card:nth-child(3) .card-shimmer::after { animation-delay: 2s; }
+  .portfolio-card:nth-child(4) .card-shimmer::after { animation-delay: 3s; }
+  .portfolio-card:nth-child(5) .card-shimmer::after { animation-delay: 4s; }
+  @keyframes shimmerSweep {
+    0%   { left: -100%; opacity: 0; }
+    10%  { opacity: 1; }
+    60%  { left: 160%; opacity: 1; }
+    61%  { opacity: 0; }
+    100% { left: 160%; opacity: 0; }
   }
-  .portfolio-card:hover .portfolio-arrow { background: var(--violet); color: white; }
+
+  /* details cta */
+  .portfolio-cta {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 16px;
+  }
+  .portfolio-cta-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: rgba(255,255,255,0.75);
+    border-radius: 100px; padding: 8px 18px;
+    font-size: 0.8rem; font-weight: 700;
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .portfolio-cta-btn::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 100px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+    animation: ctaPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes ctaPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 0;   transform: scale(1.12); }
+  }
+  .portfolio-cta-arrow {
+    font-size: 0.85rem;
+    animation: arrowBounce 1.6s ease-in-out infinite;
+  }
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(4px); }
+  }
+  .portfolio-card:hover .portfolio-cta-btn {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+  }
+  .portfolio-card:hover .portfolio-cta-btn::before { animation: none; opacity: 0; }
 
   /* PROCESS */
-  #process { background: var(--bg2); }
+  #process {
+    position: relative; z-index: 1;
+    background: transparent;
+    padding: 130px 7%;
+  }
   .process-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; margin-top: 3.5rem; align-items: start; }
   .process-steps { display: flex; flex-direction: column; gap: 0; }
   .process-step {
-    display: flex; gap: 1.2rem; padding: 1.5rem 0;
-    border-bottom: 1px solid rgba(92,53,212,0.08);
+    display: flex; align-items: flex-start; gap: 1.2rem;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     cursor: none; transition: var(--transition);
   }
   .process-step:last-child { border-bottom: none; }
   .process-step-num {
-    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem; font-weight: 800;
-    transition: var(--transition);
+    font-size: 0.72rem; font-weight: 800;
+    color: rgba(160,132,232,0.7);
+    letter-spacing: 1px; padding-top: 3px; min-width: 28px;
   }
-  .process-step:nth-child(1) .process-step-num { background: rgba(92,53,212,0.1); color: var(--violet); }
-  .process-step:nth-child(2) .process-step-num { background: rgba(255,107,157,0.1); color: var(--pink); }
-  .process-step:nth-child(3) .process-step-num { background: rgba(92,53,212,0.1); color: var(--violet); }
-  .process-step:nth-child(4) .process-step-num { background: rgba(255,107,157,0.1); color: var(--pink); }
-  .process-step:hover .process-step-num {
-    box-shadow: 0 0 0 6px rgba(92,53,212,0.15);
-    transform: scale(1.1);
-  }
-  .process-step-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-  .process-step-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+  .process-step-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.88); margin-bottom: 0.3rem; }
+  .process-step-desc { font-size: 0.87rem; color: rgba(255,255,255,0.45); line-height: 1.65; }
   .process-visual {
-    background: white; border-radius: var(--radius); padding: 32px;
-    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
+    background: rgba(255,255,255,0.04); border-radius: var(--radius); padding: 32px;
+    box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.08);
     position: sticky; top: 100px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
-  .process-visual-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1.5rem; letter-spacing: 0.5px; }
+  .process-visual-title { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.35); margin-bottom: 1.5rem; letter-spacing: 0.5px; }
   .process-timeline { display: flex; flex-direction: column; gap: 12px; }
   .process-tl-item { display: flex; align-items: center; gap: 12px; }
   .process-tl-dot {
     width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
   }
   .process-tl-bar {
-    flex: 1; height: 8px; border-radius: 100px; background: var(--bg);
+    flex: 1; height: 8px; border-radius: 100px; background: rgba(255,255,255,0.08);
     overflow: hidden;
   }
   .process-tl-fill {
@@ -418,101 +860,506 @@
     animation: fillBar 2s 1s ease both;
   }
   @keyframes fillBar { from { width: 0; } }
-  .process-tl-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; min-width: 30px; }
+  .process-tl-label { font-size: 0.75rem; color: rgba(255,255,255,0.40); font-weight: 500; min-width: 30px; }
 
   /* TECH STACK */
-  #tech { background: var(--bg); }
-  .tech-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2.5rem; }
-  .tech-pill {
-    background: white; border-radius: 100px; padding: 10px 20px;
-    font-size: 0.88rem; font-weight: 600; color: var(--text);
-    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.08);
-    display: flex; align-items: center; gap: 8px;
-    transition: var(--transition); cursor: none;
+  #tech {
+    position: relative; z-index: 1;
+    background: transparent;
+    padding: 130px 7%;
   }
-  .tech-pill:hover { background: var(--violet); color: white; transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-  .tech-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tech-categories { display: flex; flex-direction: column; gap: 0; margin-top: 3.5rem; }
+  .tech-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 28px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .tech-row:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .tech-row-label {
+    font-size: 0.70rem; font-weight: 700;
+    color: rgba(255,255,255,0.30);
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .tech-row-items {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .tech-chip {
+    display: flex; align-items: center; gap: 9px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.83rem; font-weight: 600;
+    color: rgba(255,255,255,0.70);
+    transition: var(--transition);
+    backdrop-filter: blur(8px);
+    cursor: none;
+  }
+  .tech-chip:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    color: rgba(255,255,255,0.92);
+  }
+  .tech-chip i { font-size: 1.25rem; line-height: 1; }
 
   /* TESTIMONIALS */
-  #testimonials { background: var(--bg2); }
+  #testimonials {
+    position: relative; z-index: 1;
+    background: transparent;
+    padding: 130px 7%;
+  }
   .testimonials-slider { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3.5rem; }
   .testimonial-card {
-    background: white; border-radius: var(--radius); padding: 28px;
-    box-shadow: var(--shadow); border: 1.5px solid rgba(92,53,212,0.06);
+    background: rgba(255,255,255,0.04);
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.08);
     transition: var(--transition);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
-  .testimonial-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
-  .testimonial-stars { color: #f59e0b; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .testimonial-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    border-color: rgba(160,132,232,0.25);
+  }
   .testimonial-text {
-    font-size: 0.92rem; color: var(--text-muted); line-height: 1.75;
-    margin-bottom: 1.4rem; font-style: italic;
+    font-size: 0.94rem;
+    color: rgba(255,255,255,0.60);
+    line-height: 1.75; margin-bottom: 1.4rem; font-style: italic;
   }
   .testimonial-author { display: flex; align-items: center; gap: 12px; }
   .testimonial-avatar {
     width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
     display: flex; align-items: center; justify-content: center;
     font-size: 1.1rem; flex-shrink: 0;
   }
-  .testimonial-card:nth-child(1) .testimonial-avatar { background: linear-gradient(135deg,#a084e8,#5c35d4); }
-  .testimonial-card:nth-child(2) .testimonial-avatar { background: linear-gradient(135deg,#ff6b9d,#c44569); }
-  .testimonial-card:nth-child(3) .testimonial-avatar { background: linear-gradient(135deg,#6c5ce7,#a29bfe); }
-  .testimonial-name { font-size: 0.9rem; font-weight: 700; }
-  .testimonial-role { font-size: 0.78rem; color: var(--text-muted); }
+  .testimonial-name {
+    font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.90);
+  }
+  .testimonial-role { font-size: 0.78rem; color: rgba(255,255,255,0.38); margin-top: 2px; }
+  .testimonial-stars { color: #f59e0b; font-size: 1rem; letter-spacing: 2px; margin-bottom: 1rem; }
 
   /* CTA */
   #cta {
-    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-dark) 40%, #8b1a6b 100%);
-    padding: 100px 5%; text-align: center; position: relative; overflow: hidden;
+    padding: 120px 7%; text-align: center;
+    position: relative; z-index: 1;
+    background: linear-gradient(145deg, #1e0f5c 0%, #2d1570 40%, #1a0f45 100%);
+    border-top: none;
+    border-bottom: none;
+    overflow: hidden;
   }
   #cta::before {
-    content: ''; position: absolute; inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(130,80,255,0.25), transparent),
+      radial-gradient(ellipse 50% 60% at 80% 50%, rgba(80,40,200,0.20), transparent);
   }
-  .cta-label { color: var(--pink-light); font-size: 0.82rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
-  .cta-title { font-size: clamp(2rem,4vw,3.2rem); font-weight: 800; color: white; letter-spacing: -1px; line-height: 1.2; margin-bottom: 1rem; }
-  .cta-sub { color: rgba(255,255,255,0.7); font-size: 1.05rem; line-height: 1.7; max-width: 480px; margin: 0 auto 3rem; }
+  .cta-label {
+    display: inline-flex;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 100px; padding: 5px 16px;
+    font-size: 0.72rem; font-weight: 700;
+    color: rgba(200,180,255,0.9);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+  .cta-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900; color: white;
+    letter-spacing: -1.5px; line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+  .cta-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 1.05rem; line-height: 1.7;
+    max-width: 480px; margin: 0 auto 2.5rem;
+  }
   .cta-form { display: flex; flex-direction: column; gap: 1rem; max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
-  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cta-field-wrap { width: 100%; }
+  .cta-field-wrap .cta-input { width: 100%; box-sizing: border-box; }
   .cta-input {
-    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2);
-    border-radius: 14px; padding: 14px 18px;
-    color: white; font-size: 0.92rem; outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    font-family: inherit;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px; padding: 14px 18px;
+    color: white; font-size: 0.92rem;
+    transition: var(--transition); width: 100%;
+    font-family: inherit; outline: none;
+    backdrop-filter: blur(8px);
   }
-  .cta-input::placeholder { color: rgba(255,255,255,0.5); }
-  .cta-input:focus { border-color: var(--pink-light); background: rgba(255,255,255,0.18); }
+  .cta-input::placeholder { color: rgba(255,255,255,0.32); }
+  .cta-input:focus { border-color: rgba(160,132,232,0.55); background: rgba(255,255,255,0.13); }
   .cta-textarea { resize: vertical; min-height: 110px; }
   .cta-submit {
-    background: white; color: var(--violet);
-    border: none; border-radius: 100px; padding: 16px 40px;
-    font-size: 1rem; font-weight: 700; cursor: none;
-    transition: var(--transition); align-self: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    background: white;
+    color: var(--violet-dark);
+    border: none; border-radius: 100px;
+    padding: 15px 36px;
+    font-size: 0.95rem; font-weight: 700;
+    cursor: none; transition: var(--transition);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    align-self: center;
   }
-  .cta-submit:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,0.3); }
+  .cta-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  }
 
   /* FOOTER */
   footer {
-    background: white; padding: 60px 5% 30px;
-    border-top: 1.5px solid rgba(92,53,212,0.08);
+    background: rgba(8,4,20,0.96);
+    color: rgba(255,255,255,0.7);
+    padding: 64px 5% 32px;
+    position: relative; z-index: 1;
+    border-top: 1px solid rgba(255,255,255,0.06);
   }
   .footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
-  .footer-logo { font-size: 1.4rem; font-weight: 800; background: linear-gradient(135deg,var(--violet),var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
-  .footer-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; max-width: 240px; }
-  .footer-col-title { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text); margin-bottom: 1rem; }
+  .footer-logo {
+    font-size: 1.5rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--violet-light), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 0.8rem;
+  }
+  .footer-desc {
+    font-size: 0.85rem; color: rgba(255,255,255,0.45);
+    line-height: 1.7; max-width: 240px;
+  }
+  .footer-col-title {
+    font-size: 0.72rem; font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
   .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
-  .footer-links a { text-decoration: none; color: var(--text-muted); font-size: 0.88rem; transition: color 0.2s; cursor: none; }
-  .footer-links a:hover { color: var(--violet); }
-  .footer-bottom { border-top: 1.5px solid rgba(92,53,212,0.06); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; }
-  .footer-copy { font-size: 0.82rem; color: var(--text-muted); }
+  .footer-links a {
+    color: rgba(255,255,255,0.55); text-decoration: none;
+    font-size: 0.88rem; transition: color 0.2s; cursor: none;
+  }
+  .footer-links a:hover { color: white; }
+  .footer-bottom {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-copy {
+    font-size: 0.78rem; color: rgba(255,255,255,0.3);
+  }
   .footer-socials { display: flex; gap: 12px; }
-  .footer-social { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: none; transition: var(--transition); }
-  .footer-social:hover { background: var(--violet); transform: translateY(-3px); }
+  .footer-social {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; cursor: none; transition: var(--transition);
+    color: rgba(255,255,255,0.5);
+  }
+  .footer-social:hover { background: var(--violet); color: white; transform: translateY(-3px); }
+
+  /* APP MODAL — LIQUID GLASS */
+  #modal-overlay {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(8,4,24,0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease, backdrop-filter 0.5s ease;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  #modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  #modal-panel {
+    width: 100%; max-width: 860px; max-height: 92vh;
+    overflow-y: auto; overflow-x: hidden;
+    border-radius: 36px 36px 0 0;
+    position: relative;
+
+    /* liquid glass core */
+    background: linear-gradient(
+      160deg,
+      rgba(255,255,255,0.14) 0%,
+      rgba(255,255,255,0.07) 50%,
+      rgba(255,255,255,0.11) 100%
+    );
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-bottom: none;
+    box-shadow:
+      0 2px 0 rgba(255,255,255,0.35) inset,
+      0 -1px 0 rgba(255,255,255,0.06) inset,
+      0 -40px 80px rgba(92,53,212,0.15),
+      0 0 0 1px rgba(255,255,255,0.06);
+
+    transform: translateY(100%) scale(0.94);
+    opacity: 0;
+    transition:
+      transform 0.65s cubic-bezier(0.34, 1.45, 0.64, 1),
+      opacity   0.4s ease;
+    scrollbar-width: none;
+  }
+  #modal-panel::-webkit-scrollbar { display: none; }
+
+  /* top specular edge */
+  #modal-panel::before {
+    content: '';
+    position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), rgba(255,255,255,1), rgba(255,255,255,0.7), transparent);
+    border-radius: 100px; pointer-events: none; z-index: 5;
+  }
+
+  #modal-overlay.open #modal-panel {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  /* staggered content reveal */
+  #modal-content > * {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.34,1.3,0.64,1);
+  }
+  #modal-overlay.open #modal-content > *:nth-child(1)  { opacity:1; transform:none; transition-delay:0.18s; }
+  #modal-overlay.open #modal-content > *:nth-child(2)  { opacity:1; transform:none; transition-delay:0.24s; }
+  #modal-overlay.open #modal-content > *:nth-child(3)  { opacity:1; transform:none; transition-delay:0.30s; }
+  #modal-overlay.open #modal-content > *:nth-child(4)  { opacity:1; transform:none; transition-delay:0.36s; }
+  #modal-overlay.open #modal-content > *:nth-child(5)  { opacity:1; transform:none; transition-delay:0.42s; }
+  #modal-overlay.open #modal-content > *:nth-child(6)  { opacity:1; transform:none; transition-delay:0.48s; }
+  #modal-overlay.open #modal-content > *:nth-child(7)  { opacity:1; transform:none; transition-delay:0.54s; }
+  #modal-overlay.open #modal-content > *:nth-child(8)  { opacity:1; transform:none; transition-delay:0.60s; }
+  #modal-overlay.open #modal-content > *:nth-child(9)  { opacity:1; transform:none; transition-delay:0.66s; }
+  #modal-overlay.open #modal-content > *:nth-child(10) { opacity:1; transform:none; transition-delay:0.72s; }
+
+  /* drag handle */
+  .modal-handle {
+    width: 44px; height: 5px; border-radius: 100px;
+    background: rgba(255,255,255,0.3);
+    margin: 14px auto 0;
+  }
+
+  .modal-close {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; justify-content: flex-end;
+    padding: 12px 20px 0;
+    background: transparent;
+  }
+  .modal-close-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    cursor: none; font-size: 1rem; color: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s ease;
+  }
+  .modal-close-btn:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  /* ── MODAL HERO HEADER ──────────────────────────────────────────── */
+  .modal-hero-header {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    padding-bottom: 28px;
+    overflow: hidden;
+    border-radius: 36px 36px 0 0;
+  }
+  /* gradient fill */
+  .modal-hero-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    /* set via inline style: background: app.gradient */
+    background: inherit;
+    opacity: 0.88;
+  }
+  /* fade-to-glass at bottom */
+  .modal-hero-header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(20,10,50,0.55));
+    pointer-events: none;
+  }
+  .modal-hero-icon {
+    position: relative; z-index: 2;
+    width: 96px; height: 96px; border-radius: 26px;
+    overflow: hidden;
+    box-shadow:
+      0 16px 48px rgba(0,0,0,0.5),
+      0 2px 0 rgba(255,255,255,0.35) inset,
+      0 0 0 1px rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.6rem;
+    margin-bottom: 16px;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(6px);
+  }
+  .modal-hero-icon img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-hero-name {
+    position: relative; z-index: 2;
+    font-size: 1.9rem; font-weight: 800; letter-spacing: -0.6px;
+    color: white; text-align: center;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    line-height: 1.1;
+  }
+  .modal-hero-tag {
+    position: relative; z-index: 2;
+    display: inline-flex; margin-top: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    color: rgba(255,255,255,0.9);
+    border-radius: 100px; padding: 5px 16px;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+  }
+
+  /* ── MODAL DESCRIPTION ───────────────────────────────────────────── */
+  .modal-description {
+    padding: 28px 32px 0;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem; line-height: 1.78;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .modal-description strong {
+    color: rgba(255,255,255,0.92);
+    font-weight: 600;
+  }
+
+  /* ── MODAL DIVIDER ───────────────────────────────────────────────── */
+  .modal-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.09);
+    margin: 28px 32px 0;
+  }
+
+  /* ── MODAL SECTION ───────────────────────────────────────────────── */
+  .modal-section { padding: 24px 32px 0; }
+  .modal-section-title {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 2.2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+    margin-bottom: 18px;
+  }
+
+  /* ── FEATURES 3-COL ─────────────────────────────────────────────── */
+  .modal-features {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 0;
+  }
+  .modal-feature {
+    padding: 18px 14px 20px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    transition: background 0.2s ease;
+    border-radius: 12px;
+  }
+  .modal-feature:hover { background: rgba(255,255,255,0.05); }
+  .modal-feature-icon {
+    font-size: 2rem; line-height: 1;
+    /* no background box — bare emoji, large and airy */
+  }
+  .modal-feature-text {
+    font-size: 0.84rem; font-weight: 700;
+    color: rgba(255,255,255,0.92); line-height: 1.3;
+  }
+  .modal-feature-sub {
+    font-size: 0.74rem; color: rgba(255,255,255,0.45);
+    line-height: 1.55; font-weight: 400; margin-top: 0;
+  }
+
+  /* ── SCREENSHOTS PERSPECTIVE WRAP ───────────────────────────────── */
+  .modal-screenshots-wrap {
+    padding: 8px 32px 0;
+  }
+  .modal-screenshots {
+    display: flex; gap: 14px;
+    overflow-x: auto; padding-bottom: 20px;
+    scrollbar-width: none;
+  }
+  .modal-screenshots::-webkit-scrollbar { display: none; }
+  .modal-screenshot {
+    flex-shrink: 0; width: 148px; height: 285px;
+    border-radius: 22px; overflow: hidden;
+    box-shadow:
+      0 18px 48px rgba(0,0,0,0.55),
+      0 2px 0 rgba(255,255,255,0.18) inset;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.5);
+    transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s ease;
+  }
+  .modal-screenshot:hover {
+    transform: scale(1.05) translateY(-6px) translateZ(10px);
+    box-shadow: 0 28px 60px rgba(0,0,0,0.65), 0 2px 0 rgba(255,255,255,0.25) inset;
+  }
+  .modal-screenshot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .modal-screenshot--desktop {
+    width: 380px; height: 240px; border-radius: 16px;
+  }
+  .modal-screenshot--desktop img { object-position: center; }
+
+  /* ── TECH PILLS ──────────────────────────────────────────────────── */
+  .modal-tech { display: flex; flex-wrap: wrap; gap: 7px; }
+  .modal-tech-pill {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 100px; padding: 6px 15px;
+    font-size: 0.76rem; font-weight: 600; color: rgba(255,255,255,0.78);
+    display: flex; align-items: center; gap: 7px;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    letter-spacing: 0.02em;
+  }
+  .modal-tech-pill:hover {
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.28);
+    color: rgba(255,255,255,0.95);
+  }
+  .modal-tech-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .modal-bottom { height: 44px; }
+
+  @media (max-width: 640px) {
+    .modal-description { padding: 20px 20px 0; font-size: 0.86rem; }
+    .modal-divider { margin: 22px 20px 0; }
+    .modal-section { padding: 20px 20px 0; }
+    .modal-features { grid-template-columns: repeat(2,1fr); }
+    .modal-screenshots-wrap { padding: 8px 20px 0; }
+    .modal-hero-name { font-size: 1.5rem; }
+    .modal-hero-icon { width: 78px; height: 78px; font-size: 2rem; }
+  }
 
   /* SCROLL REVEAL */
   .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left  { opacity: 0; transform: translateX(-48px); transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.23,1,0.32,1); }
+  .reveal-left.visible  { opacity: 1; transform: translateX(0); }
+  .reveal-right { opacity: 0; transform: translateX(48px);  transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.23,1,0.32,1); }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+  .reveal-scale { opacity: 0; transform: scale(0.82) translateY(20px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34,1.45,0.64,1); }
+  .reveal-scale.visible { opacity: 1; transform: scale(1) translateY(0); }
+
+  /* SECTION ACCENT BLOB */
+  .section-accent-blob {
+    position: absolute; pointer-events: none;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(92,53,212,0.06) 0%, transparent 70%);
+    right: -150px; top: -100px;
+    animation: orbFloat 10s ease-in-out infinite;
+  }
+  #services { overflow: visible; }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
@@ -521,14 +1368,22 @@
 
   @media (max-width: 1024px) {
     .services-grid, .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .portfolio-grid { grid-template-columns: 1fr; }
+    .portfolio-grid { grid-template-columns: repeat(2,1fr); gap: 1rem; }
     .process-grid { grid-template-columns: 1fr; }
     .testimonials-slider { grid-template-columns: 1fr; }
     .footer-top { grid-template-columns: 1fr 1fr; }
     .nav-links { display: none; }
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 2rem;
+    }
+    .hero-badges { justify-content: center; }
+    .hero-actions { justify-content: center; }
+    .hero-scroll-container { height: auto; }
   }
   @media (max-width: 640px) {
-    .services-grid, .stats-grid, .cta-row { grid-template-columns: 1fr; }
+    .services-grid, .stats-grid, .cta-row, .portfolio-grid { grid-template-columns: 1fr; }
     .hero-badges { flex-direction: column; align-items: center; }
     .footer-top { grid-template-columns: 1fr; }
     .mockup-stats { flex-wrap: wrap; }
@@ -537,14 +1392,20 @@
 </head>
 <body>
 
+<canvas id="bg-canvas"></canvas>
+<div id="bg-overlay"></div>
+
+<div id="scroll-progress"></div>
+
 <!-- CUSTOM CURSOR -->
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
 
 <!-- NAV -->
 <nav id="navbar">
-  <div class="nav-logo">Studio</div>
+  <div class="nav-logo"><span class="logo-xtl">XTL</span> Studio</div>
   <div class="nav-links">
+    <div id="nav-pill"></div>
     <a href="#services" data-i18n="nav_services">Szolgáltatások</a>
     <a href="#portfolio" data-i18n="nav_portfolio">Portfólió</a>
     <a href="#process" data-i18n="nav_process">Folyamat</a>
@@ -561,6 +1422,7 @@
 </nav>
 
 <!-- HERO -->
+<div class="hero-scroll-container">
 <section class="hero" id="home">
   <div class="hero-orbs">
     <div class="orb orb1"></div>
@@ -581,8 +1443,9 @@
       <div class="hero-badge"><span class="hero-badge-icon">💎</span><span data-i18n="badge3">6 év tapasztalat</span></div>
     </div>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="document.querySelector('#cta').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta1">Projekt indítása</button>
-      <button class="btn-secondary" onclick="document.querySelector('#portfolio').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta2">Munkáink megtekintése</button>
+      <span class="btn-primary-wrap">
+        <button class="btn-primary btn-primary-hero" onclick="document.querySelector('#cta').scrollIntoView({behavior:'smooth'})" data-i18n="hero_cta1">Projekt indítása →</button>
+      </span>
     </div>
   </div>
   <div class="hero-mockup">
@@ -593,7 +1456,7 @@
         <div class="mockup-dot"></div>
       </div>
       <div class="mockup-title" data-i18n="mockup_title">Analytics Dashboard</div>
-      <div style="font-size:0.75rem;color:var(--text-muted)">2026</div>
+      <div style="font-size:0.75rem;color:#6b5e8a">2026</div>
     </div>
     <div class="mockup-stats">
       <div class="mockup-stat"><div class="mockup-stat-val">98%</div><div class="mockup-stat-label" data-i18n="mockup_stat1">Elégedettség</div></div>
@@ -618,12 +1481,16 @@
     </div>
   </div>
 </section>
+</div>
 
 <!-- SERVICES -->
 <section id="services">
-  <div class="section-label" data-i18n="services_label">Szolgáltatásaink</div>
-  <h2 class="section-title" data-i18n="services_title">Amit kínálunk<br><span>a sikerért</span></h2>
-  <p class="section-sub" data-i18n="services_sub">Teljes körű digitális megoldásokat nyújtunk a tervezéstől a fejlesztésig és a piaci megjelenésig.</p>
+  <div class="section-accent-blob" aria-hidden="true"></div>
+  <div class="section-header">
+    <div class="section-label reveal-left" data-i18n="services_label">Szolgáltatásaink</div>
+    <h2 class="section-title reveal" data-i18n="services_title">Amit kínálunk<br><span>a sikerért</span></h2>
+    <p class="section-sub reveal" style="transition-delay:0.1s" data-i18n="services_sub">Teljes körű digitális megoldásokat nyújtunk a tervezéstől a fejlesztésig és a piaci megjelenésig.</p>
+  </div>
   <div class="services-grid">
     <div class="service-card reveal">
       <div class="service-icon">🌐</div>
@@ -653,87 +1520,121 @@
 </section>
 
 <!-- STATS -->
-<section id="stats">
-  <div class="stats-grid">
-    <div class="stat-item reveal">
-      <div class="stat-num" data-count="127">0</div>
-      <div class="stat-label" data-i18n="stat1">Befejezett projekt</div>
-    </div>
-    <div class="stat-item reveal" style="transition-delay:0.1s">
-      <div class="stat-num" data-count="98">0</div>
-      <div class="stat-label" data-i18n="stat2">Elégedett ügyfél (%)</div>
-    </div>
-    <div class="stat-item reveal" style="transition-delay:0.2s">
-      <div class="stat-num" data-count="6">0</div>
-      <div class="stat-label" data-i18n="stat3">Év tapasztalat</div>
-    </div>
-    <div class="stat-item reveal" style="transition-delay:0.3s">
-      <div class="stat-num" data-count="24">0</div>
-      <div class="stat-label" data-i18n="stat4">Aktív ügyfél</div>
-    </div>
-  </div>
-</section>
 
 <!-- PORTFOLIO -->
 <section id="portfolio">
-  <div class="section-label" data-i18n="portfolio_label">Portfólió</div>
-  <h2 class="section-title" data-i18n="portfolio_title">Büszkeségeink:<br><span>legújabb munkáink</span></h2>
-  <p class="section-sub" data-i18n="portfolio_sub">Minden projekt egy egyedi kihívás volt, amelyet kreatívan és szakszerűen oldottunk meg.</p>
+  <div class="portfolio-bg-orb portfolio-bg-orb-1"></div>
+  <div class="portfolio-bg-orb portfolio-bg-orb-2"></div>
+  <div class="portfolio-bg-orb portfolio-bg-orb-3"></div>
+  <div class="section-header">
+    <div class="section-label" data-i18n="portfolio_label">Portfólió</div>
+    <h2 class="section-title" data-i18n="portfolio_title">Büszkeségeink:<br><span>legújabb munkáink</span></h2>
+    <p class="section-sub" data-i18n="portfolio_sub">Minden projekt egy egyedi kihívás volt, amelyet kreatívan és szakszerűen oldottunk meg.</p>
+  </div>
   <div class="portfolio-grid">
-    <div class="portfolio-card reveal">
-      <div class="portfolio-img">
-        <div class="portfolio-img-inner">🛒</div>
-        <div class="portfolio-overlay">
-          <div class="portfolio-overlay-tag" data-i18n="port_tag_web">Web Platform</div>
-          <div class="portfolio-overlay-name" data-i18n="port1_name">LuxShop E-Commerce</div>
-          <div class="portfolio-overlay-desc" data-i18n="port1_desc">Teljes e-kereskedelmi platform Next.js és Stripe integrációval, 340% konverzió növekedéssel.</div>
-        </div>
+    <div class="portfolio-card reveal" onclick="openModal('bakery')">
+      <div class="card-bg"></div><div class="card-shimmer"></div><div class="tilt-shine"></div>
+      <div class="portfolio-icon-wrap">
+        <img src="screenshotok/bakeryicon.svg" alt="Bakery Cooker">
       </div>
-      <div class="portfolio-info">
-        <div><div class="portfolio-name" data-i18n="port1_name">LuxShop E-Commerce</div><div class="portfolio-category">React · Next.js · Stripe</div></div>
-        <div class="portfolio-arrow">→</div>
+      <div class="portfolio-body">
+        <span class="portfolio-tag" data-i18n="port_tag_mobile">Tablet / PC App</span>
+        <div class="portfolio-name" data-i18n="port1_name">Bakery Cooker</div>
+        <div class="portfolio-desc" data-i18n="port1_desc">Sütő-főző receptek kezelésére fejlesztett asztali és tabletes alkalmazás lépésről-lépésre útmutatóval és automatikus mennyiségszámítással.</div>
+        <div class="portfolio-footer">
+          <div class="portfolio-techs">
+            <span class="portfolio-tech-pill">Flutter</span>
+            <span class="portfolio-tech-pill">YAML</span>
+            <span class="portfolio-tech-pill">Desktop</span>
+          </div>
+        </div>
+        <div class="portfolio-cta">
+          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+        </div>
       </div>
     </div>
-    <div class="portfolio-card reveal" style="transition-delay:0.1s">
-      <div class="portfolio-img">
-        <div class="portfolio-img-inner">🏦</div>
-        <div class="portfolio-overlay">
-          <div class="portfolio-overlay-tag" data-i18n="port_tag_mobile">Mobile App</div>
-          <div class="portfolio-overlay-name" data-i18n="port2_name">FinanceAI Mobile</div>
-          <div class="portfolio-overlay-desc" data-i18n="port2_desc">AI-alapú pénzügyi tervező alkalmazás 50,000+ letöltéssel az első hónapban.</div>
-        </div>
+    <div class="portfolio-card reveal" onclick="openModal('pizza')" style="transition-delay:0.1s">
+      <div class="card-bg"></div><div class="card-shimmer"></div><div class="tilt-shine"></div>
+      <div class="portfolio-icon-wrap">
+        <img src="screenshotok/pizzamanagementicon.png" alt="Pizza Manager">
       </div>
-      <div class="portfolio-info">
-        <div><div class="portfolio-name" data-i18n="port2_name">FinanceAI Mobile</div><div class="portfolio-category">Flutter · Firebase · AI</div></div>
-        <div class="portfolio-arrow">→</div>
+      <div class="portfolio-body">
+        <span class="portfolio-tag" data-i18n="port_tag_saas">Menedzsment App</span>
+        <div class="portfolio-name" data-i18n="port2_name">Pizza Manager</div>
+        <div class="portfolio-desc" data-i18n="port2_desc">Pizzéria rendelés- és készletkezelő rendszer valós idejű követéssel, Bluetooth nyomtatással és Firebase értesítésekkel.</div>
+        <div class="portfolio-footer">
+          <div class="portfolio-techs">
+            <span class="portfolio-tech-pill">Flutter</span>
+            <span class="portfolio-tech-pill">Firebase</span>
+            <span class="portfolio-tech-pill">Android</span>
+          </div>
+        </div>
+        <div class="portfolio-cta">
+          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+        </div>
       </div>
     </div>
-    <div class="portfolio-card reveal" style="transition-delay:0.2s">
-      <div class="portfolio-img">
-        <div class="portfolio-img-inner">🏥</div>
-        <div class="portfolio-overlay">
-          <div class="portfolio-overlay-tag" data-i18n="port_tag_saas">SaaS Platform</div>
-          <div class="portfolio-overlay-name" data-i18n="port3_name">MedConnect SaaS</div>
-          <div class="portfolio-overlay-desc" data-i18n="port3_desc">Orvosi időpontfoglalási platform 200+ klinikának, HIPAA megfelelőséggel.</div>
-        </div>
+    <div class="portfolio-card reveal" onclick="openModal('groovy')" style="transition-delay:0.2s">
+      <div class="card-bg"></div><div class="card-shimmer"></div><div class="tilt-shine"></div>
+      <div class="portfolio-icon-wrap">
+        <img src="screenshotok/groovycarticon.png" alt="GroovyCart">
       </div>
-      <div class="portfolio-info">
-        <div><div class="portfolio-name" data-i18n="port3_name">MedConnect SaaS</div><div class="portfolio-category">React · PostgreSQL · AWS</div></div>
-        <div class="portfolio-arrow">→</div>
+      <div class="portfolio-body">
+        <span class="portfolio-tag" data-i18n="port_tag_web">E-Commerce App</span>
+        <div class="portfolio-name" data-i18n="port3_name">GroovyCart</div>
+        <div class="portfolio-desc" data-i18n="port3_desc">Teljes körű mobilos vásárlási élmény több bolt támogatásával, voucherkezeléssel és háromnyelvű felülettel.</div>
+        <div class="portfolio-footer">
+          <div class="portfolio-techs">
+            <span class="portfolio-tech-pill">Flutter</span>
+            <span class="portfolio-tech-pill">Firebase</span>
+            <span class="portfolio-tech-pill">Android</span>
+          </div>
+        </div>
+        <div class="portfolio-cta">
+          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+        </div>
       </div>
     </div>
-    <div class="portfolio-card reveal" style="transition-delay:0.3s">
-      <div class="portfolio-img">
-        <div class="portfolio-img-inner">🎓</div>
-        <div class="portfolio-overlay">
-          <div class="portfolio-overlay-tag" data-i18n="port_tag_edu">EdTech</div>
-          <div class="portfolio-overlay-name" data-i18n="port4_name">LearnPro Platform</div>
-          <div class="portfolio-overlay-desc" data-i18n="port4_desc">Online tanulási platform gamification elemekkel és AI-alapú személyre szabással.</div>
+    <div class="portfolio-card reveal" onclick="openModal('abis')" style="transition-delay:0.3s">
+      <div class="card-bg"></div><div class="card-shimmer"></div><div class="tilt-shine"></div>
+      <div class="portfolio-icon-wrap">
+        <img src="screenshotok/abisicon.png" alt="ABIS">
+      </div>
+      <div class="portfolio-body">
+        <span class="portfolio-tag" data-i18n="port_tag_abis">Web + Mobil App</span>
+        <div class="portfolio-name" data-i18n="port5_name">ABIS</div>
+        <div class="portfolio-desc" data-i18n="port5_desc">Adoni Bakery belső vállalatirányítási rendszer — rendelések, készlet, partnerek, pénzügyek és kiszállítás egy helyen.</div>
+        <div class="portfolio-footer">
+          <div class="portfolio-techs">
+            <span class="portfolio-tech-pill">Flutter</span>
+            <span class="portfolio-tech-pill">Spring Boot</span>
+            <span class="portfolio-tech-pill">PostgreSQL</span>
+          </div>
+        </div>
+        <div class="portfolio-cta">
+          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
-      <div class="portfolio-info">
-        <div><div class="portfolio-name" data-i18n="port4_name">LearnPro Platform</div><div class="portfolio-category">Vue.js · Python · ML</div></div>
-        <div class="portfolio-arrow">→</div>
+    </div>
+    <div class="portfolio-card reveal" onclick="openModal('pos')" style="transition-delay:0.3s">
+      <div class="card-bg"></div><div class="card-shimmer"></div><div class="tilt-shine"></div>
+      <div class="portfolio-icon-wrap">
+        <img src="screenshotok/posicon.svg" alt="Adoni Bakery POS">
+      </div>
+      <div class="portfolio-body">
+        <span class="portfolio-tag" data-i18n="port_tag_pos">Web App</span>
+        <div class="portfolio-name" data-i18n="port4_name">Adoni Bakery POS</div>
+        <div class="portfolio-desc" data-i18n="port4_desc">Pékségi értékesítési pont rendszer kártyaolvasóval, ügyfélkezeléssel és részletes riportálással.</div>
+        <div class="portfolio-footer">
+          <div class="portfolio-techs">
+            <span class="portfolio-tech-pill">Python</span>
+            <span class="portfolio-tech-pill">Flask</span>
+            <span class="portfolio-tech-pill">jQuery</span>
+          </div>
+        </div>
+        <div class="portfolio-cta">
+          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -741,8 +1642,10 @@
 
 <!-- PROCESS -->
 <section id="process">
-  <div class="section-label" data-i18n="process_label">Munkamódszerünk</div>
-  <h2 class="section-title" data-i18n="process_title">Hogyan dolgozunk<br><span>együtt</span></h2>
+  <div class="section-header">
+    <div class="section-label reveal-left" data-i18n="process_label">Munkamódszerünk</div>
+    <h2 class="section-title reveal" data-i18n="process_title">Hogyan dolgozunk<br><span>együtt</span></h2>
+  </div>
   <div class="process-grid">
     <div class="process-steps">
       <div class="process-step reveal">
@@ -798,14 +1701,14 @@
           <div class="process-tl-label" data-i18n="tl4">Hét 11+</div>
         </div>
       </div>
-      <div style="margin-top:2rem;background:var(--bg);border-radius:14px;padding:16px">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-bottom:12px" data-i18n="proc_tech_used">HASZNÁLT TECHNOLÓGIÁK</div>
+      <div style="margin-top:2rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px">
+        <div style="font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:12px" data-i18n="proc_tech_used">HASZNÁLT TECHNOLÓGIÁK</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
-          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">React</span>
-          <span style="background:rgba(255,107,157,0.1);color:var(--pink);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Flutter</span>
-          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Node.js</span>
-          <span style="background:rgba(255,107,157,0.1);color:var(--pink);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Figma</span>
-          <span style="background:rgba(92,53,212,0.1);color:var(--violet);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">AWS</span>
+          <span style="background:rgba(92,53,212,0.2);color:rgba(180,160,255,1);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">React</span>
+          <span style="background:rgba(255,107,157,0.15);color:rgba(255,150,185,1);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Flutter</span>
+          <span style="background:rgba(92,53,212,0.2);color:rgba(180,160,255,1);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Node.js</span>
+          <span style="background:rgba(255,107,157,0.15);color:rgba(255,150,185,1);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">Figma</span>
+          <span style="background:rgba(92,53,212,0.2);color:rgba(180,160,255,1);border-radius:100px;padding:4px 12px;font-size:0.74rem;font-weight:600">AWS</span>
         </div>
       </div>
     </div>
@@ -814,36 +1717,60 @@
 
 <!-- TECH STACK -->
 <section id="tech">
-  <div class="section-label" data-i18n="tech_label">Tech Stack</div>
-  <h2 class="section-title" data-i18n="tech_title">Technológiák,<br><span>amikre esküszünk</span></h2>
-  <div class="tech-grid">
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#61dafb"></div>React</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#000000"></div>Next.js</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#3178c6"></div>TypeScript</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#02569b"></div>Flutter</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#68a063"></div>Node.js</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#4169e1"></div>PostgreSQL</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff9900"></div>AWS</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff4154"></div>React Native</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#f05032"></div>Git</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#2496ed"></div>Docker</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#764abc"></div>Redux</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#38bdf8"></div>Tailwind CSS</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#e34f26"></div>GraphQL</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#f7df1e"></div>JavaScript</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#ff2d20"></div>Firebase</div>
-    <div class="tech-pill"><div class="tech-pill-dot" style="background:#a259ff"></div>Figma</div>
+  <div class="section-header">
+    <div class="section-label reveal-left" data-i18n="tech_label">Tech Stack</div>
+    <h2 class="section-title reveal" data-i18n="tech_title">Technológiák,<br><span>amikre esküszünk</span></h2>
+  </div>
+  <div class="tech-categories">
+    <div class="tech-row reveal">
+      <div class="tech-row-label">Frontend</div>
+      <div class="tech-row-items">
+        <div class="tech-chip"><i class="devicon-react-original colored"></i>React</div>
+        <div class="tech-chip"><i class="devicon-nextjs-original"></i>Next.js</div>
+        <div class="tech-chip"><i class="devicon-typescript-plain colored"></i>TypeScript</div>
+        <div class="tech-chip"><i class="devicon-javascript-plain colored"></i>JavaScript</div>
+        <div class="tech-chip"><i class="devicon-tailwindcss-plain colored"></i>Tailwind CSS</div>
+      </div>
+    </div>
+    <div class="tech-row reveal" style="transition-delay:0.08s">
+      <div class="tech-row-label">Mobile</div>
+      <div class="tech-row-items">
+        <div class="tech-chip"><i class="devicon-flutter-plain colored"></i>Flutter</div>
+        <div class="tech-chip"><i class="devicon-kotlin-plain colored"></i>Kotlin</div>
+        <div class="tech-chip"><i class="devicon-swift-plain colored"></i>Swift</div>
+        <div class="tech-chip"><i class="devicon-android-plain colored"></i>Android</div>
+      </div>
+    </div>
+    <div class="tech-row reveal" style="transition-delay:0.16s">
+      <div class="tech-row-label">Backend</div>
+      <div class="tech-row-items">
+        <div class="tech-chip"><i class="devicon-nodejs-plain colored"></i>Node.js</div>
+        <div class="tech-chip"><i class="devicon-spring-plain colored"></i>Spring Boot</div>
+        <div class="tech-chip"><i class="devicon-postgresql-plain colored"></i>PostgreSQL</div>
+        <div class="tech-chip"><i class="devicon-firebase-plain colored"></i>Firebase</div>
+      </div>
+    </div>
+    <div class="tech-row reveal" style="transition-delay:0.24s">
+      <div class="tech-row-label">Eszközök</div>
+      <div class="tech-row-items">
+        <div class="tech-chip"><i class="devicon-docker-plain colored"></i>Docker</div>
+        <div class="tech-chip"><i class="devicon-git-plain colored"></i>Git</div>
+        <div class="tech-chip"><i class="devicon-figma-plain colored"></i>Figma</div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
 <section id="testimonials">
-  <div class="section-label" data-i18n="test_label">Ügyfeleink mondják</div>
-  <h2 class="section-title" data-i18n="test_title">Amit <span>partnereink</span><br>mondanak rólunk</h2>
+  <div class="section-header">
+    <div class="section-label reveal-left" data-i18n="test_label">Ügyfeleink mondják</div>
+    <h2 class="section-title reveal" data-i18n="test_title">Amit <span>partnereink</span><br>mondanak rólunk</h2>
+  </div>
   <div class="testimonials-slider">
     <div class="testimonial-card reveal">
       <div class="testimonial-stars">★★★★★</div>
-      <div class="testimonial-text" data-i18n="test1_text">"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."</div>
+      <div class="testimonial-text" data-i18n="test1_text">"Az XTL Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."</div>
       <div class="testimonial-author">
         <div class="testimonial-avatar">👔</div>
         <div><div class="testimonial-name">Kovács András</div><div class="testimonial-role" data-i18n="test1_role">CEO, TechStart Hungary</div></div>
@@ -870,25 +1797,47 @@
 
 <!-- CTA -->
 <section id="cta">
-  <div class="cta-label" data-i18n="cta_label">Kezdjük el</div>
-  <div class="cta-title" data-i18n="cta_title">Készen állsz a<br>következő szintre?</div>
-  <div class="cta-sub" data-i18n="cta_sub">Vedd fel velünk a kapcsolatot, és 48 órán belül visszajelzünk egy részletes ajánlattal.</div>
+  <div class="section-header">
+    <div class="cta-label reveal-scale" data-i18n="cta_label">Kezdjük el</div>
+    <div class="cta-title reveal" data-i18n="cta_title">Készen állsz a<br>következő szintre?</div>
+    <div class="cta-sub reveal" style="transition-delay:0.1s" data-i18n="cta_sub">Vedd fel velünk a kapcsolatot, és 48 órán belül visszajelzünk egy részletes ajánlattal.</div>
+  </div>
   <form class="cta-form" onsubmit="handleSubmit(event)">
-    <div class="cta-row">
+    <div class="cta-field-wrap cta-field-left">
       <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_name" data-i18n-key="form_name">
+    </div>
+    <div class="cta-field-wrap cta-field-right">
       <input class="cta-input" type="email" placeholder="" data-i18n-placeholder="form_email" data-i18n-key="form_email">
     </div>
-    <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_company" data-i18n-key="form_company">
-    <textarea class="cta-input cta-textarea" placeholder="" data-i18n-placeholder="form_message" data-i18n-key="form_message"></textarea>
-    <button type="submit" class="cta-submit" data-i18n="form_submit">Üzenet küldése →</button>
+    <div class="cta-field-wrap cta-field-left">
+      <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_company" data-i18n-key="form_company">
+    </div>
+    <div class="cta-field-wrap cta-field-right">
+      <textarea class="cta-input cta-textarea" placeholder="" data-i18n-placeholder="form_message" data-i18n-key="form_message"></textarea>
+    </div>
+    <div class="cta-field-wrap cta-field-left">
+      <button type="submit" class="cta-submit" data-i18n="form_submit">Üzenet küldése →</button>
+    </div>
   </form>
 </section>
+
+<!-- APP DETAIL MODAL -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal-panel">
+    <div class="modal-handle"></div>
+    <div class="modal-close">
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-content"></div>
+    <div class="modal-bottom"></div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-top">
     <div>
-      <div class="footer-logo">Studio</div>
+      <div class="footer-logo">XTL Studio</div>
       <div class="footer-desc" data-i18n="footer_desc">Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.</div>
     </div>
     <div>
@@ -912,14 +1861,15 @@
     <div>
       <div class="footer-col-title" data-i18n="footer_contact">Kapcsolat</div>
       <ul class="footer-links">
-        <li><a href="mailto:hello@studio.dev">hello@studio.dev</a></li>
-        <li><a href="#">+36 30 123 4567</a></li>
-        <li><a href="#" data-i18n="footer_address">Budapest, Magyarország</a></li>
+        <li><a href="mailto:xtlsoftware@gmail.com">xtlsoftware@gmail.com</a></li>
+        <li>Kovács Krisztián</li>
+        <li><a href="tel:+40753875813">+40 753 875 813</a></li>
+        <li><a href="#" data-i18n="footer_address">Adoni, Románia</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy" data-i18n="footer_copy">© 2026 Studio. Minden jog fenntartva.</div>
+    <div class="footer-copy" data-i18n="footer_copy">© 2026 XTL Studio. Minden jog fenntartva.</div>
     <div class="footer-socials">
       <div class="footer-social">in</div>
       <div class="footer-social">𝕏</div>
@@ -953,11 +1903,12 @@ const i18n = {
     portfolio_label: 'Portfólió',
     portfolio_title: 'Büszkeségeink:<br><span>legújabb munkáink</span>',
     portfolio_sub: 'Minden projekt egy egyedi kihívás volt, amelyet kreatívan és szakszerűen oldottunk meg.',
-    port_tag_web: 'Web Platform', port_tag_mobile: 'Mobile App', port_tag_saas: 'SaaS Platform', port_tag_edu: 'EdTech',
-    port1_name: 'LuxShop E-Commerce', port1_desc: 'Teljes e-kereskedelmi platform Next.js és Stripe integrációval, 340% konverzió növekedéssel.',
-    port2_name: 'FinanceAI Mobile', port2_desc: 'AI-alapú pénzügyi tervező alkalmazás 50,000+ letöltéssel az első hónapban.',
-    port3_name: 'MedConnect SaaS', port3_desc: 'Orvosi időpontfoglalási platform 200+ klinikának, HIPAA megfelelőséggel.',
-    port4_name: 'LearnPro Platform', port4_desc: 'Online tanulási platform gamification elemekkel és AI-alapú személyre szabással.',
+    port_tag_web: 'E-Commerce App', port_tag_mobile: 'Tablet / PC App', port_tag_saas: 'Menedzsment App', port_tag_pos: 'Web App', port_tag_abis: 'Web + Mobil App',
+    port1_name: 'Bakery Cooker', port1_desc: 'Sütő-főző receptek kezelésére fejlesztett asztali és tabletes alkalmazás lépésről-lépésre útmutatóval.',
+    port2_name: 'Pizza Manager', port2_desc: 'Pizzéria rendelés- és készletkezelő rendszer valós idejű rendeléskövetéssel és riportálással.',
+    port3_name: 'GroovyCart', port3_desc: 'Teljes körű mobilos vásárlási élmény több bolt támogatásával, voucherkezeléssel és háromnyelvű felülettel.',
+    port4_name: 'Adoni Bakery POS', port4_desc: 'Pékségi értékesítési pont rendszer kártyaolvasóval, ügyfélkezeléssel és részletes riportálással.',
+    port5_name: 'ABIS', port5_desc: 'Adoni Bakery belső vállalatirányítási rendszer — rendelések, készlet, partnerek, pénzügyek és kiszállítás egy helyen.',
     process_label: 'Munkamódszerünk',
     process_title: 'Hogyan dolgozunk<br><span>együtt</span>',
     proc1_title: 'Felfedezés & Tervezés', proc1_desc: 'Megismerjük vállalkozásodat, céljaidat és célközönségedet. Részletes projekt tervet és technológiai javaslatot készítünk.',
@@ -970,7 +1921,7 @@ const i18n = {
     tech_label: 'Tech Stack', tech_title: 'Technológiák,<br><span>amikre esküszünk</span>',
     test_label: 'Ügyfeleink mondják',
     test_title: 'Amit <span>partnereink</span><br>mondanak rólunk',
-    test1_text: '"A Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."',
+    test1_text: '"Az XTL Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."',
     test1_role: 'CEO, TechStart Hungary',
     test2_text: '"Mobilalkalmazásunk fejlesztése zökkenőmentesen zajlott. Az applikáció az első héten felkerült az App Store Top 10 listájára. Hihetetlen eredmény!"',
     test2_role: 'Founder, FinTech Cluj',
@@ -982,8 +1933,8 @@ const i18n = {
     footer_desc: 'Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.',
     footer_services: 'Szolgáltatások', footer_s1: 'Webfejlesztés', footer_s2: 'Mobilfejlesztés', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Cégünk', footer_c1: 'Rólunk', footer_c2: 'Csapat', footer_c3: 'Karrier', footer_c4: 'Blog',
-    footer_contact: 'Kapcsolat', footer_address: 'Budapest, Magyarország',
-    footer_copy: '© 2026 Studio. Minden jog fenntartva.'
+    footer_contact: 'Kapcsolat', footer_address: 'Adoni, Románia',
+    footer_copy: '© 2026 XTL Studio. Minden jog fenntartva.'
   },
   ro: {
     nav_services: 'Servicii', nav_portfolio: 'Portofoliu', nav_process: 'Proces',
@@ -1007,11 +1958,12 @@ const i18n = {
     portfolio_label: 'Portofoliu',
     portfolio_title: 'Mândria noastră:<br><span>lucrările recente</span>',
     portfolio_sub: 'Fiecare proiect a fost o provocare unică pe care am rezolvat-o creativ și profesional.',
-    port_tag_web: 'Platformă Web', port_tag_mobile: 'Aplicație Mobilă', port_tag_saas: 'Platformă SaaS', port_tag_edu: 'EdTech',
-    port1_name: 'LuxShop E-Commerce', port1_desc: 'Platformă completă de e-commerce cu Next.js și integrare Stripe, cu o creștere a conversiei de 340%.',
-    port2_name: 'FinanceAI Mobile', port2_desc: 'Aplicație de planificare financiară bazată pe AI cu 50.000+ descărcări în prima lună.',
-    port3_name: 'MedConnect SaaS', port3_desc: 'Platformă de programări medicale pentru 200+ clinici, cu conformitate HIPAA.',
-    port4_name: 'LearnPro Platform', port4_desc: 'Platformă de învățare online cu elemente de gamification și personalizare bazată pe AI.',
+    port_tag_web: 'Aplicație E-Commerce', port_tag_mobile: 'Aplicație Desktop', port_tag_saas: 'Aplicație Management', port_tag_pos: 'Aplicație Web', port_tag_abis: 'Web + Aplicație Mobilă',
+    port1_name: 'Bakery Cooker', port1_desc: 'Aplicație desktop și tabletă pentru gestionarea rețetelor de patiserie, cu ghid pas cu pas.',
+    port2_name: 'Pizza Manager', port2_desc: 'Sistem de gestionare a comenzilor pentru pizzerie cu urmărire în timp real și raportare.',
+    port3_name: 'GroovyCart', port3_desc: 'Experiență completă de cumpărături mobile cu suport multi-magazin, vouchere și interfață trilingvă.',
+    port4_name: 'Adoni Bakery POS', port4_desc: 'Sistem de punct de vânzare pentru brutărie cu cititor de card, gestiunea clienților și raportare detaliată.',
+    port5_name: 'ABIS', port5_desc: 'Sistem intern de management al Adoni Bakery — comenzi, stoc, parteneri, finanțe și livrări într-un singur loc.',
     process_label: 'Cum lucrăm',
     process_title: 'Cum colaborăm<br><span>împreună</span>',
     proc1_title: 'Descoperire & Planificare', proc1_desc: 'Îți înțelegem afacerea, obiectivele și publicul țintă. Elaborăm un plan detaliat de proiect și propuneri tehnologice.',
@@ -1024,7 +1976,7 @@ const i18n = {
     tech_label: 'Tech Stack', tech_title: 'Tehnologii pe<br><span>care le stăpânim</span>',
     test_label: 'Ce spun clienții',
     test_title: 'Ce spun <span>partenerii</span><br>despre noi',
-    test1_text: '"Echipa Studio a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat după reproiectare. Profesionalismul și creativitatea lor sunt impresionante."',
+    test1_text: '"Echipa XTL Studio a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat după reproiectare. Profesionalismul și creativitatea lor sunt impresionante."',
     test1_role: 'CEO, TechStart Hungary',
     test2_text: '"Dezvoltarea aplicației noastre mobile a decurs fără probleme. Aplicația a ajuns în Top 10 App Store în prima săptămână. Rezultat incredibil!"',
     test2_role: 'Fondator, FinTech Cluj',
@@ -1036,8 +1988,8 @@ const i18n = {
     footer_desc: 'Agenție premium de dezvoltare web și mobilă care creează succese digitale cu tehnologii inovatoare.',
     footer_services: 'Servicii', footer_s1: 'Dezvoltare Web', footer_s2: 'Dezvoltare Mobilă', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Compania', footer_c1: 'Despre noi', footer_c2: 'Echipă', footer_c3: 'Cariere', footer_c4: 'Blog',
-    footer_contact: 'Contact', footer_address: 'Cluj-Napoca, România',
-    footer_copy: '© 2026 Studio. Toate drepturile rezervate.'
+    footer_contact: 'Contact', footer_address: 'Adoni, România',
+    footer_copy: '© 2026 XTL Studio. Toate drepturile rezervate.'
   }
 };
 
@@ -1095,6 +2047,46 @@ document.querySelectorAll('a, button, .portfolio-card, .service-card, .tech-pill
   });
 });
 
+// ─── SCROLL PROGRESS BAR ─────────────────────────────────────────────────────
+const progressBar = document.getElementById('scroll-progress');
+const navbar = document.getElementById('navbar');
+function updateScrollProgress() {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.transform = `scaleX(${Math.min(1, window.scrollY / total)})`;
+  if (window.scrollY > 60) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+}
+window.addEventListener('scroll', updateScrollProgress, { passive: true });
+updateScrollProgress();
+
+// ─── NAV ACTIVE LINK ─────────────────────────────────────────────────────────
+const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+const navPill  = document.getElementById('nav-pill');
+const navLinksWrap = document.querySelector('.nav-links');
+
+function moveNavPill(el) {
+  if (!navPill || !el || !navLinksWrap) return;
+  const elRect   = el.getBoundingClientRect();
+  const wrapRect = navLinksWrap.getBoundingClientRect();
+  const pad = 12;
+  navPill.style.opacity = '1';
+  navPill.style.left    = (elRect.left - wrapRect.left - pad) + 'px';
+  navPill.style.width   = (elRect.width + pad * 2) + 'px';
+  navPill.style.height  = (elRect.height + 10) + 'px';
+}
+
+const sections = [...navLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const activeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (active) { active.classList.add('active'); moveNavPill(active); }
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+sections.forEach(s => activeObserver.observe(s));
+
 // ─── SCROLL REVEAL ───────────────────────────────────────────────────────────
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -1105,6 +2097,16 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+const revealExtObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealExtObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal-left, .reveal-right, .reveal-scale').forEach(el => revealExtObserver.observe(el));
 
 // ─── COUNT UP ANIMATION ──────────────────────────────────────────────────────
 const countObserver = new IntersectionObserver((entries) => {
@@ -1151,6 +2153,584 @@ function handleSubmit(e) {
     btn.style.color = 'var(--violet)';
   }, 3000);
 }
+
+// ─── APP MODAL DATA ──────────────────────────────────────────────────────────
+const appData = {
+  bakery: {
+    gradient: 'linear-gradient(135deg,#a084e8,#5c35d4)',
+    icon: 'screenshotok/bakeryicon.svg',
+    screenshotClass: 'modal-screenshot--desktop',
+    screenshots: ['screenshotok/receptesprogram.png','screenshotok/receptesprogram1.png','screenshotok/receptesprogram3.png','screenshotok/receptesprogram4.png'],
+    tech: [
+      { color: '#02569b', name: 'Flutter' },
+      { color: '#764abc', name: 'Provider' },
+      { color: '#f59e0b', name: 'YAML Parser' },
+      { color: '#10b981', name: 'File Picker' },
+      { color: '#6366f1', name: 'Window Manager' },
+      { color: '#ec4899', name: 'Localization' },
+    ],
+    hu: {
+      name: 'Bakery Cooker', tag: 'Asztali / Tablet App',
+      bannerTitle: 'A pékség digitális konyhai asszisztense',
+      bannerText: 'A Bakery Cooker egy fullscreen tabletes/asztali alkalmazás, amelyet kifejezetten pékség személyzetének fejlesztettünk. YAML-alapú receptfájlokból tölt be recepteket, és lépésről-lépésre vezeti a dolgozókat a sütési folyamaton, automatikusan kiszámítva a mennyiségeket a megadott adag alapján.',
+      featuresTitle: 'Főbb funkciók', screenshotsTitle: 'Képernyőképek', techTitle: 'Technológiák',
+      features: [
+        { icon: '📋', bg: 'rgba(92,53,212,0.1)', title: 'Receptkatalógus', sub: 'Kategorizált receptek: kenyér, péksütemény, kalács, tészta és egyéb' },
+        { icon: '👣', bg: 'rgba(255,107,157,0.1)', title: 'Lépésről-lépésre', sub: 'Részletes sütési útmutató képernyőnkénti navigációval' },
+        { icon: '⚖️', bg: 'rgba(92,53,212,0.1)', title: 'Automatikus mennyiségszámítás', sub: 'A hozzávalók mennyisége automatikusan igazodik a megadott adagszámhoz' },
+        { icon: '📁', bg: 'rgba(255,107,157,0.1)', title: 'Saját receptfájlok', sub: 'YAML formátumú receptfájlok betöltése az eszközről' },
+        { icon: '🔲', bg: 'rgba(92,53,212,0.1)', title: 'Fullscreen mód', sub: 'Tableten és asztalon is tökéletes, zavarásmentes felület' },
+        { icon: '🌍', bg: 'rgba(255,107,157,0.1)', title: 'Többnyelvű', sub: 'Magyar, román és angol felhasználói felület' },
+      ],
+    },
+    ro: {
+      name: 'Bakery Cooker', tag: 'Aplicație Desktop / Tabletă',
+      bannerTitle: 'Asistentul digital de bucătărie al brutăriei',
+      bannerText: 'Bakery Cooker este o aplicație fullscreen pentru tabletă și desktop, dezvoltată special pentru personalul brutăriei. Încarcă rețete din fișiere YAML și ghidează pas cu pas angajații în procesul de coacere, calculând automat cantitățile în funcție de numărul de porții specificat.',
+      featuresTitle: 'Funcționalități principale', screenshotsTitle: 'Capturi de ecran', techTitle: 'Tehnologii',
+      features: [
+        { icon: '📋', bg: 'rgba(92,53,212,0.1)', title: 'Catalog de rețete', sub: 'Rețete categorizate: pâine, patiserie, cozonac, aluat și altele' },
+        { icon: '👣', bg: 'rgba(255,107,157,0.1)', title: 'Ghid pas cu pas', sub: 'Instrucțiuni detaliate de coacere cu navigare ecran cu ecran' },
+        { icon: '⚖️', bg: 'rgba(92,53,212,0.1)', title: 'Calcul automat cantități', sub: 'Cantitățile ingredientelor se ajustează automat în funcție de numărul de porții' },
+        { icon: '📁', bg: 'rgba(255,107,157,0.1)', title: 'Fișiere rețete proprii', sub: 'Încărcarea fișierelor de rețete în format YAML de pe dispozitiv' },
+        { icon: '🔲', bg: 'rgba(92,53,212,0.1)', title: 'Mod fullscreen', sub: 'Interfață fără distracții, perfectă pentru tabletă și desktop' },
+        { icon: '🌍', bg: 'rgba(255,107,157,0.1)', title: 'Multilingv', sub: 'Interfață în maghiară, română și engleză' },
+      ],
+    }
+  },
+  pizza: {
+    gradient: 'linear-gradient(135deg,#ff6b9d,#c44569)',
+    icon: null,
+    screenshots: ['screenshotok/pizzamanagement.png','screenshotok/pizzamanagement1.png','screenshotok/pizzamanagement2.png','screenshotok/pizzamanagement3.png','screenshotok/pizzamanagement4.png','screenshotok/pizzamanagement5.png'],
+    tech: [
+      { color: '#02569b', name: 'Flutter' },
+      { color: '#764abc', name: 'Provider' },
+      { color: '#ff9900', name: 'Firebase' },
+      { color: '#10b981', name: 'Bluetooth Print' },
+      { color: '#6366f1', name: 'REST API' },
+      { color: '#f59e0b', name: 'Lottie' },
+    ],
+    hu: {
+      name: 'Pizza Manager', tag: 'Menedzsment App',
+      bannerTitle: 'Teljes körű pizzéria-kezelő rendszer',
+      bannerText: 'A Pizza Manager egy komplex üzleti alkalmazás, amely az Adoni Bakery pizzériájának teljes működését digitalizálja. Valós idejű rendeléskövetéstől a konyhai nyomtatásig, a futárkezeléstől a promóciók és voucherek beállításáig mindent fedez — három különböző felhasználói szerepkörrel.',
+      featuresTitle: 'Főbb funkciók', screenshotsTitle: 'Képernyőképek', techTitle: 'Technológiák',
+      features: [
+        { icon: '📦', bg: 'rgba(255,107,157,0.1)', title: 'Valós idejű rendeléskezelés', sub: 'Élő rendeléskövetés státuszokkal: leadva, elfogadva, készül, kész, kiszállítva' },
+        { icon: '👥', bg: 'rgba(92,53,212,0.1)', title: 'Három szerepkör', sub: 'Admin, séf és futár külön nézettel és jogosultságokkal' },
+        { icon: '🖨️', bg: 'rgba(255,107,157,0.1)', title: 'Bluetooth nyomtatás', sub: 'Rendelési blokkok azonnali nyomtatása hőnyomtatóra' },
+        { icon: '🔔', bg: 'rgba(92,53,212,0.1)', title: 'Firebase értesítések', sub: 'Push notifikációk minden új rendeléshez és státuszváltáshoz' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Promóció & Voucher', sub: 'Kedvezmények, kuponkódok és akciók létrehozása és kezelése' },
+        { icon: '🫓', bg: 'rgba(92,53,212,0.1)', title: 'Pizzatészta-nyilvántartás', sub: 'Tészta-készlet követése és ütemezett figyelmeztetések' },
+        { icon: '📊', bg: 'rgba(255,107,157,0.1)', title: 'Statisztikák', sub: 'Promóciók és értékesítés teljesítményének nyomon követése' },
+        { icon: '🛍️', bg: 'rgba(92,53,212,0.1)', title: 'Termékkezelés', sub: 'Termékek, variánsok és opciók szerkesztése, képfeltöltés' },
+      ],
+    },
+    ro: {
+      name: 'Pizza Manager', tag: 'Aplicație Management',
+      bannerTitle: 'Sistem complet de gestionare a pizzeriei',
+      bannerText: 'Pizza Manager este o aplicație de afaceri complexă care digitalizează întreaga operațiune a pizzeriei Adoni Bakery. Acoperă totul, de la urmărirea comenzilor în timp real la tipărirea în bucătărie, de la gestionarea curierilor la configurarea promoțiilor și voucherelor — cu trei roluri de utilizator distincte.',
+      featuresTitle: 'Funcționalități principale', screenshotsTitle: 'Capturi de ecran', techTitle: 'Tehnologii',
+      features: [
+        { icon: '📦', bg: 'rgba(255,107,157,0.1)', title: 'Gestionare comenzi în timp real', sub: 'Urmărire live a comenzilor cu statusuri: plasat, acceptat, în preparare, gata, livrat' },
+        { icon: '👥', bg: 'rgba(92,53,212,0.1)', title: 'Trei roluri de utilizator', sub: 'Admin, bucătar și curier cu vizualizări și permisiuni separate' },
+        { icon: '🖨️', bg: 'rgba(255,107,157,0.1)', title: 'Imprimare Bluetooth', sub: 'Tipărire instantă a bonurilor de comandă pe imprimanta termică' },
+        { icon: '🔔', bg: 'rgba(92,53,212,0.1)', title: 'Notificări Firebase', sub: 'Push notifications pentru fiecare comandă nouă și schimbare de status' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Promoții & Vouchere', sub: 'Creare și gestionare reduceri, coduri promoționale și campanii' },
+        { icon: '🫓', bg: 'rgba(92,53,212,0.1)', title: 'Evidență aluat pizza', sub: 'Urmărirea stocului de aluat și avertismente programate' },
+        { icon: '📊', bg: 'rgba(255,107,157,0.1)', title: 'Statistici', sub: 'Urmărirea performanței promoțiilor și vânzărilor' },
+        { icon: '🛍️', bg: 'rgba(92,53,212,0.1)', title: 'Gestionare produse', sub: 'Editare produse, variante și opțiuni, încărcare imagini' },
+      ],
+    }
+  },
+  abis: {
+    gradient: 'linear-gradient(135deg,#10b981,#065f46)',
+    icon: 'screenshotok/abisicon.png',
+    screenshots: ['screenshotok/abis1.png'],
+    tech: [
+      { color: '#02569b', name: 'Flutter Web' },
+      { color: '#02569b', name: 'Flutter Mobile' },
+      { color: '#6db33f', name: 'Spring Boot' },
+      { color: '#4169e1', name: 'PostgreSQL' },
+      { color: '#f59e0b', name: 'OAuth2' },
+      { color: '#2496ed', name: 'Docker' },
+      { color: '#cc0000', name: 'Jenkins CI/CD' },
+    ],
+    hu: {
+      name: 'ABIS', tag: 'Web + Mobil Vállalatirányítás',
+      bannerTitle: 'Adoni Bakery teljes belső irányítási rendszere',
+      bannerText: 'Az ABIS (Adoni Bakery Internal System) egy vállalati szintű Flutter + Spring Boot alkalmazás, amely a pékség teljes működését lefedi. Webes felülete az irodai dolgozóknak és menedzsereknek szól, mobilos verziója pedig a futároknak és terepen dolgozó személyzetnek — mindezt egyetlen kódbázisból kiszolgálva.',
+      featuresTitle: 'Főbb funkciók', screenshotsTitle: 'Képernyőképek', techTitle: 'Technológiák',
+      features: [
+        { icon: '📦', bg: 'rgba(16,185,129,0.12)', title: 'Rendeléskezelés', sub: 'Teljes rendelési életciklus létrehozástól kiszállításig, státuszkövetéssel' },
+        { icon: '🏪', bg: 'rgba(6,95,70,0.1)', title: 'Raktárkezelés', sub: 'Árubevét, termékek, alapanyagok, receptek és árlisták kezelése' },
+        { icon: '🤝', bg: 'rgba(16,185,129,0.12)', title: 'Partnerkezelés', sub: 'Ügyfelek és szállítók nyilvántartása, kapcsolattartókkal és kedvezményekkel' },
+        { icon: '💰', bg: 'rgba(6,95,70,0.1)', title: 'Pénzügyek & Elszámolás', sub: 'Számlák, tartozások, elszámolások és pénzügyi riportok' },
+        { icon: '🚚', bg: 'rgba(16,185,129,0.12)', title: 'Logisztika & Futárkezelés', sub: 'Kiszállítás nyomon követése, rendelés átadás futárok között' },
+        { icon: '📊', bg: 'rgba(6,95,70,0.1)', title: 'Statisztikák & Riportok', sub: 'Értékesítési és kiszállítási analitika, PDF/Excel exporttal' },
+        { icon: '📱', bg: 'rgba(16,185,129,0.12)', title: 'Offline mobil mód', sub: 'Futároknak SQLite alapú offline szinkronizáció internetkapcsolat nélkül is' },
+        { icon: '🎛️', bg: 'rgba(6,95,70,0.1)', title: 'Testreszabható dashboard', sub: 'Drag-and-drop widget rendszer, sötét/világos téma, betűméret-beállítás' },
+      ],
+    },
+    ro: {
+      name: 'ABIS', tag: 'Web + Mobil Management',
+      bannerTitle: 'Sistemul intern complet de management al Adoni Bakery',
+      bannerText: 'ABIS (Adoni Bakery Internal System) este o aplicație de nivel enterprise Flutter + Spring Boot care acoperă întreaga operațiune a brutăriei. Interfața web este destinată personalului de birou și managerilor, iar versiunea mobilă curierilor și personalului de teren — toate servite dintr-o singură bază de cod.',
+      featuresTitle: 'Funcționalități principale', screenshotsTitle: 'Capturi de ecran', techTitle: 'Tehnologii',
+      features: [
+        { icon: '📦', bg: 'rgba(16,185,129,0.12)', title: 'Gestionare comenzi', sub: 'Ciclu complet de viață al comenzii de la creare până la livrare, cu urmărire status' },
+        { icon: '🏪', bg: 'rgba(6,95,70,0.1)', title: 'Gestionare depozit', sub: 'Recepție marfă, produse, ingrediente, rețete și liste de prețuri' },
+        { icon: '🤝', bg: 'rgba(16,185,129,0.12)', title: 'Gestionare parteneri', sub: 'Clienți și furnizori cu persoane de contact și reduceri' },
+        { icon: '💰', bg: 'rgba(6,95,70,0.1)', title: 'Finanțe & Decontare', sub: 'Facturi, datorii, decontări și rapoarte financiare' },
+        { icon: '🚚', bg: 'rgba(16,185,129,0.12)', title: 'Logistică & Curierat', sub: 'Urmărire livrare, reatribuire comenzi între curieri' },
+        { icon: '📊', bg: 'rgba(6,95,70,0.1)', title: 'Statistici & Rapoarte', sub: 'Analitică vânzări și livrări, export PDF/Excel' },
+        { icon: '📱', bg: 'rgba(16,185,129,0.12)', title: 'Mod offline mobil', sub: 'Sincronizare offline SQLite pentru curieri fără conexiune la internet' },
+        { icon: '🎛️', bg: 'rgba(6,95,70,0.1)', title: 'Dashboard personalizabil', sub: 'Sistem de widget-uri drag-and-drop, temă dark/light, dimensiune font' },
+      ],
+    }
+  },
+  pos: {
+    gradient: 'linear-gradient(135deg,#1a8cff,#0f4c81)',
+    icon: 'screenshotok/posicon.svg',
+    screenshots: [],
+    tech: [
+      { color: '#3776ab', name: 'Python 3.9' },
+      { color: '#000000', name: 'Flask' },
+      { color: '#4169e1', name: 'PostgreSQL' },
+      { color: '#0769ad', name: 'jQuery' },
+      { color: '#7952b3', name: 'Bootstrap 4' },
+      { color: '#2496ed', name: 'Docker' },
+      { color: '#cc0000', name: 'Jenkins CI/CD' },
+    ],
+    hu: {
+      name: 'Adoni Bakery POS', tag: 'Web App · Pékségi kassza',
+      bannerTitle: 'Komplex pékségi értékesítési pont rendszer',
+      bannerText: 'Az Adoni Bakery POS egy teljes körű webalapú kassza- és ügyfélkezelő rendszer, amelyet az Adoni Bakery pékséglánc számára fejlesztettünk. Python Flask backend, jQuery frontend és PostgreSQL adatbázis kombinálja a valós idejű tranzakciókezelést, a hűségkártyás rendszert és a részletes riportálást — mindezt Docker konténerben, Raspberry Pi-n futtatva.',
+      featuresTitle: 'Főbb funkciók', screenshotsTitle: 'Képernyőképek', techTitle: 'Technológiák',
+      features: [
+        { icon: '💳', bg: 'rgba(26,140,255,0.1)', title: 'Kártya- és fiókkezelés', sub: 'RFID kártyaolvasók, normál és ajándékkártyák, egyenlegkövetés ügyfelenként' },
+        { icon: '🧾', bg: 'rgba(15,76,129,0.12)', title: 'Fizetési tranzakciók', sub: 'Vásárlások rögzítése tételesen, POS terminálhoz rendelve, időbélyeggel' },
+        { icon: '👥', bg: 'rgba(26,140,255,0.1)', title: 'Ügyfélnyilvántartás', sub: 'Kereshető ügyfélbázis névvel, telefonnal, CNP-vel és lakcímmel' },
+        { icon: '💰', bg: 'rgba(15,76,129,0.12)', title: 'Feltöltés kezelés', sub: 'Egyenleg-feltöltések cégekhez rendelve, dátumszűréssel és riportálással' },
+        { icon: '📊', bg: 'rgba(26,140,255,0.1)', title: 'PDF riportok', sub: 'Napi zárási és személyenkénti riportok HTML-ből PDF generálással' },
+        { icon: '🏪', bg: 'rgba(15,76,129,0.12)', title: 'Multi-terminal', sub: 'Több POS terminál és bolt kezelése egy rendszerből, állapotkövetéssel' },
+        { icon: '🔐', bg: 'rgba(26,140,255,0.1)', title: 'Szerepkörök', sub: 'Admin és futár szerepkör külön jogosultságokkal és hozzáféréssel' },
+        { icon: '⚙️', bg: 'rgba(15,76,129,0.12)', title: 'Automatizált feladatok', sub: 'APScheduler háttérfeladatok, havi reset, napi limitek kezelése' },
+      ],
+    },
+    ro: {
+      name: 'Adoni Bakery POS', tag: 'Aplicație Web · Casa de marcat',
+      bannerTitle: 'Sistem complex de punct de vânzare pentru brutărie',
+      bannerText: 'Adoni Bakery POS este un sistem complet de casă de marcat și gestionare a clienților bazat pe web, dezvoltat pentru lanțul de brutării Adoni Bakery. Backend Python Flask, frontend jQuery și bază de date PostgreSQL combină gestionarea tranzacțiilor în timp real, sistemul de carduri de fidelitate și raportare detaliată — totul rulând în container Docker pe Raspberry Pi.',
+      featuresTitle: 'Funcționalități principale', screenshotsTitle: 'Capturi de ecran', techTitle: 'Tehnologii',
+      features: [
+        { icon: '💳', bg: 'rgba(26,140,255,0.1)', title: 'Gestionare carduri și conturi', sub: 'Cititori RFID, carduri normale și cadou, urmărirea soldului per client' },
+        { icon: '🧾', bg: 'rgba(15,76,129,0.12)', title: 'Tranzacții de plată', sub: 'Înregistrarea cumpărăturilor pe articole, asociate terminalului POS, cu timestamp' },
+        { icon: '👥', bg: 'rgba(26,140,255,0.1)', title: 'Registru clienți', sub: 'Bază de date căutabilă cu nume, telefon, CNP și adresă' },
+        { icon: '💰', bg: 'rgba(15,76,129,0.12)', title: 'Gestionare reîncărcări', sub: 'Reîncărcări sold asociate companiilor, cu filtrare după dată și raportare' },
+        { icon: '📊', bg: 'rgba(26,140,255,0.1)', title: 'Rapoarte PDF', sub: 'Rapoarte de închidere zilnică și per persoană, generate din HTML în PDF' },
+        { icon: '🏪', bg: 'rgba(15,76,129,0.12)', title: 'Multi-terminal', sub: 'Gestionarea mai multor terminale POS și magazine dintr-un singur sistem' },
+        { icon: '🔐', bg: 'rgba(26,140,255,0.1)', title: 'Roluri utilizatori', sub: 'Rol Admin și Curier cu permisiuni și acces separat' },
+        { icon: '⚙️', bg: 'rgba(15,76,129,0.12)', title: 'Sarcini automate', sub: 'Sarcini de fundal APScheduler, reset lunar, gestionarea limitelor zilnice' },
+      ],
+    }
+  },
+  groovy: {
+    gradient: 'linear-gradient(135deg,#6c5ce7,#a29bfe)',
+    icon: 'screenshotok/groovycarticon.png',
+    screenshots: ['screenshotok/groovycart.png','screenshotok/groovycart1.png','screenshotok/groovycart2.png','screenshotok/groovycart3.png'],
+    tech: [
+      { color: '#02569b', name: 'Flutter' },
+      { color: '#764abc', name: 'Provider + GetIt' },
+      { color: '#ff9900', name: 'Firebase' },
+      { color: '#10b981', name: 'GoRouter' },
+      { color: '#6366f1', name: 'Localization' },
+      { color: '#f59e0b', name: 'Connectivity Plus' },
+      { color: '#ec4899', name: 'Lottie' },
+    ],
+    hu: {
+      name: 'GroovyCart', tag: 'E-Commerce App',
+      bannerTitle: 'Teljes körű mobilos vásárlási élmény',
+      bannerText: 'A GroovyCart egy prémium e-kereskedelmi és ételrendelő alkalmazás, amely egyszerre több étteremet / boltot is kiszolgál. A regisztrációtól a kiszállítás valós idejű követéséig mindent lefed, letisztult UI-val, voucherkezeléssel és háromnyelvű felülettel.',
+      featuresTitle: 'Főbb funkciók', screenshotsTitle: 'Képernyőképek', techTitle: 'Technológiák',
+      features: [
+        { icon: '🏪', bg: 'rgba(108,92,231,0.1)', title: 'Több bolt támogatása', sub: 'Egyszerre több étterem/bolt kezelése egy appban (Groovy Cart, Pizza Adoni)' },
+        { icon: '❤️', bg: 'rgba(255,107,157,0.1)', title: 'Kedvencek & kosár', sub: 'Termékek mentése kedvencekbe, kosár kezelése munkamenet közt' },
+        { icon: '🚚', bg: 'rgba(108,92,231,0.1)', title: 'Rendeléskövetés', sub: 'Valós idejű kiszállítási státuszkövetés a megrendeléstől az átvételig' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Voucherek & akciók', sub: 'Kedvezménykódok beváltása, automatikus árcsökkentés checkout-nál' },
+        { icon: '📱', bg: 'rgba(108,92,231,0.1)', title: 'Offline érzékelés', sub: 'Automatikus kapcsolat-ellenőrzés és értesítés internet kieséskor' },
+        { icon: '🌙', bg: 'rgba(255,107,157,0.1)', title: 'Dark mode', sub: 'Teljes sötét téma támogatás, rendszerbeállítással szinkronizálva' },
+        { icon: '🌍', bg: 'rgba(108,92,231,0.1)', title: 'Háromnyelvű', sub: 'Magyar, román és angol felhasználói felület teljes lokalizációval' },
+        { icon: '📍', bg: 'rgba(255,107,157,0.1)', title: 'Több szállítási cím', sub: 'Több mentett cím kezelése, kiszállítási zóna ellenőrzéssel' },
+      ],
+    },
+    ro: {
+      name: 'GroovyCart', tag: 'Aplicație E-Commerce',
+      bannerTitle: 'Experiență completă de cumpărături mobile',
+      bannerText: 'GroovyCart este o aplicație premium de e-commerce și comandă de mâncare care deservește mai multe restaurante / magazine simultan. Acoperă totul, de la înregistrare la urmărirea în timp real a livrării, cu o interfață curată, gestionarea voucherelor și interfață trilingvă.',
+      featuresTitle: 'Funcționalități principale', screenshotsTitle: 'Capturi de ecran', techTitle: 'Tehnologii',
+      features: [
+        { icon: '🏪', bg: 'rgba(108,92,231,0.1)', title: 'Suport multi-magazin', sub: 'Gestionarea mai multor restaurante/magazine într-o singură aplicație (Groovy Cart, Pizza Adoni)' },
+        { icon: '❤️', bg: 'rgba(255,107,157,0.1)', title: 'Favorite & coș', sub: 'Salvarea produselor la favorite, gestionarea coșului între sesiuni' },
+        { icon: '🚚', bg: 'rgba(108,92,231,0.1)', title: 'Urmărire comenzi', sub: 'Urmărirea statusului livrării în timp real, de la comandă până la recepție' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Vouchere & promoții', sub: 'Răscumpărarea codurilor de reducere, scădere automată a prețului la checkout' },
+        { icon: '📱', bg: 'rgba(108,92,231,0.1)', title: 'Detectare offline', sub: 'Verificare automată a conexiunii și notificare la pierderea internetului' },
+        { icon: '🌙', bg: 'rgba(255,107,157,0.1)', title: 'Dark mode', sub: 'Suport complet pentru temă întunecată, sincronizat cu setările sistemului' },
+        { icon: '🌍', bg: 'rgba(108,92,231,0.1)', title: 'Trilingv', sub: 'Interfață în maghiară, română și engleză cu localizare completă' },
+        { icon: '📍', bg: 'rgba(255,107,157,0.1)', title: 'Mai multe adrese de livrare', sub: 'Gestionarea mai multor adrese salvate, cu verificarea zonei de livrare' },
+      ],
+    }
+  }
+};
+
+function openModal(appKey) {
+  const app = appData[appKey];
+  const t = app[currentLang] || app.hu;
+  const content = document.getElementById('modal-content');
+
+  content.innerHTML = `
+    <!-- ① HERO HEADER — full-width gradient, centered icon + name + tag -->
+    <div class="modal-hero-header" style="background:${app.gradient}">
+      <div class="modal-hero-icon">
+        ${app.icon ? `<img src="${app.icon}" alt="${t.name}">` : '📱'}
+      </div>
+      <div class="modal-hero-name">${t.name}</div>
+      <div class="modal-hero-tag">${t.tag}</div>
+    </div>
+
+    <!-- ② DESCRIPTION — elegant prose below hero, no card -->
+    <div class="modal-description">
+      ${t.bannerText}
+    </div>
+
+    <!-- ③ FEATURES — 3-col minimal grid -->
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t.featuresTitle}</div>
+      <div class="modal-features">
+        ${t.features.map(f => `
+          <div class="modal-feature">
+            <div class="modal-feature-icon">${f.icon}</div>
+            <div class="modal-feature-text">${f.title}</div>
+            <div class="modal-feature-sub">${f.sub}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- ④ SCREENSHOTS — perspective-tilt wrap + horizontal scroll -->
+    ${app.screenshots && app.screenshots.length > 0 ? `
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t.screenshotsTitle}</div>
+    </div>
+    <div class="modal-screenshots-wrap">
+      <div class="modal-screenshots">
+        ${app.screenshots.map(s => `
+          <div class="modal-screenshot ${app.screenshotClass || ''}">
+            <img src="${s}" alt="screenshot" loading="lazy">
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- ⑤ TECH PILLS — refined glass wrap -->
+    <div class="modal-divider"></div>
+    <div class="modal-section">
+      <div class="modal-section-title">${t.techTitle}</div>
+      <div class="modal-tech">
+        ${app.tech.map(t2 => `
+          <div class="modal-tech-pill">
+            <div class="modal-tech-dot" style="background:${t2.color}"></div>
+            ${t2.name}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-panel').scrollTop = 0;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  const panel = document.getElementById('modal-panel');
+  panel.style.transition = 'transform 0.35s cubic-bezier(0.55,0,1,0.45), opacity 0.3s ease';
+  panel.style.transform = 'translateY(60px) scale(0.95)';
+  panel.style.opacity = '0';
+  overlay.style.opacity = '0';
+  setTimeout(() => {
+    overlay.classList.remove('open');
+    overlay.style.opacity = '';
+    panel.style.transition = '';
+    panel.style.transform = '';
+    panel.style.opacity = '';
+    document.body.style.overflow = '';
+  }, 340);
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── CARD EXIT ANIMATION (scroll past → slide left/right) ───────────────────
+(function () {
+  const cards = [...document.querySelectorAll(
+    '.service-card, .portfolio-card, .testimonial-card, .process-step, .process-visual, .tech-row,' +
+    '.cta-field-wrap, .section-header, .hero-content, .hero-mockup'
+  )];
+  // Exit: elem teteje elmegy a viewport 5%-a fölé → kilép
+  // Entry: elem teteje a viewport 88%-nál magasabb → bejön (késő trigger = látványosabb)
+  const JELLY_IN  = 'transform 0.85s cubic-bezier(0.34,1.58,0.64,1), opacity 0.6s ease';
+  const JELLY_OUT = 'transform 0.65s cubic-bezier(0.55,0,0.45,1), opacity 0.5s ease';
+
+  cards.forEach(card => {
+    card.dataset.state = 'visible';
+  });
+
+  function updateCards() {
+    cards.forEach((card, idx) => {
+      const rect = card.getBoundingClientRect();
+      const xDir = idx % 2 === 0 ? -1 : 1;
+      const state = card.dataset.state;
+      const isPortfolio   = card.classList.contains('portfolio-card');
+      const isHeroContent = card.classList.contains('hero-content');
+      const isHeroMockup  = card.classList.contains('hero-mockup');
+      const isHero        = isHeroContent || isHeroMockup;
+      const isHeader      = card.classList.contains('section-header');
+      const isCtaLeft     = card.classList.contains('cta-field-left');
+      const isCtaRight    = card.classList.contains('cta-field-right');
+      const isCtaField    = isCtaLeft || isCtaRight;
+
+      // kilépési trigger: mennyire kell felcsúszni mielőtt eltűnik
+      const exitTrigger = isPortfolio ? window.innerHeight * 0.18
+                        : isHero      ? window.innerHeight * 0.45
+                        : window.innerHeight * 0.05;
+
+      // bejövési trigger: milyen mélyen kell belépnie a viewportba hogy bejöjjön
+      const entryTrigger = window.innerHeight * 0.88;
+
+      const dir = isHeroContent ? -1
+                : isHeroMockup  ?  1
+                : isCtaLeft     ? -1
+                : isCtaRight    ?  1
+                : xDir;
+
+      // ── felfelé elgördülve → kilép oldalra/felfelé
+      if (rect.bottom < exitTrigger) {
+        if (state !== 'exited-top') {
+          card.dataset.state = 'exited-top';
+          card.style.transition = JELLY_OUT;
+          card.style.transform = isHeader
+            ? `translateY(-70px) scale(0.88)`
+            : `translateX(${dir * 180}px) rotate(${dir * 6}deg) scale(0.82)`;
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+        }
+      }
+      // ── még nem látható alul → várakozik
+      else if (rect.top > entryTrigger) {
+        if (state !== 'waiting-bottom') {
+          card.dataset.state = 'waiting-bottom';
+          card.style.transition = 'none';
+          card.style.transform = (isPortfolio || isCtaField)
+            ? `translateX(${dir * 160}px) rotate(${dir * 5}deg) scale(0.85)`
+            : isHeader
+              ? `translateY(70px) scale(0.92)`
+              : `translateY(90px) scale(0.90)`;
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+        }
+      }
+      // ── látható → jelly bejövetel
+      else {
+        if (state !== 'visible') {
+          card.dataset.state = 'visible';
+          card.style.transition = JELLY_IN;
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.pointerEvents = '';
+        }
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateCards, { passive: true });
+  window.addEventListener('resize', updateCards, { passive: true });
+  updateCards();
+})();
+
+// ─── 3D TILT ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.portfolio-card').forEach(card => {
+  // glare overlay (cursor-following light)
+  const glare = card.querySelector('.tilt-shine') || card.appendChild(Object.assign(document.createElement('div'), {className:'tilt-shine'}));
+
+  // 3D layer elements — each at a different Z depth
+  const iconEl   = card.querySelector('.portfolio-icon-wrap img');
+  const tagEl    = card.querySelector('.portfolio-tag');
+  const nameEl   = card.querySelector('.portfolio-name');
+  const descEl   = card.querySelector('.portfolio-desc');
+  const techsEl  = card.querySelector('.portfolio-techs');
+  const ctaEl    = card.querySelector('.portfolio-cta-btn');
+  const layers   = [
+    { el: iconEl,  z: 90, scale: 1.12 },
+    { el: tagEl,   z: 30, scale: 1.0  },
+    { el: nameEl,  z: 55, scale: 1.0  },
+    { el: descEl,  z: 35, scale: 1.0  },
+    { el: techsEl, z: 25, scale: 1.0  },
+    { el: ctaEl,   z: 45, scale: 1.0  },
+  ].filter(l => l.el);
+  layers.forEach(l => { l.el.style.transition = 'transform 0.12s ease, box-shadow 0.2s ease'; });
+
+  let currentX = 0, currentY = 0, targetX = 0, targetY = 0;
+  let rafId = null, isHovered = false;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function tick() {
+    if (!isHovered) return;
+    currentX = lerp(currentX, targetX, 0.10);
+    currentY = lerp(currentY, targetY, 0.10);
+
+    const rx = (-currentY * 22).toFixed(2);
+    const ry = ( currentX * 22).toFixed(2);
+
+    // perspective is on .portfolio-grid parent — card only rotates
+    card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-14px) scale(1.04)`;
+    card.style.boxShadow = `
+      0 2px 0 rgba(255,255,255,0.18) inset,
+      ${-currentX*24}px ${-currentY*24 + 40}px 60px rgba(0,0,0,0.50),
+      0 40px 70px rgba(0,0,0,0.40),
+      0 8px 28px rgba(108,50,220,0.28)
+    `;
+
+    // each layer pops out at its own Z — icon far in front, text layers cascade
+    layers.forEach(l => {
+      const px = (currentX * l.z * 0.10).toFixed(1);
+      const py = (currentY * l.z * 0.10).toFixed(1);
+      const sc = l.scale !== 1.0 ? ` scale(${l.scale})` : '';
+      l.el.style.transform = `translateZ(${l.z}px) translateX(${px}px) translateY(${py}px)${sc}`;
+      if (l.el === iconEl) {
+        l.el.style.boxShadow = `${-currentX*14}px ${(-currentY*14+24).toFixed(1)}px 40px rgba(0,0,0,0.55), 0 6px 20px rgba(0,0,0,0.35)`;
+      }
+    });
+
+    rafId = requestAnimationFrame(tick);
+  }
+
+  card.addEventListener('mouseenter', () => {
+    isHovered = true;
+    card.style.transition = 'box-shadow 0.3s ease';
+    glare.style.opacity = '1';
+    rafId = requestAnimationFrame(tick);
+  });
+
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    targetX = (e.clientX - r.left) / r.width  - 0.5;
+    targetY = (e.clientY - r.top)  / r.height - 0.5;
+    // glare follows cursor exactly
+    const gx = ((targetX + 0.5) * 100).toFixed(1);
+    const gy = ((targetY + 0.5) * 100).toFixed(1);
+    glare.style.background = `radial-gradient(circle 160px at ${gx}% ${gy}%, rgba(255,255,255,0.26), transparent 70%)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    isHovered = false;
+    cancelAnimationFrame(rafId);
+    targetX = 0; targetY = 0; currentX = 0; currentY = 0;
+    glare.style.opacity = '0';
+    card.style.transition = 'transform 0.65s cubic-bezier(0.23,1,0.32,1), box-shadow 0.65s ease';
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0) scale(1)';
+    card.style.boxShadow = '';
+    layers.forEach(l => {
+      l.el.style.transform = 'translateZ(0)';
+      if (l.el === iconEl) l.el.style.boxShadow = '';
+    });
+  });
+});
+
+// ─── HERO PARALLAX (gentle, does not override exit animation) ────────────────
+(function () {
+  const content = document.querySelector('.hero-content');
+  const mockup  = document.querySelector('.hero-mockup');
+  if (!content || !mockup) return;
+  function update() {
+    const y = window.scrollY;
+    if (content.dataset.exited !== 'true') {
+      content.style.transform = `translateY(${y * 0.18}px)`;
+    }
+    if (mockup.dataset.exited !== 'true') {
+      mockup.style.transform  = `translateY(${y * 0.10}px)`;
+    }
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+// ─── GLOBAL BACKGROUND CANVAS ────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, time = 0;
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  // Aurora orbs — vibrant colors, slow dreamy drift
+  const orbs = [
+    { ox:0.18, oy:0.30, r:0.90, rgb:[108,50,220],  speed:[0.31,0.19], amp:[0.10,0.08] },
+    { ox:0.82, oy:0.22, r:0.75, rgb:[220,50,140],   speed:[0.22,0.27], amp:[0.09,0.10] },
+    { ox:0.50, oy:0.75, r:0.80, rgb:[30,100,255],   speed:[0.18,0.24], amp:[0.11,0.07] },
+    { ox:0.05, oy:0.60, r:0.65, rgb:[80,180,255],   speed:[0.26,0.15], amp:[0.07,0.09] },
+    { ox:0.90, oy:0.70, r:0.70, rgb:[160,60,240],   speed:[0.20,0.22], amp:[0.08,0.10] },
+    { ox:0.45, oy:0.10, r:0.60, rgb:[255,80,120],   speed:[0.28,0.18], amp:[0.09,0.06] },
+    { ox:0.25, oy:0.85, r:0.65, rgb:[60,180,200],   speed:[0.17,0.21], amp:[0.10,0.08] },
+    { ox:0.70, oy:0.50, r:0.55, rgb:[140,40,200],   speed:[0.24,0.16], amp:[0.08,0.09] },
+  ];
+
+  function render() {
+    time += 0.005;
+
+    // Deep dark base
+    ctx.fillStyle = '#080612';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+
+    // Aurora orbs
+    orbs.forEach((o, i) => {
+      const x = (o.ox + Math.sin(time * o.speed[0] + i) * o.amp[0]) * W;
+      const y = (o.oy + Math.cos(time * o.speed[1] + i * 1.4) * o.amp[1]) * H;
+      const radius = o.r * Math.max(W, H) * 0.85;
+      const [r, g, b] = o.rgb;
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      grd.addColorStop(0,   `rgba(${r},${g},${b},0.20)`);
+      grd.addColorStop(0.35,`rgba(${r},${g},${b},0.07)`);
+      grd.addColorStop(0.7, `rgba(${r},${g},${b},0.02)`);
+      grd.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, W, H);
+    });
+
+    // Subtle noise grain
+    ctx.globalAlpha = 0.018;
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 180; i++) {
+      ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(render);
+  }
+  render();
+})();
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 applyLang('hu');
