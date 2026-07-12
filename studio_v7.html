@@ -72,6 +72,7 @@
     transform: translate(-50%,-50%);
     transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
     mix-blend-mode: normal;
+    opacity: 0;
   }
   #cursor-ring {
     width: 40px; height: 40px;
@@ -82,8 +83,8 @@
     z-index: 99998;
     transform: translate(-50%,-50%);
     transition: transform 0.15s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+    opacity: 0;
   }
-  body:hover #cursor { opacity: 1; }
   @media (hover: none) and (pointer: coarse) {
     #cursor, #cursor-ring { display: none !important; }
   }
@@ -2097,7 +2098,9 @@ document.addEventListener('mousemove', e => {
   mouseX = e.clientX; mouseY = e.clientY;
   cursor.style.left = mouseX + 'px';
   cursor.style.top = mouseY + 'px';
-});
+  cursor.style.opacity = '1';
+  cursorRing.style.opacity = '1';
+}, { passive: true });
 
 function animateRing() {
   ringX += (mouseX - ringX) * 0.12;
