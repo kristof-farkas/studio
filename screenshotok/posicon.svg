@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f4c81"/>
+      <stop offset="100%" style="stop-color:#051d3a"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a8cff"/>
+      <stop offset="100%" style="stop-color:#0a5ab5"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fde68a"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+  <!-- subtle top shine -->
+  <rect width="512" height="512" rx="112" ry="112" fill="rgba(255,255,255,0.04)"/>
+
+  <!-- POS terminal body -->
+  <rect x="148" y="110" width="216" height="195" rx="18" fill="#0d2d4f"/>
+  <rect x="148" y="110" width="216" height="195" rx="18" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+
+  <!-- Screen -->
+  <rect x="165" y="126" width="182" height="128" rx="10" fill="url(#screen)"/>
+
+  <!-- Screen content — receipt lines -->
+  <rect x="183" y="144" width="80" height="8" rx="4" fill="rgba(255,255,255,0.9)"/>
+  <rect x="183" y="160" width="140" height="6" rx="3" fill="rgba(255,255,255,0.45)"/>
+  <rect x="183" y="173" width="110" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
+  <rect x="183" y="186" width="125" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
+
+  <!-- Total amount line -->
+  <rect x="183" y="204" width="146" height="1" rx="1" fill="rgba(255,255,255,0.25)"/>
+  <rect x="183" y="212" width="60" height="8" rx="4" fill="rgba(255,255,255,0.6)"/>
+  <rect x="279" y="212" width="50" height="8" rx="4" fill="rgba(255,255,255,0.95)"/>
+
+  <!-- keypad dots -->
+  <circle cx="186" cy="320" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <circle cx="216" cy="320" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <circle cx="246" cy="320" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <circle cx="186" cy="352" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <circle cx="216" cy="352" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <circle cx="246" cy="352" r="10" fill="#0d2d4f" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <!-- Enter button -->
+  <rect x="270" y="310" width="60" height="52" rx="10" fill="#1a8cff" opacity="0.85"/>
+  <text x="300" y="341" font-size="18" text-anchor="middle" fill="white" font-family="sans-serif">✓</text>
+
+  <!-- Card floating over terminal -->
+  <g transform="rotate(-12, 340, 380)">
+    <rect x="270" y="340" width="160" height="100" rx="14" fill="url(#card)"
+          filter="drop-shadow(0 8px 20px rgba(0,0,0,0.5))"/>
+    <!-- card shine -->
+    <rect x="270" y="340" width="160" height="100" rx="14" fill="none"
+          stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <!-- chip -->
+    <rect x="292" y="360" width="30" height="24" rx="5" fill="url(#chip)"/>
+    <!-- chip lines -->
+    <line x1="292" y1="368" x2="322" y2="368" stroke="#b45309" stroke-width="1"/>
+    <line x1="292" y1="376" x2="322" y2="376" stroke="#b45309" stroke-width="1"/>
+    <line x1="307" y1="360" x2="307" y2="384" stroke="#b45309" stroke-width="1"/>
+    <!-- card number dots -->
+    <circle cx="298" cy="402" r="3" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="308" cy="402" r="3" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="318" cy="402" r="3" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="330" cy="402" r="3" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="342" cy="402" r="3" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="352" cy="402" r="3" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="362" cy="402" r="3" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="374" cy="402" r="3" fill="rgba(255,255,255,0.4)"/>
+  </g>
+
+  <!-- wifi/tap symbol top right -->
+  <path d="M390 145 Q390 135 400 130 Q410 125 420 130 Q430 135 430 145" stroke="rgba(56,189,248,0.5)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M393 155 Q393 148 400 144 Q407 140 414 144 Q421 148 421 155" stroke="rgba(56,189,248,0.7)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="407" cy="163" r="4" fill="rgba(56,189,248,0.9)"/>
+</svg>
