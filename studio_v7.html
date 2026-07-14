@@ -3,8 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XTL Studio — Web & Mobile Development</title>
+<title>XTL Software — Web & Mobile Development</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+<!-- EmailJS: https://www.emailjs.com/ -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // ── EmailJS konfiguráció ─────────────────────────────────────────────────
+  // 1. Regisztrálj: https://www.emailjs.com/
+  // 2. Email Services → Add New Service → Gmail → mentsd el a Service ID-t
+  // 3. Email Templates → Create New Template → állítsd be a mezőket:
+  //    To Email: xtlsoftware@gmail.com
+  //    Subject: Új üzenet az XTL Software weboldaláról
+  //    Body: Feladó neve: {{from_name}}, Email: {{from_email}}, Cég: {{company}}, Üzenet: {{message}}
+  // 4. Account → General → másold ki a Public Key-t
+  // Majd cseréld ki az alábbi értékeket:
+  const EMAILJS_PUBLIC_KEY  = '8lOoVgWmMSsKF_iK1';
+  const EMAILJS_SERVICE_ID  = 'service_x9u7g2v';
+  const EMAILJS_TEMPLATE_ID = 'template_meu5mdc';
+  // ────────────────────────────────────────────────────────────────────────
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+</script>
 <style>
   :root {
     --bg: #13111f;
@@ -190,6 +208,51 @@
     border-radius: inherit;
   }
   .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,53,212,0.55); }
+
+  /* NAV CTA MEGJELENÉSI ANIMÁCIÓ */
+  @keyframes ctaPopIn {
+    0%   { opacity:0; transform: scale(0) rotate(-8deg); filter: blur(6px); }
+    55%  { opacity:1; transform: scale(1.18) rotate(2deg); filter: blur(0); }
+    75%  { transform: scale(0.93) rotate(-1deg); }
+    88%  { transform: scale(1.05) rotate(0.5deg); }
+    100% { transform: scale(1) rotate(0deg); opacity:1; }
+  }
+  @keyframes ctaPopOut {
+    0%   { opacity:1; transform: scale(1); filter: blur(0); }
+    30%  { transform: scale(1.1); }
+    100% { opacity:0; transform: scale(0) rotate(6deg); filter: blur(4px); }
+  }
+  #nav-cta-wrap {
+    display: inline-flex;
+    overflow: hidden;
+    border-radius: 100px;
+    max-width: 0;
+    opacity: 0;
+    transition:
+      max-width 0.45s cubic-bezier(0.34,1.45,0.64,1),
+      opacity   0.01s;
+  }
+  #nav-cta-wrap.cta-visible {
+    max-width: 200px;
+    opacity: 1;
+    transition:
+      max-width 0.45s cubic-bezier(0.34,1.45,0.64,1),
+      opacity   0.01s;
+  }
+  #nav-cta-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    transform-origin: center center;
+  }
+  #nav-cta-wrap.cta-visible #nav-cta-btn {
+    pointer-events: all;
+    animation: ctaPopIn 0.55s 0.1s cubic-bezier(0.34,1.4,0.64,1) both;
+  }
+  #nav-cta-wrap.cta-hiding #nav-cta-btn {
+    animation: ctaPopOut 0.32s cubic-bezier(0.4,0,0.6,1) forwards;
+    pointer-events: none;
+  }
 
   /* HERO */
   .hero-scroll-container {
@@ -1001,6 +1064,65 @@
   .cta-input::placeholder { color: rgba(255,255,255,0.32); }
   .cta-input:focus { border-color: rgba(160,132,232,0.55); background: rgba(255,255,255,0.13); }
   .cta-textarea { resize: vertical; min-height: 110px; }
+
+  /* PHONE FIELD */
+  .phone-wrap {
+    display: flex; align-items: stretch;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px; overflow: visible;
+    transition: var(--transition);
+    width: 100%; position: relative;
+  }
+  .phone-wrap:focus-within {
+    border-color: rgba(160,132,232,0.55);
+    background: rgba(255,255,255,0.13);
+  }
+  .phone-wrap.error { border-color: rgba(255,80,100,0.7); }
+  .phone-flag-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 12px 14px 16px;
+    background: rgba(255,255,255,0.06);
+    border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.2s; border-radius: 12px 0 0 12px;
+    flex-shrink: 0;
+  }
+  .phone-flag-btn:hover { background: rgba(255,255,255,0.12); }
+  .phone-flag-arrow { font-size: 0.6rem; opacity: 0.6; margin-left: 2px; }
+  .phone-dropdown {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    background: rgba(18,14,36,0.98);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px; overflow: hidden;
+    z-index: 9999; min-width: 220px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    display: none;
+    backdrop-filter: blur(20px);
+  }
+  .phone-dropdown.open { display: block; }
+  .phone-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px; cursor: pointer;
+    color: rgba(255,255,255,0.82); font-size: 0.87rem;
+    transition: background 0.15s;
+  }
+  .phone-option:hover, .phone-option.selected { background: rgba(92,53,212,0.25); color: white; }
+  .phone-option-dial { color: rgba(255,255,255,0.45); font-size: 0.82rem; margin-left: auto; }
+  .phone-number-input {
+    flex: 1; background: transparent; border: none;
+    padding: 14px 18px; color: white; font-size: 0.92rem;
+    outline: none; font-family: inherit; width: 100%;
+    border-radius: 0 12px 12px 0;
+  }
+  .phone-number-input::placeholder { color: rgba(255,255,255,0.32); }
+  .phone-error-msg {
+    font-size: 0.75rem; color: #ff6b8a;
+    margin-top: 5px; display: none; padding-left: 4px;
+  }
+  .phone-error-msg.visible { display: block; }
+
   .cta-submit {
     background: white;
     color: var(--violet-dark);
@@ -1068,6 +1190,67 @@
   }
   .footer-social:hover { background: var(--violet); color: white; transform: translateY(-3px); }
 
+  /* FACEBOOK BUTTON */
+  .fb-cta {
+    display: inline-flex; align-items: center; gap: 14px;
+    background: rgba(24,119,242,0.10);
+    color: rgba(255,255,255,0.88);
+    text-decoration: none;
+    padding: 18px 36px;
+    border-radius: 20px;
+    font-size: 1rem; font-weight: 700;
+    border: 1px solid rgba(24,119,242,0.30);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    position: relative; overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.4s ease,
+                background 0.3s ease,
+                border-color 0.3s ease;
+    cursor: pointer;
+  }
+  .fb-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(24,119,242,0.25), rgba(10,80,200,0.15));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+  }
+  .fb-cta::after {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transition: left 0.5s ease;
+  }
+  .fb-cta:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(24,119,242,0.20);
+    border-color: rgba(24,119,242,0.60);
+    box-shadow: 0 20px 50px rgba(24,119,242,0.35), 0 0 0 1px rgba(24,119,242,0.2);
+    color: white;
+  }
+  .fb-cta:hover::before { opacity: 1; }
+  .fb-cta:hover::after { left: 160%; }
+  .fb-cta:active { transform: scale(0.97); }
+  .fb-cta-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: #1877f2;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(24,119,242,0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .fb-cta:hover .fb-cta-icon {
+    transform: scale(1.1) rotate(-4deg);
+    box-shadow: 0 8px 20px rgba(24,119,242,0.6);
+  }
+  .fb-cta-arrow {
+    opacity: 0.5; font-size: 0.9rem;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .fb-cta:hover .fb-cta-arrow { transform: translateX(5px); opacity: 1; }
+
   /* APP MODAL — LIQUID GLASS */
   #modal-overlay {
     position: fixed; inset: 0; z-index: 10000;
@@ -1082,7 +1265,7 @@
 
   #modal-panel {
     width: 100%; max-width: 860px; max-height: 92vh;
-    overflow-y: auto; overflow-x: hidden;
+    overflow-y: auto; overflow-x: clip;
     border-radius: 36px 36px 0 0;
     position: relative;
 
@@ -1145,22 +1328,17 @@
   /* drag handle */
   .modal-handle {
     width: 44px; height: 5px; border-radius: 100px;
-    background: rgba(255,255,255,0.3);
-    margin: 14px auto 0;
-  }
-
-  .modal-close {
-    position: sticky; top: 0; z-index: 10;
-    display: flex; justify-content: flex-end;
-    padding: 12px 20px 0;
-    background: transparent;
+    background: rgba(255,255,255,0.4);
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 20; pointer-events: none;
   }
   .modal-close-btn {
+    position: absolute; top: 12px; right: 20px; z-index: 20;
     width: 36px; height: 36px; border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(12px);
-    cursor: none; font-size: 1rem; color: rgba(255,255,255,0.8);
+    cursor: pointer; font-size: 1rem; color: rgba(255,255,255,0.8);
     display: flex; align-items: center; justify-content: center;
     transition: all 0.25s ease;
   }
@@ -1175,12 +1353,13 @@
   .modal-hero-header {
     position: relative;
     width: 100%;
-    min-height: 200px;
+    min-height: 220px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: flex-end;
-    padding-bottom: 28px;
+    padding-top: 32px; padding-bottom: 28px;
     overflow: hidden;
     border-radius: 36px 36px 0 0;
+    margin-top: 0;
   }
   /* gradient fill */
   .modal-hero-header::before {
@@ -1286,9 +1465,43 @@
   /* ── SCREENSHOTS PERSPECTIVE WRAP ───────────────────────────────── */
   .modal-screenshots-wrap {
     padding: 8px 32px 0;
+    position: relative; display: flex; align-items: center; gap: 8px;
+    overflow: visible;
   }
+  .screenshots-arrow {
+    flex-shrink: 0; width: 38px; height: 38px;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
+    color: #fff; font-size: 24px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+  }
+  .screenshots-arrow:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+
+  /* ── LIGHTBOX ─────────────────────────────────────────────────────────── */
+  #lightbox {
+    display: none; position: fixed; inset: 0; z-index: 10001;
+    background: rgba(0,0,0,0.88); backdrop-filter: blur(12px);
+    align-items: center; justify-content: center; cursor: zoom-out;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox-img {
+    max-width: 92vw; max-height: 92vh;
+    border-radius: 18px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    animation: lbIn 0.28s cubic-bezier(0.34,1.3,0.64,1);
+  }
+  @keyframes lbIn { from { transform: scale(0.82); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  #lightbox-close {
+    position: absolute; top: 20px; right: 24px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 20px; width: 40px; height: 40px;
+    border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  #lightbox-close:hover { background: rgba(255,255,255,0.28); }
   .modal-screenshots {
-    display: flex; gap: 14px;
+    flex: 1; display: flex; gap: 14px;
     overflow-x: auto; padding-bottom: 20px;
     scrollbar-width: none;
   }
@@ -1302,10 +1515,12 @@
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(0,0,0,0.5);
     transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s ease;
+    cursor: zoom-in; position: relative; z-index: 1;
   }
   .modal-screenshot:hover {
-    transform: scale(1.05) translateY(-6px) translateZ(10px);
+    transform: scale(1.05) translateY(-6px);
     box-shadow: 0 28px 60px rgba(0,0,0,0.65), 0 2px 0 rgba(255,255,255,0.25) inset;
+    z-index: 10;
   }
   .modal-screenshot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
   .modal-screenshot--desktop {
@@ -1365,6 +1580,24 @@
   }
   #services { overflow: visible; }
 
+  @keyframes cursorBlink {
+    0%,100% { opacity:1; } 45%,55% { opacity:0; }
+  }
+  #typewriter-word {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-title .hero-title-prefix {
+    font-size: 0.6em;
+    font-weight: 800;
+    background: none;
+    color: #ffffff;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #ffffff;
+    opacity: 0.88;
+    display: block;
+    margin-bottom: 0.15em;
+  }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1465,7 +1698,7 @@
 
 <!-- NAV -->
 <nav id="navbar">
-  <div class="nav-logo"><span class="logo-xtl">XTL</span> Studio</div>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="nav-logo" style="text-decoration:none;color:inherit;cursor:pointer;"><span class="logo-xtl">XTL</span> Software</a>
   <div class="nav-links">
     <div id="nav-pill"></div>
     <a href="#services" data-i18n="nav_services">Szolgáltatások</a>
@@ -1479,7 +1712,9 @@
       <button class="lang-btn active" data-lang="hu">HU</button>
       <button class="lang-btn" data-lang="ro">RO</button>
     </div>
-    <button class="nav-cta" data-i18n="nav_cta">Ajánlatkérés</button>
+    <div id="nav-cta-wrap">
+      <a href="#cta" class="nav-cta" id="nav-cta-btn" data-i18n="nav_cta" style="text-decoration:none;" onclick="setTimeout(()=>{const f=document.querySelector('#cta input[data-i18n-key=\'form_name\']');if(f)f.focus();},600)">Ajánlatkérés</a>
+    </div>
     <button class="hamburger" id="hamburger" aria-label="Menü">
       <span></span><span></span><span></span>
     </button>
@@ -1506,11 +1741,8 @@
     <div class="orb orb4"></div>
   </div>
   <div class="hero-content">
-    <div class="hero-tag">
-      <div class="hero-tag-dot"></div>
-      <span data-i18n="hero_tag">Prémium digitális ügynökség</span>
-    </div>
-    <h1 class="hero-title" data-i18n="hero_title">Digitális élmények,<br>amelyek <span>megkülönböztetnek</span></h1>
+
+    <h1 class="hero-title"><span class="hero-title-prefix">Digitális élmények,<br>amelyek </span><span id="typewriter-word"></span><span id="typewriter-cursor" style="display:inline-block;width:3px;height:0.85em;background:linear-gradient(135deg,#5c35d4,#e0457a);border-radius:2px;margin-left:2px;vertical-align:middle;animation:cursorBlink 1s ease infinite;"></span></h1>
     <p class="hero-sub" data-i18n="hero_sub">Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.</p>
     <div class="hero-badges">
       <div class="hero-badge"><span class="hero-badge-icon">🚀</span><span data-i18n="badge1">127+ Projekt</span></div>
@@ -1845,7 +2077,7 @@
   <div class="testimonials-slider">
     <div class="testimonial-card reveal">
       <div class="testimonial-stars">★★★★★</div>
-      <div class="testimonial-text" data-i18n="test1_text">"Az XTL Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."</div>
+      <div class="testimonial-text" data-i18n="test1_text">"Az XTL Software csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."</div>
       <div class="testimonial-author">
         <div class="testimonial-avatar">👔</div>
         <div><div class="testimonial-name">Kovács András</div><div class="testimonial-role" data-i18n="test1_role">CEO, TechStart Hungary</div></div>
@@ -1885,7 +2117,33 @@
       <input class="cta-input" type="email" placeholder="" data-i18n-placeholder="form_email" data-i18n-key="form_email">
     </div>
     <div class="cta-field-wrap cta-field-left">
-      <input class="cta-input" type="text" placeholder="" data-i18n-placeholder="form_company" data-i18n-key="form_company">
+      <div class="phone-wrap" id="phone-wrap">
+        <button type="button" class="phone-flag-btn" id="phone-flag-btn" onclick="togglePhoneDropdown()">
+          <span id="phone-flag-emoji">🇷🇴</span>
+          <span id="phone-dial-code">+40</span>
+          <span class="phone-flag-arrow">▼</span>
+        </button>
+        <div class="phone-dropdown" id="phone-dropdown">
+          <div class="phone-option selected" onclick="selectCountry('🇷🇴','RO','+40',9,9)">
+            <span>🇷🇴</span><span>Románia / România</span><span class="phone-option-dial">+40</span>
+          </div>
+          <div class="phone-option" onclick="selectCountry('🇭🇺','HU','+36',8,9)">
+            <span>🇭🇺</span><span>Magyarország</span><span class="phone-option-dial">+36</span>
+          </div>
+          <div class="phone-option" onclick="selectCountry('🇩🇪','DE','+49',10,11)">
+            <span>🇩🇪</span><span>Deutschland</span><span class="phone-option-dial">+49</span>
+          </div>
+          <div class="phone-option" onclick="selectCountry('🇬🇧','GB','+44',10,10)">
+            <span>🇬🇧</span><span>United Kingdom</span><span class="phone-option-dial">+44</span>
+          </div>
+          <div class="phone-option" onclick="selectCountry('🇺🇸','US','+1',10,10)">
+            <span>🇺🇸</span><span>United States</span><span class="phone-option-dial">+1</span>
+          </div>
+        </div>
+        <input class="phone-number-input" id="phone-number-input" type="tel" inputmode="numeric"
+          placeholder="700 123 456" maxlength="9" oninput="onPhoneInput(this)" onblur="validatePhone()">
+      </div>
+      <div class="phone-error-msg" id="phone-error-msg"></div>
     </div>
     <div class="cta-field-wrap cta-field-right">
       <textarea class="cta-input cta-textarea" placeholder="" data-i18n-placeholder="form_message" data-i18n-key="form_message"></textarea>
@@ -1894,15 +2152,31 @@
       <button type="submit" class="cta-submit" data-i18n="form_submit">Üzenet küldése →</button>
     </div>
   </form>
+
+  <div class="reveal-scale" style="margin-top:2.5rem;text-align:center;position:relative;z-index:1;transition-delay:0.15s;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:1.4rem;">
+      <div style="height:1px;width:60px;background:rgba(255,255,255,0.12);"></div>
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.30);letter-spacing:1.5px;text-transform:uppercase;" data-i18n="or_text">vagy</span>
+      <div style="height:1px;width:60px;background:rgba(255,255,255,0.12);"></div>
+    </div>
+    <a href="https://www.facebook.com/profile.php?id=100091504704422" target="_blank" class="fb-cta">
+      <div class="fb-cta-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </div>
+      <span data-i18n="fb_cta">Írj nekünk Facebookon</span>
+      <span class="fb-cta-arrow">→</span>
+    </a>
+  </div>
 </section>
 
 <!-- APP DETAIL MODAL -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="screenshot">
+</div>
+
 <div id="modal-overlay" onclick="handleOverlayClick(event)">
   <div id="modal-panel">
-    <div class="modal-handle"></div>
-    <div class="modal-close">
-      <button class="modal-close-btn" onclick="closeModal()">✕</button>
-    </div>
     <div id="modal-content"></div>
     <div class="modal-bottom"></div>
   </div>
@@ -1912,7 +2186,7 @@
 <footer>
   <div class="footer-top">
     <div>
-      <div class="footer-logo">XTL Studio</div>
+      <div class="footer-logo">XTL Software</div>
       <div class="footer-desc" data-i18n="footer_desc">Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.</div>
     </div>
     <div>
@@ -1944,11 +2218,8 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy" data-i18n="footer_copy">© 2026 XTL Studio. Minden jog fenntartva.</div>
+    <div class="footer-copy" data-i18n="footer_copy">© 2026 XTL Software. Minden jog fenntartva.</div>
     <div class="footer-socials">
-      <div class="footer-social">in</div>
-      <div class="footer-social">𝕏</div>
-      <div class="footer-social">▶</div>
     </div>
   </div>
 </footer>
@@ -1960,7 +2231,7 @@ const i18n = {
     nav_services: 'Szolgáltatások', nav_portfolio: 'Portfólió', nav_process: 'Folyamat',
     nav_testimonials: 'Vélemények', nav_contact: 'Kapcsolat', nav_cta: 'Ajánlatkérés',
     hero_tag: 'Prémium digitális ügynökség',
-    hero_title: 'Digitális élmények,<br>amelyek <span>megkülönböztetnek</span>',
+    hero_title: 'Digitális élmények,<br>amelyek <span>kiemelkednek</span>',
     hero_sub: 'Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.',
     badge1: '127+ Projekt', badge2: '4.9★ Értékelés', badge3: '6 év tapasztalat',
     hero_cta1: 'Projekt indítása', hero_cta2: 'Munkáink megtekintése',
@@ -1996,7 +2267,7 @@ const i18n = {
     tech_label: 'Tech Stack', tech_title: 'Technológiák,<br><span>amikre esküszünk</span>',
     test_label: 'Ügyfeleink mondják',
     test_title: 'Amit <span>partnereink</span><br>mondanak rólunk',
-    test1_text: '"Az XTL Studio csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."',
+    test1_text: '"Az XTL Software csapata kivételes munkát végzett. A weboldalunk konverziója 3x-sára nőtt az átdolgozás után. Szakmai hozzáállásuk és kreativitásuk lenyűgöző."',
     test1_role: 'CEO, TechStart Hungary',
     test2_text: '"Mobilalkalmazásunk fejlesztése zökkenőmentesen zajlott. Az applikáció az első héten felkerült az App Store Top 10 listájára. Hihetetlen eredmény!"',
     test2_role: 'Founder, FinTech Cluj',
@@ -2004,12 +2275,12 @@ const i18n = {
     test3_role: 'CTO, RomaTech Solutions',
     cta_label: 'Kezdjük el', cta_title: 'Készen állsz a<br>következő szintre?',
     cta_sub: 'Vedd fel velünk a kapcsolatot, és 48 órán belül visszajelzünk egy részletes ajánlattal.',
-    form_name: 'Neved', form_email: 'Email címed', form_company: 'Cégnév (opcionális)', form_message: 'Projekt leírása...', form_submit: 'Üzenet küldése →',
+    form_name: 'Neved', form_email: 'Email címed', form_phone_placeholder: '700 123 456', form_phone_error: 'Kérjük, adj meg egy érvényes telefonszámot.', form_message: 'Projekt leírása...', form_submit: 'Üzenet küldése →', fb_cta: 'Írj nekünk Facebookon', or_text: 'vagy',
     footer_desc: 'Prémium web és mobilfejlesztési ügynökség, amely digitális sikereket teremt innovatív technológiákkal.',
     footer_services: 'Szolgáltatások', footer_s1: 'Webfejlesztés', footer_s2: 'Mobilfejlesztés', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Cégünk', footer_c1: 'Rólunk', footer_c2: 'Csapat', footer_c3: 'Karrier', footer_c4: 'Blog',
     footer_contact: 'Kapcsolat', footer_address: 'Adoni, Románia',
-    footer_copy: '© 2026 XTL Studio. Minden jog fenntartva.'
+    footer_copy: '© 2026 XTL Software. Minden jog fenntartva.'
   },
   ro: {
     nav_services: 'Servicii', nav_portfolio: 'Portofoliu', nav_process: 'Proces',
@@ -2051,7 +2322,7 @@ const i18n = {
     tech_label: 'Tech Stack', tech_title: 'Tehnologii pe<br><span>care le stăpânim</span>',
     test_label: 'Ce spun clienții',
     test_title: 'Ce spun <span>partenerii</span><br>despre noi',
-    test1_text: '"Echipa XTL Studio a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat după reproiectare. Profesionalismul și creativitatea lor sunt impresionante."',
+    test1_text: '"Echipa XTL Software a realizat o muncă excepțională. Conversia site-ului nostru s-a triplat după reproiectare. Profesionalismul și creativitatea lor sunt impresionante."',
     test1_role: 'CEO, TechStart Hungary',
     test2_text: '"Dezvoltarea aplicației noastre mobile a decurs fără probleme. Aplicația a ajuns în Top 10 App Store în prima săptămână. Rezultat incredibil!"',
     test2_role: 'Fondator, FinTech Cluj',
@@ -2059,12 +2330,12 @@ const i18n = {
     test3_role: 'CTO, RomaTech Solutions',
     cta_label: 'Să începem', cta_title: 'Ești pregătit pentru<br>următorul nivel?',
     cta_sub: 'Contactează-ne și vom răspunde în 48 de ore cu o ofertă detaliată.',
-    form_name: 'Numele tău', form_email: 'Adresa ta de email', form_company: 'Companie (opțional)', form_message: 'Descrierea proiectului...', form_submit: 'Trimite mesaj →',
+    form_name: 'Numele tău', form_email: 'Adresa ta de email', form_phone_placeholder: '700 123 456', form_phone_error: 'Te rugăm să introduci un număr de telefon valid.', form_message: 'Descrierea proiectului...', form_submit: 'Trimite mesaj →', fb_cta: 'Scrie-ne pe Facebook', or_text: 'sau',
     footer_desc: 'Agenție premium de dezvoltare web și mobilă care creează succese digitale cu tehnologii inovatoare.',
     footer_services: 'Servicii', footer_s1: 'Dezvoltare Web', footer_s2: 'Dezvoltare Mobilă', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Compania', footer_c1: 'Despre noi', footer_c2: 'Echipă', footer_c3: 'Cariere', footer_c4: 'Blog',
     footer_contact: 'Contact', footer_address: 'Adoni, România',
-    footer_copy: '© 2026 XTL Studio. Toate drepturile rezervate.'
+    footer_copy: '© 2026 XTL Software. Toate drepturile rezervate.'
   }
 };
 
@@ -2232,6 +2503,13 @@ const statsSection = document.getElementById('stats');
 if (statsSection) countObserver.observe(statsSection);
 
 // ─── NAV SCROLL ──────────────────────────────────────────────────────────────
+const heroSection = document.querySelector('.hero');
+const navCtaBtn   = document.getElementById('nav-cta-btn');
+const navCtaWrap  = document.getElementById('nav-cta-wrap');
+const heroCta     = document.querySelector('.btn-primary-hero');
+let   ctaVisible  = false;
+
+
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
   if (window.scrollY > 50) {
@@ -2239,20 +2517,180 @@ window.addEventListener('scroll', () => {
   } else {
     nav.style.boxShadow = '0 2px 20px rgba(92,53,212,0.08)';
   }
+
+  if (heroCta) {
+    const hRect    = heroCta.getBoundingClientRect();
+    const navH     = document.getElementById('navbar').getBoundingClientRect().bottom;
+    const btnGone  = hRect.top < navH; // gomb a navbar mögé ért
+
+    if (btnGone && !ctaVisible) {
+      ctaVisible = true;
+      navCtaWrap.classList.remove('cta-hiding');
+      void navCtaWrap.offsetWidth;
+      navCtaWrap.classList.add('cta-visible');
+    } else if (!btnGone && ctaVisible) {
+      ctaVisible = false;
+      navCtaWrap.classList.add('cta-hiding');
+      navCtaWrap.classList.remove('cta-visible');
+      setTimeout(() => navCtaWrap.classList.remove('cta-hiding'), 400);
+    }
+  }
+});
+
+// ─── TYPEWRITER ──────────────────────────────────────────────────────────────
+const twWords = {
+  hu: ['kiemelkednek', 'inspirálnak', 'eladnak', 'növekednek'],
+  ro: ['diferențiază',      'inspiră',     'vând',    'cresc']
+};
+let twIdx = 0, twCharIdx = 0, twDeleting = false, twTimer = null;
+const twEl = document.getElementById('typewriter-word');
+
+function typewriterTick() {
+  const words = twWords[currentLang] || twWords.hu;
+  const word   = words[twIdx];
+  if (!twDeleting) {
+    twEl.textContent = word.slice(0, ++twCharIdx);
+    if (twCharIdx === word.length) {
+      twDeleting = true;
+      twTimer = setTimeout(typewriterTick, 2000);
+      return;
+    }
+    twTimer = setTimeout(typewriterTick, 80);
+  } else {
+    twEl.textContent = word.slice(0, --twCharIdx);
+    if (twCharIdx === 0) {
+      twDeleting = false;
+      twIdx = (twIdx + 1) % words.length;
+      twTimer = setTimeout(typewriterTick, 400);
+      return;
+    }
+    twTimer = setTimeout(typewriterTick, 45);
+  }
+}
+setTimeout(typewriterTick, 1200);
+
+// ─── PHONE FIELD ─────────────────────────────────────────────────────────────
+let phoneMin  = 9;
+let phoneMax  = 9;
+let phoneDial = '+40';
+
+function togglePhoneDropdown() {
+  document.getElementById('phone-dropdown').classList.toggle('open');
+}
+
+function selectCountry(flag, code, dial, min, max) {
+  phoneMin  = min;
+  phoneMax  = max;
+  phoneDial = dial;
+  document.getElementById('phone-flag-emoji').textContent = flag;
+  document.getElementById('phone-dial-code').textContent  = dial;
+  document.getElementById('phone-dropdown').classList.remove('open');
+  document.querySelectorAll('.phone-option').forEach(o => o.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const inp = document.getElementById('phone-number-input');
+  inp.maxLength = phoneMax;
+  inp.value = inp.value.slice(0, phoneMax);
+  inp.placeholder = '7' + '0'.repeat(phoneMin - 1);
+  inp.focus();
+  validatePhone(true);
+}
+
+function onPhoneInput(el) {
+  el.value = el.value.replace(/[^0-9]/g, '').slice(0, phoneMax);
+  validatePhone(true);
+}
+
+function validatePhone(silent) {
+  const inp = document.getElementById('phone-number-input');
+  const wrap = document.getElementById('phone-wrap');
+  const err  = document.getElementById('phone-error-msg');
+  const len  = inp.value.replace(/\s/g, '').length;
+  const ok   = len >= phoneMin && len <= phoneMax;
+
+  if (!ok) {
+    wrap.classList.add('error');
+    if (!silent) {
+      const needed = phoneMin === phoneMax
+        ? `${phoneMin}`
+        : `${phoneMin}–${phoneMax}`;
+      err.textContent = currentLang === 'hu'
+        ? `${needed} számjegy szükséges (${len} megadva)`
+        : `Sunt necesare ${needed} cifre (${len} introduse)`;
+      err.classList.add('visible');
+    }
+  } else {
+    wrap.classList.remove('error');
+    err.classList.remove('visible');
+  }
+  return ok;
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#phone-flag-btn') && !e.target.closest('#phone-dropdown')) {
+    document.getElementById('phone-dropdown').classList.remove('open');
+  }
 });
 
 // ─── FORM SUBMIT ─────────────────────────────────────────────────────────────
 function handleSubmit(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('.cta-submit');
-  btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : 'Trimis! ✓';
-  btn.style.background = '#28c840';
-  btn.style.color = 'white';
-  setTimeout(() => {
-    btn.textContent = i18n[currentLang]['form_submit'];
-    btn.style.background = 'white';
-    btn.style.color = 'var(--violet)';
-  }, 3000);
+  const form = e.target;
+  const btn  = form.querySelector('.cta-submit');
+
+  const nameInput    = form.querySelector('input[data-i18n-key="form_name"]');
+  const emailInput   = form.querySelector('input[type="email"]');
+  const phoneInput   = document.getElementById('phone-number-input');
+  const messageInput = form.querySelector('textarea');
+
+  if (!validatePhone()) {
+    document.getElementById('phone-error-msg').textContent = (currentLang === 'hu'
+      ? `Pontosan ${phoneDigits} számjegy szükséges`
+      : `Sunt necesare exact ${phoneDigits} cifre`);
+    document.getElementById('phone-error-msg').classList.add('visible');
+    document.getElementById('phone-wrap').classList.add('error');
+    return;
+  }
+
+  btn.textContent = currentLang === 'hu' ? 'Küldés...' : 'Se trimite...';
+  btn.disabled = true;
+
+  const fullPhone    = phoneDial + ' ' + phoneInput.value;
+  const phoneRaw     = phoneDial.replace(/\s/g,'') + phoneInput.value;
+  const phoneHref    = 'tel:' + phoneRaw;
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    name:         nameInput.value,
+    email:        emailInput.value,
+    title:        fullPhone,
+    phonehref:   phoneHref,
+    phonenum:    fullPhone,
+    message:     messageInput.value,
+  })
+  .then(() => {
+    btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : 'Trimis! ✓';
+    btn.style.background = '#28c840';
+    btn.style.color = 'white';
+    form.reset();
+    phoneInput.value = '';
+    setTimeout(() => {
+      btn.textContent = i18n[currentLang]['form_submit'];
+      btn.style.background = 'white';
+      btn.style.color = 'var(--violet)';
+      btn.disabled = false;
+    }, 3000);
+  })
+  .catch((err) => {
+    console.error('EmailJS hiba:', err);
+    btn.textContent = currentLang === 'hu' ? 'Hiba! Próbáld újra.' : 'Eroare! Încearcă din nou.';
+    btn.style.background = '#e0445a';
+    btn.style.color = 'white';
+    setTimeout(() => {
+      btn.textContent = i18n[currentLang]['form_submit'];
+      btn.style.background = 'white';
+      btn.style.color = 'var(--violet)';
+      btn.disabled = false;
+    }, 3000);
+  });
 }
 
 // ─── APP MODAL DATA ──────────────────────────────────────────────────────────
@@ -2301,7 +2739,7 @@ const appData = {
   },
   pizza: {
     gradient: 'linear-gradient(135deg,#ff6b9d,#c44569)',
-    icon: null,
+    icon: 'screenshotok/pizzamanagementicon.png',
     screenshots: ['screenshotok/pizzamanagement.png','screenshotok/pizzamanagement1.png','screenshotok/pizzamanagement2.png','screenshotok/pizzamanagement3.png','screenshotok/pizzamanagement4.png','screenshotok/pizzamanagement5.png'],
     tech: [
       { color: '#02569b', name: 'Flutter' },
@@ -2492,6 +2930,8 @@ function openModal(appKey) {
   content.innerHTML = `
     <!-- ① HERO HEADER — full-width gradient, centered icon + name + tag -->
     <div class="modal-hero-header" style="background:${app.gradient}">
+      <div class="modal-handle"></div>
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
       <div class="modal-hero-icon">
         ${app.icon ? `<img src="${app.icon}" alt="${t.name}">` : '📱'}
       </div>
@@ -2526,13 +2966,15 @@ function openModal(appKey) {
       <div class="modal-section-title">${t.screenshotsTitle}</div>
     </div>
     <div class="modal-screenshots-wrap">
+      ${app.screenshots.length > 1 ? `<button class="screenshots-arrow screenshots-arrow--left" onclick="scrollScreenshots(this,-1)" aria-label="Előző">&#8249;</button>` : ''}
       <div class="modal-screenshots">
         ${app.screenshots.map(s => `
-          <div class="modal-screenshot ${app.screenshotClass || ''}">
+          <div class="modal-screenshot ${app.screenshotClass || ''}" onclick="openLightbox('${s}')">
             <img src="${s}" alt="screenshot" loading="lazy">
           </div>
         `).join('')}
       </div>
+      ${app.screenshots.length > 1 ? `<button class="screenshots-arrow screenshots-arrow--right" onclick="scrollScreenshots(this,1)" aria-label="Következő">&#8250;</button>` : ''}
     </div>` : ''}
 
     <!-- ⑤ TECH PILLS — refined glass wrap -->
@@ -2575,6 +3017,52 @@ function closeModal() {
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
+
+// ─── DRAG TO CLOSE ───────────────────────────────────────────────────────────
+(function() {
+  const panel = document.getElementById('modal-panel');
+  let startY = 0, currentY = 0, dragging = false;
+
+  function onStart(e) {
+    const overlay = document.getElementById('modal-overlay');
+    if (!overlay.classList.contains('open')) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    if (panel.scrollTop > 0) return;
+    startY = clientY;
+    currentY = 0;
+    dragging = true;
+    panel.style.transition = 'none';
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    currentY = Math.max(0, clientY - startY);
+    panel.style.transform = `translateY(${currentY}px)`;
+    panel.style.opacity = String(Math.max(0, 1 - currentY / 300));
+    if (currentY > 0 && e.cancelable) e.preventDefault();
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    if (currentY > 120) {
+      closeModal();
+      setTimeout(() => { panel.style.transform = ''; panel.style.opacity = ''; }, 350);
+    } else {
+      panel.style.transition = 'transform 0.35s cubic-bezier(0.34,1.45,0.64,1), opacity 0.25s ease';
+      panel.style.transform = '';
+      panel.style.opacity = '';
+    }
+  }
+
+  panel.addEventListener('touchstart', onStart, { passive: true });
+  panel.addEventListener('touchmove', onMove, { passive: false });
+  panel.addEventListener('touchend', onEnd);
+  panel.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
+})();
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
@@ -2832,6 +3320,24 @@ document.querySelectorAll('.portfolio-card').forEach(card => {
   }
   render();
 })();
+
+function openLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  lb.classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function scrollScreenshots(btn, dir) {
+  const wrap = btn.closest('.modal-screenshots-wrap');
+  const track = wrap.querySelector('.modal-screenshots');
+  const item = track.querySelector('.modal-screenshot');
+  const step = item ? item.offsetWidth + 14 : 200;
+  track.scrollBy({ left: dir * step, behavior: 'smooth' });
+}
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 applyLang('hu');
