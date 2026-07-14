@@ -619,7 +619,7 @@
     margin: 3.5rem auto 0;
     justify-content: center;
     position: relative; z-index: 1;
-    perspective: 1200px;
+    perspective: 700px;
     perspective-origin: 50% 40%;
   }
 
@@ -757,27 +757,23 @@
     box-shadow: 0 4px 16px rgba(255,255,255,0.2);
   }
 
-  /* shimmer sweep */
-  .card-shimmer {
-    position: absolute; inset: 0; z-index: 3; pointer-events: none;
-    border-radius: 28px; overflow: hidden;
+  .card-shimmer { display: none; }
+  /* jelly ikon */
+  @keyframes iconJelly {
+    0%   { transform: translateY(0)     scale(1,    1);    }
+    25%  { transform: translateY(-10px) scale(0.96, 1.05); }
+    50%  { transform: translateY(-10px) scale(1.03, 0.97); }
+    75%  { transform: translateY(-5px)  scale(0.99, 1.01); }
+    100% { transform: translateY(0)     scale(1,    1);    }
   }
-  .card-shimmer::after {
-    content: '';
-    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
-    animation: shimmerSweep 4s ease-in-out infinite;
+  .portfolio-icon-wrap img {
+    animation: iconJelly 3.5s ease-in-out infinite;
+    transform-origin: center bottom;
   }
-  .portfolio-card:nth-child(2) .card-shimmer::after { animation-delay: 1s; }
-  .portfolio-card:nth-child(3) .card-shimmer::after { animation-delay: 2s; }
-  .portfolio-card:nth-child(4) .card-shimmer::after { animation-delay: 3s; }
-  .portfolio-card:nth-child(5) .card-shimmer::after { animation-delay: 4s; }
-  @keyframes shimmerSweep {
-    0%        { left: -100%; opacity: 0; }
-    8%        { opacity: 1; }
-    55%       { left: 160%; opacity: 1; }
-    56%, 100% { left: 160%; opacity: 0; }
-  }
+  .portfolio-card:nth-child(2) .portfolio-icon-wrap img { animation-delay: -0.56s; }
+  .portfolio-card:nth-child(3) .portfolio-icon-wrap img { animation-delay: -1.12s; }
+  .portfolio-card:nth-child(4) .portfolio-icon-wrap img { animation-delay: -1.68s; }
+  .portfolio-card:nth-child(5) .portfolio-icon-wrap img { animation-delay: -2.24s; }
 
   /* CTA gomb */
   .portfolio-cta { margin-top: 18px; }
@@ -819,28 +815,6 @@
   }
   .portfolio-card:hover .portfolio-cta-btn::before { animation: none; opacity: 0; }
 
-  /* shimmer sweep */
-  .portfolio-card .card-shimmer {
-    position: absolute; inset: 0; z-index: 3; pointer-events: none;
-    border-radius: 28px; overflow: hidden;
-  }
-  .portfolio-card .card-shimmer::after {
-    content: '';
-    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
-    animation: shimmerSweep 4s ease-in-out infinite;
-  }
-  .portfolio-card:nth-child(2) .card-shimmer::after { animation-delay: 1s; }
-  .portfolio-card:nth-child(3) .card-shimmer::after { animation-delay: 2s; }
-  .portfolio-card:nth-child(4) .card-shimmer::after { animation-delay: 3s; }
-  .portfolio-card:nth-child(5) .card-shimmer::after { animation-delay: 4s; }
-  @keyframes shimmerSweep {
-    0%   { left: -100%; opacity: 0; }
-    10%  { opacity: 1; }
-    60%  { left: 160%; opacity: 1; }
-    61%  { opacity: 0; }
-    100% { left: 160%; opacity: 0; }
-  }
 
   /* details cta */
   .portfolio-cta {
@@ -3320,72 +3294,57 @@ document.querySelectorAll('.portfolio-card').forEach(card => {
   const techsEl  = card.querySelector('.portfolio-techs');
   const ctaEl    = card.querySelector('.portfolio-cta-btn');
   const layers   = [
-    { el: iconEl,  z: 90, scale: 1.12 },
-    { el: tagEl,   z: 30, scale: 1.0  },
-    { el: nameEl,  z: 55, scale: 1.0  },
-    { el: descEl,  z: 35, scale: 1.0  },
-    { el: techsEl, z: 25, scale: 1.0  },
-    { el: ctaEl,   z: 45, scale: 1.0  },
+    { el: iconEl,  z:  90, scale: 1.10 },
+    { el: tagEl,   z:  20, scale: 1.0  },
+    { el: nameEl,  z:  60, scale: 1.0  },
+    { el: descEl,  z:  25, scale: 1.0  },
+    { el: techsEl, z:  18, scale: 1.0  },
+    { el: ctaEl,   z:  32, scale: 1.0  },
   ].filter(l => l.el);
-  layers.forEach(l => { l.el.style.transition = 'transform 0.12s ease, box-shadow 0.2s ease'; });
+  layers.forEach(l => { l.el.style.transition = 'transform 0.08s ease, box-shadow 0.15s ease'; });
 
   let currentX = 0, currentY = 0, targetX = 0, targetY = 0;
-  let rafId = null, isHovered = false;
+  let rafId = null, isHovered = false, baseRect = null;
 
   function lerp(a, b, t) { return a + (b - a) * t; }
 
   function tick() {
     if (!isHovered) return;
-    currentX = lerp(currentX, targetX, 0.10);
-    currentY = lerp(currentY, targetY, 0.10);
+    currentX = lerp(currentX, targetX, 0.14);
+    currentY = lerp(currentY, targetY, 0.14);
+    if (Math.abs(currentX - targetX) < 0.001) currentX = targetX;
+    if (Math.abs(currentY - targetY) < 0.001) currentY = targetY;
 
-    const rx = (-currentY * 22).toFixed(2);
-    const ry = ( currentX * 22).toFixed(2);
+    const rx = (-currentY * 30).toFixed(2);
+    const ry = ( currentX * 30).toFixed(2);
 
-    // perspective is on .portfolio-grid parent — card only rotates
-    card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-14px) scale(1.04)`;
+    card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-20px) scale(1.06)`;
     card.style.boxShadow = `
-      0 2px 0 rgba(255,255,255,0.18) inset,
-      ${-currentX*24}px ${-currentY*24 + 40}px 60px rgba(0,0,0,0.50),
-      0 40px 70px rgba(0,0,0,0.40),
-      0 8px 28px rgba(108,50,220,0.28)
+      0 2px 0 rgba(255,255,255,0.22) inset,
+      ${-currentX*36}px ${-currentY*36 + 50}px 80px rgba(0,0,0,0.60),
+      0 50px 90px rgba(0,0,0,0.45),
+      0 10px 36px rgba(108,50,220,0.40)
     `;
 
-    // each layer pops out at its own Z — icon far in front, text layers cascade
     layers.forEach(l => {
-      const px = (currentX * l.z * 0.10).toFixed(1);
-      const py = (currentY * l.z * 0.10).toFixed(1);
+      const px = (currentX * l.z * 0.14).toFixed(1);
+      const py = (currentY * l.z * 0.14).toFixed(1);
       const sc = l.scale !== 1.0 ? ` scale(${l.scale})` : '';
       l.el.style.transform = `translateZ(${l.z}px) translateX(${px}px) translateY(${py}px)${sc}`;
       if (l.el === iconEl) {
-        l.el.style.boxShadow = `${-currentX*14}px ${(-currentY*14+24).toFixed(1)}px 40px rgba(0,0,0,0.55), 0 6px 20px rgba(0,0,0,0.35)`;
+        l.el.style.boxShadow = `${-currentX*22}px ${(-currentY*22+32).toFixed(1)}px 50px rgba(0,0,0,0.65), 0 8px 28px rgba(0,0,0,0.45)`;
       }
     });
 
     rafId = requestAnimationFrame(tick);
   }
 
-  card.addEventListener('mouseenter', () => {
-    isHovered = true;
-    card.style.transition = 'box-shadow 0.3s ease';
-    glare.style.opacity = '1';
-    rafId = requestAnimationFrame(tick);
-  });
-
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    targetX = (e.clientX - r.left) / r.width  - 0.5;
-    targetY = (e.clientY - r.top)  / r.height - 0.5;
-    // glare follows cursor exactly
-    const gx = ((targetX + 0.5) * 100).toFixed(1);
-    const gy = ((targetY + 0.5) * 100).toFixed(1);
-    glare.style.background = `radial-gradient(circle 160px at ${gx}% ${gy}%, rgba(255,255,255,0.26), transparent 70%)`;
-  });
-
-  card.addEventListener('mouseleave', () => {
+  function leave() {
+    if (!isHovered) return;
     isHovered = false;
+    document.removeEventListener('mousemove', onDocMove, true);
     cancelAnimationFrame(rafId);
-    targetX = 0; targetY = 0; currentX = 0; currentY = 0;
+    targetX = 0; targetY = 0; currentX = 0; currentY = 0; baseRect = null;
     glare.style.opacity = '0';
     card.style.transition = 'transform 0.65s cubic-bezier(0.23,1,0.32,1), box-shadow 0.65s ease';
     card.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0) scale(1)';
@@ -3394,6 +3353,30 @@ document.querySelectorAll('.portfolio-card').forEach(card => {
       l.el.style.transform = 'translateZ(0)';
       if (l.el === iconEl) l.el.style.boxShadow = '';
     });
+    if (iconEl) iconEl.style.animation = '';
+  }
+
+  function onDocMove(e) {
+    if (!baseRect) return;
+    const inside = e.clientX >= baseRect.left && e.clientX <= baseRect.right &&
+                   e.clientY >= baseRect.top  && e.clientY <= baseRect.bottom;
+    if (!inside) { leave(); return; }
+    targetX = (e.clientX - baseRect.left) / baseRect.width  - 0.5;
+    targetY = (e.clientY - baseRect.top)  / baseRect.height - 0.5;
+    const gx = ((targetX + 0.5) * 100).toFixed(1);
+    const gy = ((targetY + 0.5) * 100).toFixed(1);
+    glare.style.background = `radial-gradient(circle 200px at ${gx}% ${gy}%, rgba(255,255,255,0.38), transparent 70%)`;
+  }
+
+  card.addEventListener('mouseenter', () => {
+    if (isHovered) return;
+    isHovered = true;
+    baseRect = card.getBoundingClientRect();
+    card.style.transition = 'box-shadow 0.3s ease';
+    glare.style.opacity = '1';
+    if (iconEl) iconEl.style.animation = 'none';
+    document.addEventListener('mousemove', onDocMove, { passive: true, capture: true });
+    rafId = requestAnimationFrame(tick);
   });
 });
 
