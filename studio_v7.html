@@ -1709,8 +1709,9 @@
   </div>
   <div class="nav-right">
     <div class="lang-toggle">
-      <button class="lang-btn active" data-lang="hu">HU</button>
-      <button class="lang-btn" data-lang="ro">RO</button>
+      <button class="lang-btn active" data-lang="hu">🇭🇺 HU</button>
+      <button class="lang-btn" data-lang="ro">🇷🇴 RO</button>
+      <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
     </div>
     <div id="nav-cta-wrap">
       <a href="#cta" class="nav-cta" id="nav-cta-btn" data-i18n="nav_cta" style="text-decoration:none;" onclick="setTimeout(()=>{const f=document.querySelector('#cta input[data-i18n-key=\'form_name\']');if(f)f.focus();},600)">Ajánlatkérés</a>
@@ -1742,7 +1743,7 @@
   </div>
   <div class="hero-content">
 
-    <h1 class="hero-title"><span class="hero-title-prefix">Digitális élmények,<br>amelyek </span><span id="typewriter-word"></span><span id="typewriter-cursor" style="display:inline-block;width:3px;height:0.85em;background:linear-gradient(135deg,#5c35d4,#e0457a);border-radius:2px;margin-left:2px;vertical-align:middle;animation:cursorBlink 1s ease infinite;"></span></h1>
+    <h1 class="hero-title"><span class="hero-title-prefix" data-i18n="hero_title_prefix">Digitális élmények,<br>amelyek </span><span id="typewriter-word"></span><span id="typewriter-cursor" style="display:inline-block;width:3px;height:0.85em;background:linear-gradient(135deg,#5c35d4,#e0457a);border-radius:2px;margin-left:2px;vertical-align:middle;animation:cursorBlink 1s ease infinite;"></span></h1>
     <p class="hero-sub" data-i18n="hero_sub">Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.</p>
     <div class="hero-badges">
       <div class="hero-badge"><span class="hero-badge-icon">🚀</span><span data-i18n="badge1">127+ Projekt</span></div>
@@ -1856,7 +1857,7 @@
           </div>
         </div>
         <div class="portfolio-cta">
-          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+          <div class="portfolio-cta-btn"><span data-i18n="port_cta">Részletek</span> <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
     </div>
@@ -1877,7 +1878,7 @@
           </div>
         </div>
         <div class="portfolio-cta">
-          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+          <div class="portfolio-cta-btn"><span data-i18n="port_cta">Részletek</span> <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
     </div>
@@ -1898,7 +1899,7 @@
           </div>
         </div>
         <div class="portfolio-cta">
-          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+          <div class="portfolio-cta-btn"><span data-i18n="port_cta">Részletek</span> <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
     </div>
@@ -1919,7 +1920,7 @@
           </div>
         </div>
         <div class="portfolio-cta">
-          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+          <div class="portfolio-cta-btn"><span data-i18n="port_cta">Részletek</span> <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
     </div>
@@ -1940,7 +1941,7 @@
           </div>
         </div>
         <div class="portfolio-cta">
-          <div class="portfolio-cta-btn">Részletek <span class="portfolio-cta-arrow">→</span></div>
+          <div class="portfolio-cta-btn"><span data-i18n="port_cta">Részletek</span> <span class="portfolio-cta-arrow">→</span></div>
         </div>
       </div>
     </div>
@@ -2058,7 +2059,7 @@
       </div>
     </div>
     <div class="tech-row reveal" style="transition-delay:0.24s">
-      <div class="tech-row-label">Eszközök</div>
+      <div class="tech-row-label" data-i18n="tech_tools">Eszközök</div>
       <div class="tech-row-items">
         <div class="tech-chip"><i class="devicon-docker-plain colored"></i>Docker</div>
         <div class="tech-chip"><i class="devicon-git-plain colored"></i>Git</div>
@@ -2231,6 +2232,7 @@ const i18n = {
     nav_services: 'Szolgáltatások', nav_portfolio: 'Portfólió', nav_process: 'Folyamat',
     nav_testimonials: 'Vélemények', nav_contact: 'Kapcsolat', nav_cta: 'Ajánlatkérés',
     hero_tag: 'Prémium digitális ügynökség',
+    hero_title_prefix: 'Digitális élmények,<br>amelyek ',
     hero_title: 'Digitális élmények,<br>amelyek <span>kiemelkednek</span>',
     hero_sub: 'Web és mobilalkalmazásokat fejlesztünk, amelyek nem csupán szépek, hanem valódi eredményeket hoznak vállalkozásodnak.',
     badge1: '127+ Projekt', badge2: '4.9★ Értékelés', badge3: '6 év tapasztalat',
@@ -2280,12 +2282,15 @@ const i18n = {
     footer_services: 'Szolgáltatások', footer_s1: 'Webfejlesztés', footer_s2: 'Mobilfejlesztés', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Cégünk', footer_c1: 'Rólunk', footer_c2: 'Csapat', footer_c3: 'Karrier', footer_c4: 'Blog',
     footer_contact: 'Kapcsolat', footer_address: 'Adoni, Románia',
-    footer_copy: '© 2026 XTL Software. Minden jog fenntartva.'
+    footer_copy: '© 2026 XTL Software. Minden jog fenntartva.',
+    port_cta: 'Részletek',
+    tech_tools: 'Eszközök'
   },
   ro: {
     nav_services: 'Servicii', nav_portfolio: 'Portofoliu', nav_process: 'Proces',
     nav_testimonials: 'Recenzii', nav_contact: 'Contact', nav_cta: 'Solicită ofertă',
     hero_tag: 'Agenție digitală premium',
+    hero_title_prefix: 'Experiențe digitale<br>care te ',
     hero_title: 'Experiențe digitale<br>care te <span>diferențiază</span>',
     hero_sub: 'Dezvoltăm aplicații web și mobile care nu sunt doar frumoase, ci aduc rezultate reale afacerii tale.',
     badge1: '127+ Proiecte', badge2: '4.9★ Rating', badge3: '6 ani experiență',
@@ -2335,7 +2340,67 @@ const i18n = {
     footer_services: 'Servicii', footer_s1: 'Dezvoltare Web', footer_s2: 'Dezvoltare Mobilă', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
     footer_company: 'Compania', footer_c1: 'Despre noi', footer_c2: 'Echipă', footer_c3: 'Cariere', footer_c4: 'Blog',
     footer_contact: 'Contact', footer_address: 'Adoni, România',
-    footer_copy: '© 2026 XTL Software. Toate drepturile rezervate.'
+    footer_copy: '© 2026 XTL Software. Toate drepturile rezervate.',
+    port_cta: 'Detalii',
+    tech_tools: 'Unelte'
+  },
+  en: {
+    nav_services: 'Services', nav_portfolio: 'Portfolio', nav_process: 'Process',
+    nav_testimonials: 'Reviews', nav_contact: 'Contact', nav_cta: 'Get a Quote',
+    hero_tag: 'Premium digital agency',
+    hero_title_prefix: 'Digital experiences<br>that ',
+    hero_title: 'Digital experiences<br>that <span>stand out</span>',
+    hero_sub: 'We build web and mobile apps that are not just beautiful — they deliver real results for your business.',
+    badge1: '127+ Projects', badge2: '4.9★ Rating', badge3: '6 years experience',
+    hero_cta1: 'Start a project', hero_cta2: 'View our work',
+    mockup_title: 'Analytics Dashboard', mockup_stat1: 'Satisfaction', mockup_stat2: 'Load time',
+    mockup_stat3: 'Projects', mockup_stat4: 'Experience',
+    mockup_p1: 'Web development · React', mockup_p2: 'iOS · Android · Flutter',
+    mockup_done: 'Done ✓', mockup_prog: 'In progress',
+    services_label: 'Our Services',
+    services_title: 'What we offer<br><span>for your success</span>',
+    services_sub: 'Full-stack digital solutions from design to development and market launch.',
+    s1_name: 'Web Development', s1_desc: 'Modern, fast and responsive websites and web apps built with the latest technologies. SEO-optimized, conversion-focused solutions.',
+    s2_name: 'Mobile Development', s2_desc: 'Cross-platform mobile apps with a native feel for iOS and Android. Flutter and React Native solutions for business needs.',
+    s3_name: 'UI/UX Design', s3_desc: 'User-centered design that blends aesthetics with functionality. From prototypes to complete design systems.',
+    stat1: 'Completed projects', stat2: 'Happy clients (%)', stat3: 'Years experience', stat4: 'Active clients',
+    portfolio_label: 'Portfolio',
+    portfolio_title: 'Our pride:<br><span>latest work</span>',
+    portfolio_sub: 'Every project was a unique challenge we solved creatively and professionally.',
+    port_tag_web: 'E-Commerce App', port_tag_mobile: 'Desktop / Tablet App', port_tag_saas: 'Management App', port_tag_pos: 'Web App', port_tag_abis: 'Web + Mobile App',
+    port1_name: 'Bakery Cooker', port1_desc: 'Desktop and tablet app for managing bakery recipes with step-by-step guidance and automatic quantity scaling.',
+    port2_name: 'Pizza Manager', port2_desc: 'Pizzeria order and inventory management system with real-time tracking, Bluetooth printing and Firebase notifications.',
+    port3_name: 'GroovyCart', port3_desc: 'Full mobile shopping experience with multi-store support, voucher management and a trilingual interface.',
+    port4_name: 'Adoni Bakery POS', port4_desc: 'Bakery point-of-sale system with card reader, customer management and detailed reporting.',
+    port5_name: 'ABIS', port5_desc: 'Adoni Bakery internal management system — orders, stock, partners, finance and deliveries in one place.',
+    process_label: 'How we work',
+    process_title: 'How we work<br><span>together</span>',
+    proc1_title: 'Discovery & Planning', proc1_desc: 'We learn your business, goals and target audience. We prepare a detailed project plan and technology proposal.',
+    proc2_title: 'UI/UX Design', proc2_desc: 'From wireframes to the final design. We create Figma prototypes that we refine together.',
+    proc3_title: 'Development & Testing', proc3_desc: 'Agile sprint-based development with two-week iterations. Continuous testing and quality assurance.',
+    proc4_title: 'Launch & Support', proc4_desc: 'Smooth go-live, complete documentation and long-term technical support.',
+    proc_timeline: 'PROJECT TIMELINE',
+    proc_tech_used: 'TECHNOLOGIES USED',
+    tl1: 'Week 1-2', tl2: 'Week 3-5', tl3: 'Week 6-10', tl4: 'Week 11+',
+    tech_label: 'Tech Stack', tech_title: 'Technologies<br><span>we master</span>',
+    test_label: 'Client testimonials',
+    test_title: 'What our <span>partners</span><br>say about us',
+    test1_text: '"The XTL Software team did exceptional work. Our website conversion tripled after the redesign. Their professionalism and creativity are impressive."',
+    test1_role: 'CEO, TechStart Hungary',
+    test2_text: '"Our mobile app development went smoothly. The app reached the Top 10 on the App Store in the first week. An incredible result!"',
+    test2_role: 'Founder, FinTech Cluj',
+    test3_text: '"A professional team — they deliver on time and truly care about client success. We\'re already trusting them with our fourth project."',
+    test3_role: 'CTO, RomaTech Solutions',
+    cta_label: "Let's start", cta_title: 'Ready for<br>the next level?',
+    cta_sub: 'Get in touch and we\'ll get back to you within 48 hours with a detailed quote.',
+    form_name: 'Your name', form_email: 'Your email address', form_phone_placeholder: '700 123 456', form_phone_error: 'Please enter a valid phone number.', form_message: 'Project description...', form_submit: 'Send message →', fb_cta: 'Message us on Facebook', or_text: 'or',
+    footer_desc: 'Premium web and mobile development agency creating digital success with innovative technologies.',
+    footer_services: 'Services', footer_s1: 'Web Development', footer_s2: 'Mobile Development', footer_s3: 'UI/UX Design', footer_s4: 'SEO & Marketing',
+    footer_company: 'Company', footer_c1: 'About us', footer_c2: 'Team', footer_c3: 'Careers', footer_c4: 'Blog',
+    footer_contact: 'Contact', footer_address: 'Adoni, Romania',
+    footer_copy: '© 2026 XTL Software. All rights reserved.',
+    port_cta: 'Details',
+    tech_tools: 'Tools'
   }
 };
 
@@ -2353,6 +2418,12 @@ function applyLang(lang) {
   });
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  const hamburger = document.getElementById('hamburger');
+  if (hamburger) hamburger.setAttribute('aria-label', lang === 'hu' ? 'Menü' : lang === 'ro' ? 'Meniu' : 'Menu');
+  requestAnimationFrame(() => {
+    const activeLink = document.querySelector('.nav-links a.active');
+    if (activeLink) moveNavPill(activeLink);
   });
 }
 
@@ -2540,7 +2611,8 @@ window.addEventListener('scroll', () => {
 // ─── TYPEWRITER ──────────────────────────────────────────────────────────────
 const twWords = {
   hu: ['kiemelkednek', 'inspirálnak', 'eladnak', 'növekednek'],
-  ro: ['diferențiază',      'inspiră',     'vând',    'cresc']
+  ro: ['diferențiază',  'inspiră',    'vând',    'cresc'],
+  en: ['stand out',     'inspire',    'sell',    'grow']
 };
 let twIdx = 0, twCharIdx = 0, twDeleting = false, twTimer = null;
 const twEl = document.getElementById('typewriter-word');
@@ -2615,7 +2687,9 @@ function validatePhone(silent) {
         : `${phoneMin}–${phoneMax}`;
       err.textContent = currentLang === 'hu'
         ? `${needed} számjegy szükséges (${len} megadva)`
-        : `Sunt necesare ${needed} cifre (${len} introduse)`;
+        : currentLang === 'ro'
+        ? `Sunt necesare ${needed} cifre (${len} introduse)`
+        : `${needed} digits required (${len} entered)`;
       err.classList.add('visible');
     }
   } else {
@@ -2645,13 +2719,15 @@ function handleSubmit(e) {
   if (!validatePhone()) {
     document.getElementById('phone-error-msg').textContent = (currentLang === 'hu'
       ? `Pontosan ${phoneDigits} számjegy szükséges`
-      : `Sunt necesare exact ${phoneDigits} cifre`);
+      : currentLang === 'ro'
+      ? `Sunt necesare exact ${phoneDigits} cifre`
+      : `Exactly ${phoneDigits} digits required`);
     document.getElementById('phone-error-msg').classList.add('visible');
     document.getElementById('phone-wrap').classList.add('error');
     return;
   }
 
-  btn.textContent = currentLang === 'hu' ? 'Küldés...' : 'Se trimite...';
+  btn.textContent = currentLang === 'hu' ? 'Küldés...' : currentLang === 'ro' ? 'Se trimite...' : 'Sending...';
   btn.disabled = true;
 
   const fullPhone    = phoneDial + ' ' + phoneInput.value;
@@ -2667,7 +2743,7 @@ function handleSubmit(e) {
     message:     messageInput.value,
   })
   .then(() => {
-    btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : 'Trimis! ✓';
+    btn.textContent = currentLang === 'hu' ? 'Elküldve! ✓' : currentLang === 'ro' ? 'Trimis! ✓' : 'Sent! ✓';
     btn.style.background = '#28c840';
     btn.style.color = 'white';
     form.reset();
@@ -2681,7 +2757,7 @@ function handleSubmit(e) {
   })
   .catch((err) => {
     console.error('EmailJS hiba:', err);
-    btn.textContent = currentLang === 'hu' ? 'Hiba! Próbáld újra.' : 'Eroare! Încearcă din nou.';
+    btn.textContent = currentLang === 'hu' ? 'Hiba! Próbáld újra.' : currentLang === 'ro' ? 'Eroare! Încearcă din nou.' : 'Error! Try again.';
     btn.style.background = '#e0445a';
     btn.style.color = 'white';
     setTimeout(() => {
@@ -2735,6 +2811,20 @@ const appData = {
         { icon: '🔲', bg: 'rgba(92,53,212,0.1)', title: 'Mod fullscreen', sub: 'Interfață fără distracții, perfectă pentru tabletă și desktop' },
         { icon: '🌍', bg: 'rgba(255,107,157,0.1)', title: 'Multilingv', sub: 'Interfață în maghiară, română și engleză' },
       ],
+    },
+    en: {
+      name: 'Bakery Cooker', tag: 'Desktop / Tablet App',
+      bannerTitle: 'The bakery\'s digital kitchen assistant',
+      bannerText: 'Bakery Cooker is a fullscreen tablet and desktop application developed specifically for bakery staff. It loads recipes from YAML-based recipe files and guides workers step-by-step through the baking process, automatically calculating quantities based on the specified batch size.',
+      featuresTitle: 'Key features', screenshotsTitle: 'Screenshots', techTitle: 'Technologies',
+      features: [
+        { icon: '📋', bg: 'rgba(92,53,212,0.1)', title: 'Recipe catalogue', sub: 'Categorized recipes: bread, pastry, brioche, dough and more' },
+        { icon: '👣', bg: 'rgba(255,107,157,0.1)', title: 'Step-by-step guide', sub: 'Detailed baking instructions with screen-by-screen navigation' },
+        { icon: '⚖️', bg: 'rgba(92,53,212,0.1)', title: 'Automatic quantity scaling', sub: 'Ingredient quantities automatically adjust to the specified batch count' },
+        { icon: '📁', bg: 'rgba(255,107,157,0.1)', title: 'Custom recipe files', sub: 'Load YAML-format recipe files from the device' },
+        { icon: '🔲', bg: 'rgba(92,53,212,0.1)', title: 'Fullscreen mode', sub: 'Distraction-free interface, perfect for tablet and desktop' },
+        { icon: '🌍', bg: 'rgba(255,107,157,0.1)', title: 'Multilingual', sub: 'Hungarian, Romanian and English user interface' },
+      ],
     }
   },
   pizza: {
@@ -2779,6 +2869,22 @@ const appData = {
         { icon: '🫓', bg: 'rgba(92,53,212,0.1)', title: 'Evidență aluat pizza', sub: 'Urmărirea stocului de aluat și avertismente programate' },
         { icon: '📊', bg: 'rgba(255,107,157,0.1)', title: 'Statistici', sub: 'Urmărirea performanței promoțiilor și vânzărilor' },
         { icon: '🛍️', bg: 'rgba(92,53,212,0.1)', title: 'Gestionare produse', sub: 'Editare produse, variante și opțiuni, încărcare imagini' },
+      ],
+    },
+    en: {
+      name: 'Pizza Manager', tag: 'Management App',
+      bannerTitle: 'Full-featured pizzeria management system',
+      bannerText: 'Pizza Manager is a comprehensive business application that digitalizes the entire operation of the Adoni Bakery pizzeria. It covers everything from real-time order tracking to kitchen printing, courier management to promotion and voucher configuration — with three distinct user roles.',
+      featuresTitle: 'Key features', screenshotsTitle: 'Screenshots', techTitle: 'Technologies',
+      features: [
+        { icon: '📦', bg: 'rgba(255,107,157,0.1)', title: 'Real-time order management', sub: 'Live order tracking with statuses: placed, accepted, preparing, ready, delivered' },
+        { icon: '👥', bg: 'rgba(92,53,212,0.1)', title: 'Three user roles', sub: 'Admin, chef and courier with separate views and permissions' },
+        { icon: '🖨️', bg: 'rgba(255,107,157,0.1)', title: 'Bluetooth printing', sub: 'Instant printing of order receipts to a thermal printer' },
+        { icon: '🔔', bg: 'rgba(92,53,212,0.1)', title: 'Firebase notifications', sub: 'Push notifications for every new order and status change' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Promotions & Vouchers', sub: 'Create and manage discounts, promo codes and campaigns' },
+        { icon: '🫓', bg: 'rgba(92,53,212,0.1)', title: 'Pizza dough tracking', sub: 'Dough stock monitoring and scheduled alerts' },
+        { icon: '📊', bg: 'rgba(255,107,157,0.1)', title: 'Statistics', sub: 'Track promotion and sales performance' },
+        { icon: '🛍️', bg: 'rgba(92,53,212,0.1)', title: 'Product management', sub: 'Edit products, variants and options, upload images' },
       ],
     }
   },
@@ -2826,6 +2932,22 @@ const appData = {
         { icon: '📱', bg: 'rgba(16,185,129,0.12)', title: 'Mod offline mobil', sub: 'Sincronizare offline SQLite pentru curieri fără conexiune la internet' },
         { icon: '🎛️', bg: 'rgba(6,95,70,0.1)', title: 'Dashboard personalizabil', sub: 'Sistem de widget-uri drag-and-drop, temă dark/light, dimensiune font' },
       ],
+    },
+    en: {
+      name: 'ABIS', tag: 'Web + Mobile ERP',
+      bannerTitle: 'Adoni Bakery\'s complete internal management system',
+      bannerText: 'ABIS (Adoni Bakery Internal System) is an enterprise-grade Flutter + Spring Boot application covering the bakery\'s entire operation. The web interface serves office staff and managers, while the mobile version serves couriers and field personnel — all from a single codebase.',
+      featuresTitle: 'Key features', screenshotsTitle: 'Screenshots', techTitle: 'Technologies',
+      features: [
+        { icon: '📦', bg: 'rgba(16,185,129,0.12)', title: 'Order management', sub: 'Complete order lifecycle from creation to delivery, with status tracking' },
+        { icon: '🏪', bg: 'rgba(6,95,70,0.1)', title: 'Warehouse management', sub: 'Goods receipt, products, ingredients, recipes and price lists' },
+        { icon: '🤝', bg: 'rgba(16,185,129,0.12)', title: 'Partner management', sub: 'Clients and suppliers with contacts and discount settings' },
+        { icon: '💰', bg: 'rgba(6,95,70,0.1)', title: 'Finance & Settlement', sub: 'Invoices, debts, settlements and financial reports' },
+        { icon: '🚚', bg: 'rgba(16,185,129,0.12)', title: 'Logistics & Couriers', sub: 'Delivery tracking and order reassignment between couriers' },
+        { icon: '📊', bg: 'rgba(6,95,70,0.1)', title: 'Statistics & Reports', sub: 'Sales and delivery analytics with PDF/Excel export' },
+        { icon: '📱', bg: 'rgba(16,185,129,0.12)', title: 'Offline mobile mode', sub: 'SQLite-based offline sync for couriers without internet connection' },
+        { icon: '🎛️', bg: 'rgba(6,95,70,0.1)', title: 'Customizable dashboard', sub: 'Drag-and-drop widget system, dark/light theme, font size settings' },
+      ],
     }
   },
   pos: {
@@ -2872,6 +2994,22 @@ const appData = {
         { icon: '🔐', bg: 'rgba(26,140,255,0.1)', title: 'Roluri utilizatori', sub: 'Rol Admin și Curier cu permisiuni și acces separat' },
         { icon: '⚙️', bg: 'rgba(15,76,129,0.12)', title: 'Sarcini automate', sub: 'Sarcini de fundal APScheduler, reset lunar, gestionarea limitelor zilnice' },
       ],
+    },
+    en: {
+      name: 'Adoni Bakery POS', tag: 'Web App · Bakery Cash Register',
+      bannerTitle: 'Complex bakery point-of-sale system',
+      bannerText: 'Adoni Bakery POS is a full-featured web-based cash register and customer management system developed for the Adoni Bakery chain. Python Flask backend, jQuery frontend and PostgreSQL database combine real-time transaction management, a loyalty card system and detailed reporting — all running in a Docker container on a Raspberry Pi.',
+      featuresTitle: 'Key features', screenshotsTitle: 'Screenshots', techTitle: 'Technologies',
+      features: [
+        { icon: '💳', bg: 'rgba(26,140,255,0.1)', title: 'Card & account management', sub: 'RFID card readers, regular and gift cards, per-customer balance tracking' },
+        { icon: '🧾', bg: 'rgba(15,76,129,0.12)', title: 'Payment transactions', sub: 'Itemized purchase recording linked to the POS terminal with timestamp' },
+        { icon: '👥', bg: 'rgba(26,140,255,0.1)', title: 'Customer registry', sub: 'Searchable customer database with name, phone, ID and address' },
+        { icon: '💰', bg: 'rgba(15,76,129,0.12)', title: 'Top-up management', sub: 'Balance top-ups linked to companies, with date filtering and reporting' },
+        { icon: '📊', bg: 'rgba(26,140,255,0.1)', title: 'PDF reports', sub: 'Daily closing and per-person reports generated from HTML to PDF' },
+        { icon: '🏪', bg: 'rgba(15,76,129,0.12)', title: 'Multi-terminal', sub: 'Manage multiple POS terminals and stores from a single system' },
+        { icon: '🔐', bg: 'rgba(26,140,255,0.1)', title: 'User roles', sub: 'Admin and courier roles with separate permissions and access' },
+        { icon: '⚙️', bg: 'rgba(15,76,129,0.12)', title: 'Automated tasks', sub: 'APScheduler background jobs, monthly reset, daily limit management' },
+      ],
     }
   },
   groovy: {
@@ -2917,6 +3055,22 @@ const appData = {
         { icon: '🌙', bg: 'rgba(255,107,157,0.1)', title: 'Dark mode', sub: 'Suport complet pentru temă întunecată, sincronizat cu setările sistemului' },
         { icon: '🌍', bg: 'rgba(108,92,231,0.1)', title: 'Trilingv', sub: 'Interfață în maghiară, română și engleză cu localizare completă' },
         { icon: '📍', bg: 'rgba(255,107,157,0.1)', title: 'Mai multe adrese de livrare', sub: 'Gestionarea mai multor adrese salvate, cu verificarea zonei de livrare' },
+      ],
+    },
+    en: {
+      name: 'GroovyCart', tag: 'E-Commerce App',
+      bannerTitle: 'Full mobile shopping experience',
+      bannerText: 'GroovyCart is a premium e-commerce and food ordering app serving multiple restaurants and stores simultaneously. It covers everything from registration to real-time delivery tracking, with a clean UI, voucher management and a trilingual interface.',
+      featuresTitle: 'Key features', screenshotsTitle: 'Screenshots', techTitle: 'Technologies',
+      features: [
+        { icon: '🏪', bg: 'rgba(108,92,231,0.1)', title: 'Multi-store support', sub: 'Manage multiple restaurants/stores in one app (Groovy Cart, Pizza Adoni)' },
+        { icon: '❤️', bg: 'rgba(255,107,157,0.1)', title: 'Favourites & cart', sub: 'Save products to favourites, cart persistence across sessions' },
+        { icon: '🚚', bg: 'rgba(108,92,231,0.1)', title: 'Order tracking', sub: 'Real-time delivery status tracking from order placement to receipt' },
+        { icon: '🎟️', bg: 'rgba(255,107,157,0.1)', title: 'Vouchers & promotions', sub: 'Redeem discount codes with automatic price reduction at checkout' },
+        { icon: '📱', bg: 'rgba(108,92,231,0.1)', title: 'Offline detection', sub: 'Automatic connection check and notification on internet loss' },
+        { icon: '🌙', bg: 'rgba(255,107,157,0.1)', title: 'Dark mode', sub: 'Full dark theme support, synced with system settings' },
+        { icon: '🌍', bg: 'rgba(108,92,231,0.1)', title: 'Trilingual', sub: 'Hungarian, Romanian and English UI with full localization' },
+        { icon: '📍', bg: 'rgba(255,107,157,0.1)', title: 'Multiple delivery addresses', sub: 'Manage multiple saved addresses with delivery zone validation' },
       ],
     }
   }
